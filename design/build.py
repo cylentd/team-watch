@@ -24,6 +24,7 @@ from pool import live_pool, report as pool_report  # design/pool.py: the Pool pa
 from usage import live_usage, load_grid, report as usage_report  # design/usage.py: the Usage grid
 from slate import assign_windows, day_windows, kickoff   # design/slate.py: kickoff windows
 from schedule import load_schedule, report as schedule_report  # when Live may poll, and when not
+from dfs_slate import main_slate    # design/dfs_slate.py: DFS is the Sunday early + afternoon games only
 from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
@@ -71,8 +72,7 @@ from avatars import AVATARS_DIR, write_avatars  # design/avatars.py: each Yahoo 
 sys.path.insert(0, str(REPO / "api"))
 from _espn import slugify  # noqa: E402
 
-# A depth-chart slot at or past this number, for the player's position, reads as "the backup."
-# Mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH.
+# A depth-chart slot at or past this number, for the player's position, reads as "the backup" (mirrors ff-jarvis's model.clients.sleeper.BACKUP_DEPTH).
 BACKUP_DEPTH = {"QB": 2, "RB": 2, "TE": 2, "WR": 3}
 SUFFIX_RE = re.compile(r"\b(jr|sr|ii|iii|iv|v)\b\.?$")
 
@@ -434,7 +434,7 @@ def model_points():
     return {slugify(p["name"]): (p["pts"], p["src"]) for p in (d or {}).get("players", [])
             if p.get("pts") is not None}
 
-def live_dfs_yahoo(available, pool=None, mp=None, status=None):
+def live_dfs_yahoo(available, pool=None, mp=None, status=None, schedule=None):
     """The DFS Builder's Yahoo pool. `sal`/`proj` are Yahoo's own $200-cap scale, not DraftKings'.
     Status prefers Sleeper (see load_status()); the pool's own raw Yahoo status column fills the
     gap for a player Sleeper doesn't track. Yahoo's own export can be stale in a way no status
@@ -444,7 +444,7 @@ def live_dfs_yahoo(available, pool=None, mp=None, status=None):
     fresher than Yahoo's export in practice, so a disagreement between the two is itself read as
     "this row predates a roster move" and the player is treated as OUT, same as any other
     not-playing badge."""
-    pool = pool or load_dfs_pool()   # the args are the backtest's past week (design/dfs_backtest.py)
+    pool = main_slate(pool or load_dfs_pool(), schedule, TEAM_FIX)   # the args are the backtest's past week (design/dfs_backtest.py)
     if not pool or not pool.get("players"):
         return None
     status = load_status() if status is None else status
@@ -618,7 +618,7 @@ def render():
     mine = [("espn", live)] + [(k, yb[leagues.blocks(k).roster]) for k in leagues.YAHOO]   # David's team per league
     yr = yahoo_rosters()          # {yahoo: file, ayo: file}: the first is live_mates' own argument, the rest `more`
     mates = live_mates(roster_file(ESPN_ROSTERS), yr.pop("yahoo"), available, status_badge(), slugify, **yr)
-    liveDfsYahoo = live_dfs_yahoo(available)
+    liveDfsYahoo = live_dfs_yahoo(available, schedule=load_schedule(DWR))
     news = load_news(FEED, DWR)
 
     props = live_props(available, roster_index(*mine))
