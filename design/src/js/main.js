@@ -5,7 +5,6 @@ SURFACE = navFromHash() || navDefaultLeaf();
 
 buildFeed();
 buildNav();
-buildHideBar(); // the phone nav steps out of the way while a list scrolls
 buildSearch(); // the sheet lives outside #view, so it is wired once, like the nav
 render();
 buildFresh();  // is /build.json still ours? asked on a tab click and on returning to the window

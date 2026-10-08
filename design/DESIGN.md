@@ -97,7 +97,7 @@ question: who, which way, one number.
 
 | Part | Phone | Where |
 |---|---|---|
-| Nav | top: five groups as words since 2026-09-26 (This week leads; the words step down to `--t-3` with 5px sides, because at `--t-4` the search icon covered "Live" at 360px), search + chat icons (the chat bubble carries the word "Ask" under it on a phone, 2026-10-05, plan U3: a bare bubble was not found; `chat.css`); view tabs underlined below; both hide on scroll down | `responsive/760.css`, `js/chrome/hidebar.js` |
+| Nav | top: five groups as words since 2026-09-26 (This week leads; the words step down to `--t-3` with 5px sides, because at `--t-4` the search icon covered "Live" at 360px), search + chat icons (the chat bubble carries the word "Ask" under it on a phone, 2026-10-05, plan U3: a bare bubble was not found; `chat.css`); view tabs underlined below; ~~both hide on scroll down~~ (superseded 2026-10-07: neither moves, see "The phone's chrome") | `responsive/760.css` |
 | Brand row | hidden; shown only when a newer build makes DATA a reload control | `responsive/760.css` |
 | Ground | slate `#111418`, surfaces one step up each; no pure black, no radial glow | `base/tokens.css` |
 | Roster row | a lineup sheet since 2026-09-25 (storyboard https://claude.ai/artifact/AqRomyQsQfd7TjYRiJkmhd): starter = slot, 28px head, name over "RB · BAL @ DAL", trend line, projection in ink with a green/red arrow. Bench two to a row with short names ("D. Goedert"), no line. The whole Yahoo team fits 360×660. Desktop: the bench column sits beside the starters, 44px heads, full names | `component/roster.css`, `responsive/lists.css` |
@@ -282,7 +282,7 @@ header bar "like Yahoo and Sleeper", and "Tab opens in place". Up to 760px, top 
 
 | Layer | Holds | Code |
 |---|---|---|
-| Header bar, 52px | the reader's team as the team switch ("Pick your team" in lime with no pick), Ask on the right; no brand, no Discord link, no week pill; slides away on a scroll down, back on a scroll up | `#hdrteam`, `paintHdrTeam` in `chrome/nav.js`; `chrome/hidebar.js` |
+| Header bar, 52px | the reader's team as the team switch ("Pick your team" in lime with no pick), Ask on the right; no brand, no Discord link, no week pill; **never moves since 2026-10-07**, nor does the tab row under it (~~slides away on a scroll down, back on a scroll up~~: the tab row moved on its own to follow it and the two parted mid-slide; `chrome/hidebar.js` is gone, `tests/test_phone_chrome.py`) | `#hdrteam`, `paintHdrTeam` in `chrome/nav.js` |
 | Tab row | the group's views as pills; the open pill opens in place into its view's own tabs (Recap: Players, Scores, Claude, Accuracy; Live: My league, NFL, TDs, with the NFL games on now as a count; Slips: the kickoffs); the view draws no bar of its own on a phone (`#view .view-tabs` is hidden) | `#subnav`, `tabRowPlan` and `navModes` in `data/tabrow.js`; declared in `surface/live/tabs.js`, `surface/recap/recap.js`, `surface/parlay/bar.js` |
 | Bottom bar, 64px | Week, League, Stats, Bets, Search: an icon over a word, the open group in lime | `#tabbar` |
 

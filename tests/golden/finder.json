@@ -1945,7 +1945,6 @@
 "gamesheet": "rgb(243, 241, 234)|rgb(17, 20, 24)|rgb(52, 59, 70)|solid|1px|10px|12px|16px|8px|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0|flex|none|1e-06s",
 "grain": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0.05|block|none|1e-06s",
 "gs-scrim": "rgb(243, 241, 234)|rgba(0, 0, 0, 0.55)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0|block|none|1e-06s",
-"hdr-away": "rgb(243, 241, 234)|rgb(17, 20, 24)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|block|none|1e-06s",
 "hdrteam": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "hot": "rgb(255, 154, 31)|rgba(255, 154, 31, 0.16)|rgb(255, 154, 31)|none|0px|3px|5px|0px|normal|\"JetBrains Mono\", ui-monospace, Menlo, monospace|12px|600|normal|12px|1|block|none|1e-06s",
 "ix": "rgb(154, 153, 166)|rgba(0, 0, 0, 0)|rgb(154, 153, 166)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|12px|600|normal|normal|1|flex|none|1e-06s",

@@ -1315,7 +1315,6 @@
 "grain": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0.05|block|none|1e-06s",
 "gs-scrim": "rgb(243, 241, 234)|rgba(0, 0, 0, 0.55)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0|block|none|1e-06s",
 "has-fig": "rgb(243, 241, 234)|rgb(23, 27, 33)|rgb(52, 59, 70)|solid|1px|14px|14px|0px|0px 14px|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|grid|96px 222px|1e-06s",
-"hdr-away": "rgb(243, 241, 234)|rgb(17, 20, 24)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|block|none|1e-06s",
 "hdrteam": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "hi": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|4px|0px|0px|normal|\"JetBrains Mono\", ui-monospace, Menlo, monospace|12px|700|normal|normal|1|block|none|1e-06s",
 "hot": "rgb(55, 224, 139)|rgba(55, 224, 139, 0.14)|rgb(55, 224, 139)|none|0px|0px|0px|0px|normal|\"JetBrains Mono\", ui-monospace, Menlo, monospace|12px|700|normal|normal|1|block|none|1e-06s",

@@ -92,6 +92,11 @@
       "tests": ["tests/test_js_statspos.py", "tests/test_stats_strip.py"],
       "render": []
     },
+    "phonechrome": {
+      "paths": ["tests/test_phone_chrome.py"],
+      "tests": ["tests/test_phone_chrome.py"],
+      "render": []
+    },
     "schedule": {
       "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
       "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py"],

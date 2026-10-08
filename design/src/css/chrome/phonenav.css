@@ -1,8 +1,10 @@
 /* ============================== THE PHONE'S CHROME ==============================
    2026-10-05 (game-day flow wave 2, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP,
    David: 1B "Groups to a bottom tab bar" and a header bar "like Yahoo and Sleeper"). Top to bottom:
-     a header bar   the reader's team as the team switch, Ask on the right; slides away on a scroll
-                    down and comes back on a scroll up (js/chrome/hidebar.js)
+     a header bar   the reader's team as the team switch, Ask on the right; never moves. It slid away on
+                    a scroll down and back on a scroll up until 2026-10-07 (js/chrome/hidebar.js, gone):
+                    the tab row moved on its own to follow it and the two parted mid-slide (TODO
+                    "Tab row jumps on scroll"); with both still, nothing at the top moves under the reader
      one tab row    the group's views as pills; the open one opens in place into its view's own tabs
                     (data/tabrow.js), so that view draws no bar of its own here (.view-tabs)
      the bottom bar Week, League, Stats, Bets, Search: an icon over a word, the group open in lime
@@ -26,7 +28,7 @@
 
   /* ---- the header bar ---- */
   .navbar{position:sticky;top:0;padding-top:env(safe-area-inset-top, 0px);background:var(--void);
-    border-bottom:0;box-shadow:none;transition:top .28s var(--ease)}
+    border-bottom:0;box-shadow:none}
   .navbar .navrow{height:var(--hdr-h);padding:0 4px 0 14px;gap:8px}   /* over responsive/760.css .wrap */
   /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs. Discord is in the
      team switch's menu (teamswitch.js); the status badge only repeated what the view's rows show. */
@@ -43,11 +45,9 @@
   .lgchip .teamswitch{display:none}
   .navrow .chatfab{flex:none;height:44px;margin-left:auto}
   .chatfab .ix{display:inline-flex}
-  body.hdr-away .navbar{top:calc(-1 * var(--hdr-top))}
 
   /* ---- the tab row: pills, scrolled sideways, the pressed one kept in view (nav.js) ---- */
-  .subnav{position:sticky;top:var(--hdr-top);z-index:38;transition:top .28s var(--ease)}
-  body.hdr-away .subnav{top:0}
+  .subnav{position:sticky;top:var(--hdr-top);z-index:38}
   .subnav .subnav-in{padding:0}   /* the scroller carries the gutter, so a pill scrolls to the screen's edge */
   .subnav .modes-sub,.subnav .modes-sub.dense{flex:1 1 auto;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
     margin:0!important;padding:4px 14px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}

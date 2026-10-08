@@ -1758,7 +1758,6 @@
 "grab": "rgb(255, 255, 255)|rgba(0, 0, 0, 0)|rgb(255, 255, 255)|none|0px|0px|0px|0px|normal|Arial|13.3333px|400|normal|normal|1|block|none|1e-06s",
 "grain": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0.05|block|none|1e-06s",
 "gs-scrim": "rgb(243, 241, 234)|rgba(0, 0, 0, 0.55)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|0|block|none|1e-06s",
-"hdr-away": "rgb(243, 241, 234)|rgb(17, 20, 24)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|block|none|1e-06s",
 "hdrteam": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "higher": "rgb(11, 13, 5)|rgb(200, 255, 46)|rgb(200, 255, 46)|solid|1px|7px|10px|0px|normal|Archivo, \"Segoe UI\", sans-serif|12px|700|normal|normal|1|block|none|1e-06s",
 "ix": "rgb(200, 255, 46)|rgba(0, 0, 0, 0)|rgb(200, 255, 46)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|12px|600|normal|normal|1|flex|none|1e-06s",

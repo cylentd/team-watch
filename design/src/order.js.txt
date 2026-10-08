@@ -311,7 +311,6 @@ chrome/nav.js
 # pin: statspos.js after nav.js: it binds its listeners at load, on #statspos (shell.html) and NAV_PHONE (nav.js).
 chrome/statspos.js
 chrome/tabswipe.js
-chrome/hidebar.js
 chrome/drawer.js
 # pin: layers.js before modal.js and search.js, whose opens push onto its stack.
 chrome/layers.js

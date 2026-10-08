@@ -14,7 +14,7 @@
      phone's row of words. On a phone (2026-10-05, chrome/phonenav.css) this bar is the header: the
      team switch and Ask, with the groups and search moved to the bottom tab bar; the brand, the Discord
      link and the week pill hide there, and Discord lives in the team switch's menu. -->
-<header class="navbar">
+<header class="navbar" data-testid="chrome-header">
   <div class="wrap navrow">
     <div class="brand">
       <div class="brand-mark"></div>
@@ -49,9 +49,9 @@
 
 <!-- The group's views. Painted by paintSubnav(), hidden entirely for a group of one so a sub-nav
      never shows a single tab the reader cannot move away from. Outside .navbar, so it sticks on its
-     own: on a phone the header slides away on a scroll down and this row stays at the top, its open
+     own: on a phone it sticks right under the header bar, which never moves (2026-10-07), its open
      pill opened in place into the view's own tabs (data/tabrow.js). -->
-<div class="subnav" id="subnav" hidden><div class="wrap subnav-in"></div></div>
+<div class="subnav" id="subnav" data-testid="chrome-tabrow" hidden><div class="wrap subnav-in"></div></div>
 
 <!-- No footer (2026-10-04): it stood 161px under every view, a fifth of a phone, and was the only
      reason Leaders scrolled. Its credits live in the week pill's menu (js/chrome/feed.js). -->

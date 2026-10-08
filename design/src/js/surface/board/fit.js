@@ -4,9 +4,8 @@
    fixed count is a guess about a screen nobody has measured; this reads the real row, the real
    pager and the real bars.
 
-   Measured at the top of the page, with every bar showing: on a phone the nav slides away while
-   the reader scrolls down and comes back on the first scroll up (js/chrome/hidebar.js), so a page
-   sized to the bars-hidden screen would lose its last rows under them.
+   Measured at the top of the page, with every bar showing. On a phone the header bar and tab row
+   never move since 2026-10-07 (chrome/phonenav.css), so that is the screen the reader always has.
 ------------------------------------------------------------------ */
 const BD_FIT_MIN = 5, BD_FIT_MAX = 40;
 

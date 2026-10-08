@@ -9493,8 +9493,10 @@ body:has(.legsheet.on){overflow:hidden}
 /* ============================== THE PHONE'S CHROME ==============================
    2026-10-05 (game-day flow wave 2, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP,
    David: 1B "Groups to a bottom tab bar" and a header bar "like Yahoo and Sleeper"). Top to bottom:
-     a header bar   the reader's team as the team switch, Ask on the right; slides away on a scroll
-                    down and comes back on a scroll up (js/chrome/hidebar.js)
+     a header bar   the reader's team as the team switch, Ask on the right; never moves. It slid away on
+                    a scroll down and back on a scroll up until 2026-10-07 (js/chrome/hidebar.js, gone):
+                    the tab row moved on its own to follow it and the two parted mid-slide (TODO
+                    "Tab row jumps on scroll"); with both still, nothing at the top moves under the reader
      one tab row    the group's views as pills; the open one opens in place into its view's own tabs
                     (data/tabrow.js), so that view draws no bar of its own here (.view-tabs)
      the bottom bar Week, League, Stats, Bets, Search: an icon over a word, the group open in lime
@@ -9518,7 +9520,7 @@ body:has(.legsheet.on){overflow:hidden}
 
   /* ---- the header bar ---- */
   .navbar{position:sticky;top:0;padding-top:env(safe-area-inset-top, 0px);background:var(--void);
-    border-bottom:0;box-shadow:none;transition:top .28s var(--ease)}
+    border-bottom:0;box-shadow:none}
   .navbar .navrow{height:var(--hdr-h);padding:0 4px 0 14px;gap:8px}   /* over responsive/760.css .wrap */
   /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs. Discord is in the
      team switch's menu (teamswitch.js); the status badge only repeated what the view's rows show. */
@@ -9535,11 +9537,9 @@ body:has(.legsheet.on){overflow:hidden}
   .lgchip .teamswitch{display:none}
   .navrow .chatfab{flex:none;height:44px;margin-left:auto}
   .chatfab .ix{display:inline-flex}
-  body.hdr-away .navbar{top:calc(-1 * var(--hdr-top))}
 
   /* ---- the tab row: pills, scrolled sideways, the pressed one kept in view (nav.js) ---- */
-  .subnav{position:sticky;top:var(--hdr-top);z-index:38;transition:top .28s var(--ease)}
-  body.hdr-away .subnav{top:0}
+  .subnav{position:sticky;top:var(--hdr-top);z-index:38}
   .subnav .subnav-in{padding:0}   /* the scroller carries the gutter, so a pill scrolls to the screen's edge */
   .subnav .modes-sub,.subnav .modes-sub.dense{flex:1 1 auto;min-width:0;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
     margin:0!important;padding:4px 14px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
@@ -9849,7 +9849,7 @@ body:has(.legsheet.on){overflow:hidden}
      phone's row of words. On a phone (2026-10-05, chrome/phonenav.css) this bar is the header: the
      team switch and Ask, with the groups and search moved to the bottom tab bar; the brand, the Discord
      link and the week pill hide there, and Discord lives in the team switch's menu. -->
-<header class="navbar">
+<header class="navbar" data-testid="chrome-header">
   <div class="wrap navrow">
     <div class="brand">
       <div class="brand-mark"></div>
@@ -9884,9 +9884,9 @@ body:has(.legsheet.on){overflow:hidden}
 
 <!-- The group's views. Painted by paintSubnav(), hidden entirely for a group of one so a sub-nav
      never shows a single tab the reader cannot move away from. Outside .navbar, so it sticks on its
-     own: on a phone the header slides away on a scroll down and this row stays at the top, its open
+     own: on a phone it sticks right under the header bar, which never moves (2026-10-07), its open
      pill opened in place into the view's own tabs (data/tabrow.js). -->
-<div class="subnav" id="subnav" hidden><div class="wrap subnav-in"></div></div>
+<div class="subnav" id="subnav" data-testid="chrome-tabrow" hidden><div class="wrap subnav-in"></div></div>
 
 <!-- No footer (2026-10-04): it stood 161px under every view, a fifth of a phone, and was the only
      reason Leaders scrolled. Its credits live in the week pill's menu (js/chrome/feed.js). -->
@@ -26770,9 +26770,8 @@ function bdPagerHTML(ranked){
    fixed count is a guess about a screen nobody has measured; this reads the real row, the real
    pager and the real bars.
 
-   Measured at the top of the page, with every bar showing: on a phone the nav slides away while
-   the reader scrolls down and comes back on the first scroll up (js/chrome/hidebar.js), so a page
-   sized to the bars-hidden screen would lose its last rows under them.
+   Measured at the top of the page, with every bar showing. On a phone the header bar and tab row
+   never move since 2026-10-07 (chrome/phonenav.css), so that is the screen the reader always has.
 ------------------------------------------------------------------ */
 const BD_FIT_MIN = 5, BD_FIT_MAX = 40;
 
@@ -34633,27 +34632,6 @@ function wireTabSwipe(){
     if (!v.querySelector(":scope > .tab-in-r, :scope > .tab-in-l")) v.classList.remove("sliding");
   });
 }
-/* ── js/chrome/hidebar.js ── */
-/* The phone's header bar (the team switch and Ask) slides up while the reader scrolls down a list and
-   comes back on the first scroll up; the tab row under it sticks to the top edge meanwhile, and the
-   bottom tab bar never moves (2026-10-05). The page body owns one class; chrome/phonenav.css decides
-   what it moves, so on a desktop the class is set and nothing happens. The threshold keeps a finger's
-   jitter from flickering the bar, and the top 120px never hides it: the reader has not left the header yet. */
-const HIDEBAR_JITTER = 6;
-const HIDEBAR_TOP = 120;
-
-function buildHideBar(){
-  let last = window.scrollY, away = false;
-  window.addEventListener("scroll", () => {
-    const y = window.scrollY, dy = y - last;
-    if (Math.abs(dy) < HIDEBAR_JITTER) return;
-    last = y;
-    const next = dy > 0 && y > HIDEBAR_TOP;
-    if (next === away) return;
-    away = next;
-    document.body.classList.toggle("hdr-away", away);
-  }, {passive: true});
-}
 /* ── js/chrome/drawer.js ── */
 /* ---------------------------- drawer ---------------------------- */
 function findPlayer(teamKey, i){
@@ -35011,7 +34989,6 @@ SURFACE = navFromHash() || navDefaultLeaf();
 
 buildFeed();
 buildNav();
-buildHideBar(); // the phone nav steps out of the way while a list scrolls
 buildSearch(); // the sheet lives outside #view, so it is wired once, like the nav
 render();
 buildFresh();  // is /build.json still ours? asked on a tab click and on returning to the window
