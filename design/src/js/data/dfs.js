@@ -21,11 +21,12 @@ const DFSPOOL_DK = [
   {n:"Dylan Sampson",     slug:"dylan-sampson",    pos:"RB", team:"CLE", sal:2900, proj:7.9,  own:6},
   {n:"Seahawks",          slug:null, abbr:"SEA",   pos:"DST",team:"SEA", sal:2700, proj:7.4,  own:9},
 ];
-/* Yahoo pool. `LIVE_DFS_YAHOO` comes from a contest's own "Export Player List" CSV
-   (data/dfs_yahoo.csv, refetched by hand — Yahoo has no public API for this), injected by
-   build.py. Yahoo's cap is $200, not DraftKings' $50,000, so salaries here are a different
-   scale; `own` isn't in Yahoo's export, so live rows carry none. Sample below (DK scale / 42,
-   roughly matching Yahoo's $10-$40 range) is the fallback. */
+/* Yahoo pool. Data path: a contest's "Export Player List" CSV is imported by hand into
+   ff-jarvis (`python -m model.clients.dfs import <csv>`; no automated Yahoo DFS scrape, per
+   VISION), read by sources.load_dfs_pool, and build.live_dfs_yahoo injects it as
+   LIVE_DFS_YAHOO. Yahoo's cap is $200, not DraftKings' $50,000, so salaries here are a
+   different scale; `own` isn't in Yahoo's export, so live rows carry none. The sample below
+   (DK scale / 200) is the fallback when no import is present. */
 const LIVE_YAHOO_DFS = (typeof LIVE_DFS_YAHOO !== "undefined" && LIVE_DFS_YAHOO) ? LIVE_DFS_YAHOO : null;
 const DFSPOOL_YAHOO_SAMPLE = DFSPOOL_DK.map(p => ({...p, sal: Math.round(p.sal/200)}));
 const DFSPOOL_YAHOO = LIVE_YAHOO_DFS ? LIVE_YAHOO_DFS.players : DFSPOOL_YAHOO_SAMPLE;
