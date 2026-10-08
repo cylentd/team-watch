@@ -72,6 +72,40 @@
 /* No team picked: the picker's leagues (three) sit in the same three columns as the cards, not two of 266px under a gap. */
 @media (min-width:1100px){ .tf > .tp-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px} }
 
+/* An offer's lenses (2026-10-08, ledger #44, js/surface/finder/lenses.js). The foot's two sides are equals, a half each:
+   who, the gain on the lens that judges that side, the judge line. Same face, size and colour rule on both, because the
+   partner's number is the pitch. The bye notes are quiet lines like To IR and You drop. The four lenses sit behind a
+   disclosure under the sides: a small table, the cell that judges each side on a lime tint. */
+.tf-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:12px}
+.tf-side{min-width:0}
+.tf-side + .tf-side{padding-left:12px;border-left:1px solid var(--line)}
+.tf-side .tb-h{margin:0 0 3px}
+.tf-sgain{margin:0;font:500 var(--t-2)/1 var(--ui);color:var(--ink-3)}
+.tf-sgain b{font:700 var(--t-5)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--up)}
+.tf-sgain b.neg{color:var(--down)}
+.tf-sgain b.flat{color:var(--ink-3)}
+.tf-judge{margin:5px 0 0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2);overflow-wrap:anywhere}
+.tf-note{margin:0;padding:7px 12px 8px;border-top:1px solid var(--line);font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);
+  overflow-wrap:anywhere}
+.tf-note + .tf-note{padding-top:0;border-top:0}
+.tf-note:has(+ .tf-note){padding-bottom:2px}
+.tf-lenses summary{display:flex;align-items:center;min-height:44px;margin:-6px 0;font:600 var(--t-2)/1.2 var(--ui);color:var(--ink-2);
+  cursor:pointer;list-style:none}
+.tf-lenses summary::-webkit-details-marker{display:none}
+.tf-chev{width:16px;height:16px;margin-left:4px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .2s var(--ease)}
+.tf-lenses[open] .tf-chev{transform:rotate(180deg)}
+.tf-lenses summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
+.tf-lenses table{width:100%;margin:8px 0 2px;border-collapse:collapse;font:500 var(--t-2)/1.2 var(--ui)}
+.tf-lenses th{padding:5px 6px 5px 0;text-align:left;font-weight:500;color:var(--ink-3)}
+.tf-lenses thead th{font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase}
+.tf-lenses thead th + th,.tf-lenses td{width:25%;text-align:right}
+.tf-lenses tbody th b{display:block;font-weight:600;color:var(--ink)}
+.tf-lenses tbody th small{font:500 var(--t-1)/1.3 var(--ui);color:var(--ink-3)}
+.tf-lenses td{padding:5px 6px;border-radius:6px;font:600 var(--t-2)/1.2 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.tf-lenses td.on{background:rgb(var(--lime-rgb) / .16);color:var(--ink);font-weight:700}
+.tf-lenses tbody tr + tr > *{border-top:1px solid var(--line)}
+
 /* Make your own, and the date, once the file is in. */
 .tf-tail{display:grid;gap:10px;margin-top:16px}
 .tf-pick{display:grid;gap:4px;margin-top:10px}

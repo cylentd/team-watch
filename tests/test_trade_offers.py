@@ -302,3 +302,66 @@ def test_vercel_serves_the_file_git_marks_it_generated_and_land_folds_it_in():
     attrs = (REPO / ".gitattributes").read_text(encoding="utf-8")
     assert re.search(rf"^{re.escape(trade_offers.NAME)}\s+-diff merge=ours", attrs, re.M)
     assert f'"{trade_offers.NAME}"' in (REPO / "scripts" / "land.ps1").read_text(encoding="utf-8")
+
+
+# ---- the lenses (ledger #44, 2026-10-08; ff-jarvis 3cf9002): optional until ff-jarvis's next refresh writes them --------
+
+def test_the_fixtures_lens_offers_and_its_offers_without_lenses_both_pass():
+    """Run It Back's offers carry lenses and ESPN standing and windows; Purdy's and AYO's are the shape from before them."""
+    assert all("lenses" in o for o in offers_of(FIXTURE, PARTNER)) and "standing" in FIXTURE["leagues"]["espn"]
+    assert not any("lenses" in o for o in offers_of(FIXTURE) + FIXTURE["leagues"]["ayo"]["teams"]["Taylor Made for Sundays"])
+    assert trade_offers.problems(FIXTURE) == []
+
+
+@pytest.mark.parametrize("field", ["lens", "score", "notes"])
+def test_an_offer_with_lenses_must_carry_the_lens_that_judges_each_side_its_score_and_its_notes(field):
+    bad = copy.deepcopy(FIXTURE)
+    del offers_of(bad, PARTNER)[0][field]
+    assert trade_offers.problems(bad) == [f"TRADE_OFFERS.leagues['espn'].teams['Run It Back'][0].{field}"]
+
+
+def test_an_offer_with_a_judge_but_no_lenses_is_named():
+    bad = copy.deepcopy(FIXTURE)
+    del offers_of(bad, PARTNER)[1]["lenses"]
+    assert trade_offers.problems(bad) == ["TRADE_OFFERS.leagues['espn'].teams['Run It Back'][1].lenses"]
+
+
+@pytest.mark.parametrize("break_it, at", [
+    (lambda o: o["lenses"].pop("push"), "[0].lenses.push"),
+    (lambda o: o["lenses"]["now"].update(their="3.4"), "[0].lenses.now"),
+    (lambda o: o["lens"].update(them="soon"), "[0].lens.them"),
+    (lambda o: o.update(score=None), "[0].score"),
+    (lambda o: o["notes"][0].update(kind="bye_soon"), "[0].notes[0].kind"),
+    (lambda o: o["notes"][0].update(side="us"), "[0].notes[0].side"),
+    (lambda o: o["notes"][0].update(week=6.0), "[0].notes[0].week"),
+    (lambda o: o["notes"][0].pop("player"), "[0].notes[0].player"),
+])
+def test_a_lens_field_the_card_reads_in_the_wrong_shape_is_named(break_it, at):
+    bad = copy.deepcopy(FIXTURE)
+    break_it(offers_of(bad, PARTNER)[0])
+    assert [m for m in trade_offers.problems(bad)] == [f"TRADE_OFFERS.leagues['espn'].teams['Run It Back']{at}"]
+
+
+def test_a_blank_lens_is_null_on_both_sides_and_passes():
+    ok = copy.deepcopy(FIXTURE)
+    offers_of(ok, PARTNER)[0]["lenses"]["playoffs"] = {"gain": None, "their": None}
+    assert trade_offers.problems(ok) == []
+
+
+@pytest.mark.parametrize("break_it, at", [
+    (lambda lg: lg["standing"][PARTNER].update(tier="tanker"), f"standing[{PARTNER!r}].tier"),
+    (lambda lg: lg["standing"][PARTNER].pop("w"), f"standing[{PARTNER!r}].w"),
+    (lambda lg: lg["windows"].pop("push"), "windows.push"),
+    (lambda lg: lg.update(standing=[]), "standing"),
+])
+def test_a_leagues_standing_or_windows_in_the_wrong_shape_is_named(break_it, at):
+    bad = copy.deepcopy(FIXTURE)
+    break_it(bad["leagues"]["espn"])
+    assert trade_offers.problems(bad) == [f"TRADE_OFFERS.leagues['espn'].{at}"]
+
+
+def test_a_league_without_standing_or_windows_passes():
+    """Every team then reads on ROS alone, as ff-jarvis scores a team its league file does not place."""
+    ok = copy.deepcopy(FIXTURE)
+    del ok["leagues"]["espn"]["standing"], ok["leagues"]["espn"]["windows"]
+    assert trade_offers.problems(ok) == []

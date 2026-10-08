@@ -58,6 +58,15 @@ SKILL = ("QB", "RB", "WR", "TE")                             # the positions `li
 PERCEIVED = ("last2", "chips")                            # the two fields every player object gains; `last2` may be null
 THEIR = ("ir_moves", "drop")                              # an offer's `their`: the partner's room after the trade (and `gain`)
 LIMIT = 8                                                 # contract.problems cuts at this many, so stop early
+# The lenses (ledger #44, 2026-10-08; ff-jarvis 3cf9002, its trade_offers_schema): optional until ff-jarvis's next refresh
+# writes them, so an offer without `lenses` is the ROS card it was; one with any of them carries all four fields.
+LENSES = ("now", "push", "playoffs", "ros")               # `lenses` keys, and what `lens.me` / `lens.them` may name
+LENS_FIELDS = ("lenses", "lens", "score", "notes")
+SIDES = ("me", "them")
+NOTE_KINDS = ("covers_bye", "bye_done")                   # the card has copy for these two only (content.json finder.note.*)
+TIERS = ("contender", "bubble", "chaser")                 # content.json finder.tier.*
+STANDING = ("w", "l", "t", "seed")                        # whole numbers; `back` (weeks) any number
+WINDOWS = ("now", "push", "playoffs")
 
 
 def number(x):
@@ -145,9 +154,76 @@ def rules_problems(doc):
     return miss
 
 
+def whole(x):
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def note_problems(at, n):
+    """One bye note {kind, side, player, week, n}: the card writes its words by kind and side."""
+    if not isinstance(n, dict):
+        return [at]
+    ok = {"kind": n.get("kind") in NOTE_KINDS, "side": n.get("side") in SIDES, "player": isinstance(n.get("player"), str),
+          "week": whole(n.get("week")), "n": whole(n.get("n"))}
+    return [f"{at}.{k}" for k, good in ok.items() if not good]
+
+
+def lens_problems(at, o):
+    """An offer's lens fields, when it has any: each lens {gain, their} as numbers or both null (a blank lens), the lens
+    that judges each side, the owner's `score` and the bye `notes`."""
+    if not any(k in o for k in LENS_FIELDS):
+        return []
+    miss = [f"{at}.{k}" for k in LENS_FIELDS if k not in o]
+    lenses, lens = o.get("lenses"), o.get("lens")
+    if isinstance(lenses, dict):
+        for k in LENSES:
+            v = lenses.get(k)
+            blank = isinstance(v, dict) and v.get("gain") is None and v.get("their") is None
+            if not (blank or isinstance(v, dict) and number(v.get("gain")) and number(v.get("their"))):
+                miss.append(f"{at}.lenses.{k}")
+    elif "lenses" in o:
+        miss.append(f"{at}.lenses")
+    if isinstance(lens, dict):
+        miss += [f"{at}.lens.{s}" for s in SIDES if s not in lens or lens[s] not in (*LENSES, None)]
+    elif "lens" in o:
+        miss.append(f"{at}.lens")
+    if "score" in o and not number(o["score"]):
+        miss.append(f"{at}.score")
+    if "notes" in o:
+        if not isinstance(o["notes"], list):
+            miss.append(f"{at}.notes")
+        else:
+            for j, n in enumerate(o["notes"]):
+                miss += note_problems(f"{at}.notes[{j}]", n)
+    return miss
+
+
+def standing_problems(at, body):
+    """A league's `standing` {team: {tier, w, l, t, seed, back}} and `windows` {now, push, playoffs}, when it has them."""
+    miss = []
+    if "standing" in body:
+        rows = body["standing"]
+        if not isinstance(rows, dict):
+            return [at + ".standing"]
+        for team, row in rows.items():
+            here = f"{at}.standing[{team!r}]"
+            if not isinstance(row, dict):
+                miss.append(here)
+                continue
+            miss += [here + ".tier"] * (row.get("tier") not in TIERS)
+            miss += [f"{here}.{k}" for k in STANDING if not whole(row.get(k))]
+            miss += [here + ".back"] * (not number(row.get("back")))
+    if "windows" in body:
+        win = body["windows"]
+        if not isinstance(win, dict):
+            return miss + [at + ".windows"]
+        miss += [f"{at}.windows.{k}" for k in WINDOWS if not whole(win.get(k))]
+    return miss
+
+
 def offer_problems(at, o):
-    """One offer of an owner's flat list: its own fields, the partner it is with, and every player object in it."""
-    miss = [f"{at}.{k}" for k in OFFER if k not in o]
+    """One offer of an owner's flat list: its own fields, the partner it is with, every player object in it, and its
+    lens fields when it has them."""
+    miss = [f"{at}.{k}" for k in OFFER if k not in o] + lens_problems(at, o)
     if not isinstance(o.get("partner"), str) or not o["partner"]:
         miss.append(f"{at}.partner")
     for k in ("drop", "ir_moves"):
@@ -173,7 +249,7 @@ def problems(doc):
             continue
         if "week" not in body:
             miss.append(at + ".week")
-        miss += edit_problems(at, body)
+        miss += edit_problems(at, body) + standing_problems(at, body)
         for owner, offers in body["teams"].items():
             here = f"{at}.teams[{owner!r}]"
             if not isinstance(offers, list):

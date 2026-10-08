@@ -56,13 +56,18 @@ function tbHeadHTML(o, lg){
     rec ? `<small data-testid="finder-record">${rec}</small>` : ""}</header>`;
 }
 
-/* `i` is the card's place in the offers on screen (finder.js TF_SHOWN): Copy and Edit address it by that. */
+/* `i` is the card's place in the offers on screen (finder.js TF_SHOWN): Copy and Edit address it by that. An offer with
+   lenses (2026-10-08, finder/lenses.js) shows both sides' judged gains and its nearest bye notes in place of the one
+   rest-of-season gain; one without shows that gain, as it did. */
 function tbCardHTML(o, i, lg, canEdit){
   const col = (label, rows) => `<div class="tb-col"><p class="tb-h">${label}</p><ul>${rows.map(tbPlayerHTML).join("")}</ul></div>`;
   const edit = canEdit ? `<button type="button" class="tb-copy" data-tbedit="${i}" data-testid="finder-edit">${t("lboard.offer.edit")}</button>` : "";
+  const lgd = tbLeagueData(lg), lensed = !!(o.lenses && o.lens && lgd), me = lensed && tbMine(lg);
+  const gain = lensed ? tfLensFootHTML(o, lgd, me ? me.name : null)
+    : `<p class="tb-gain" data-testid="finder-gain" title="${t("lboard.offer.mark")}">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>`;
   return `<article class="tb-card" data-testid="finder-card">${tbHeadHTML(o, lg)}
-    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}
-    <div class="tb-foot"><p class="tb-gain" data-testid="finder-gain" title="${t("lboard.offer.mark")}">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>
+    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}${lensed ? tfNotesHTML(o, lgd) : ""}
+    <div class="tb-foot">${gain}
       <div class="tb-acts">${edit}<button type="button" class="tb-copy" data-tbcopy="${i}" data-testid="finder-copy">${t("lboard.offer.copy")}</button></div></div></article>`;
 }
 

@@ -140,3 +140,69 @@ def test_a_team_below_the_median_is_tinted_down(tf):
 
 def test_no_reader_means_every_team_is_listed(tf):
     assert len(tf("tfDeep", LG, "RB", None)) == 4
+
+
+# ---- the lenses (ledger #44, 2026-10-08): ff-jarvis 3cf9002 judges each side on Now, Push, Playoff run or ROS ---------
+
+def lensed(gain, score, me="ros", them="now", their=1.0):
+    """An offer from the lens file: `lenses` per lens {gain, their}, `lens` {me, them}, `score`; ros is gain/their.gain."""
+    return {**offer("A", ["WR"], gain), "their": {"ir_moves": [], "drop": [], "gain": their}, "score": score, "notes": [],
+            "lens": {"me": me, "them": them},
+            "lenses": {"now": {"gain": 1.2, "their": 3.4}, "push": {"gain": 2.9, "their": 4.1},
+                       "playoffs": {"gain": None, "their": None}, "ros": {"gain": gain, "their": their}}}
+
+
+def test_with_lenses_the_offers_are_ranked_by_the_owners_lens_score_not_his_ros_gain(tf):
+    offers = [lensed(21.7, 9.5), lensed(30.0, 7.0), lensed(10.0, 11.0)]
+    assert [o["score"] for o in tf("tfOffersFor", offers, "WR", None)] == [11.0, 9.5, 7.0]
+
+
+def test_a_side_is_judged_on_its_own_lens_with_its_gain_there_and_its_tier(tf):
+    o = lensed(21.7, 9.5, me="ros", them="now", their=0.0)
+    assert tf("tfJudge", o, "me", "contender") == {"lens": "ros", "gain": 21.7, "tier": "contender"}
+    assert tf("tfJudge", o, "them", "chaser") == {"lens": "now", "gain": 3.4, "tier": "chaser"}
+
+
+def test_a_side_with_no_lens_or_no_standing_falls_back_to_ros_with_no_tier(tf):
+    o = lensed(21.7, 9.5, me=None)
+    assert tf("tfJudge", o, "me", None) == {"lens": "ros", "gain": 21.7, "tier": None}
+
+
+def test_an_offer_from_before_the_lenses_has_no_judge(tf):
+    assert tf("tfJudge", offer("A", ["WR"], 6.1), "me", "contender") is None
+
+
+def test_a_teams_tier_is_its_standing_row_and_none_when_the_league_does_not_place_him(tf):
+    standing = {"Alpha": {"tier": "bubble", "w": 3, "l": 2, "t": 0, "seed": 6, "back": 0.5}}
+    assert [tf("tfTier", standing, "Alpha"), tf("tfTier", standing, "Beta"), tf("tfTier", None, "Alpha")] == ["bubble", None, None]
+
+
+def test_the_lens_table_has_the_four_lenses_in_order_with_both_gains_and_which_lens_judges_each_side(tf):
+    rows = tf("tfLensRows", lensed(21.7, 9.5, me="ros", them="now"))
+    assert rows == [
+        {"lens": "now", "me": 1.2, "them": 3.4, "onMe": False, "onThem": True},
+        {"lens": "push", "me": 2.9, "them": 4.1, "onMe": False, "onThem": False},
+        {"lens": "playoffs", "me": None, "them": None, "onMe": False, "onThem": False},
+        {"lens": "ros", "me": 21.7, "them": 1.0, "onMe": True, "onThem": False}]
+
+
+def note(kind, side, week, n=1, player="Bijan Robinson"):
+    return {"kind": kind, "side": side, "player": player, "week": week, "n": n}
+
+
+def test_a_card_keeps_the_two_nearest_bye_notes_inside_the_push_window(tf):
+    notes = [note("bye_done", "me", 14), note("covers_bye", "them", 8), note("covers_bye", "me", 6), note("bye_done", "them", 9),
+             note("bye_done", "me", 7)]
+    got = tf("tfNotes", notes, 5, {"now": 2, "push": 4, "playoffs": 3})
+    assert [(n["week"], n["side"]) for n in got] == [(6, "me"), (7, "me")], "weeks 5-8 are near; 9 and 14 are not; nearest two"
+
+
+def test_a_note_for_a_week_already_played_is_dropped_and_no_windows_means_four_weeks(tf):
+    notes = [note("covers_bye", "me", 4), note("covers_bye", "them", 8), note("covers_bye", "me", 9)]
+    assert [n["week"] for n in tf("tfNotes", notes, 5, None)] == [8]
+
+
+def test_ties_on_a_week_keep_the_files_order_and_no_notes_is_none(tf):
+    notes = [note("covers_bye", "them", 6, player="X"), note("bye_done", "me", 6, player="Y"), note("covers_bye", "me", 6, player="Z")]
+    assert [n["player"] for n in tf("tfNotes", notes, 5, None)] == ["X", "Y"]
+    assert tf("tfNotes", None, 5, None) == [] and tf("tfNotes", [], 5, None) == []

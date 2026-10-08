@@ -38,8 +38,43 @@ function tfSigned(g){
 function tfOffersFor(list, pos, partnerName){
   const size = o => o.send.length + o.get.length;
   return (list || []).filter(o => partnerName ? o.partner === partnerName : o.get.some(p => p.pos === pos))
-    .sort((a, b) => b.gain - a.gain || size(a) - size(b) || a.partner.localeCompare(b.partner))
+    .sort((a, b) => tfRank(b) - tfRank(a) || size(a) - size(b) || a.partner.localeCompare(b.partner))
     .slice(0, partnerName ? undefined : TF_TOP);
+}
+
+/* ---- The lenses (ledger #44, 2026-10-08; ff-jarvis 3cf9002, its `rules.lenses`): each side of an offer is judged on
+   the lens its standing cares about most, Now (next 2 weeks), Push (next 4), Playoff run or ROS. The file names that
+   lens (`lens.me`, `lens.them`), each lens's gain for both sides (`lenses`) and the owner's weighted `score`, which
+   orders his list. An offer from before the lenses has none of them: the card is the ROS card it was. ---- */
+const TF_LENSES = ["now", "push", "playoffs", "ros"];
+const TF_NOTE_MAX = 2;         // bye notes a card shows, the nearest first (about 4 an offer exist; David, ledger #44)
+const TF_NOTE_WEEKS = 4;       // "near-term" when the file has no windows: the Push lens's window, rules.lenses
+
+/* What an offer ranks on: the owner's lens score where the file has one, else his ROS gain. */
+const tfRank = o => typeof o.score === "number" ? o.score : o.gain;
+
+/* A team's tier (contender, bubble, chaser) from the league's `standing`, or null when the league does not place him. */
+const tfTier = (standing, team) => ((standing || {})[team] || {}).tier || null;
+
+/* One side's judge, `side` "me" or "them": the lens that judges it (ROS when the file names none), its gain there and
+   the side's tier. null for an offer from before the lenses. */
+function tfJudge(o, side, tier){
+  if (!o.lenses || !o.lens) return null;
+  const lens = o.lens[side] || "ros", cell = o.lenses[lens] || {};
+  return {lens, gain: (side === "me" ? cell.gain : cell.their) ?? null, tier: tier || null};
+}
+
+/* The four lenses in order with both sides' gains (null for a blank lens) and which lens judges each side. */
+const tfLensRows = o => TF_LENSES.map(lens => {
+  const cell = o.lenses[lens] || {};
+  return {lens, me: cell.gain ?? null, them: cell.their ?? null, onMe: (o.lens.me || "ros") === lens, onThem: (o.lens.them || "ros") === lens};
+});
+
+/* The bye notes a card shows: weeks from the league's `week` to the end of the Push window (`windows.push`, else
+   TF_NOTE_WEEKS), nearest first, at most TF_NOTE_MAX; a tie keeps the file's order. */
+function tfNotes(notes, week, windows){
+  const end = week + ((windows || {}).push ?? TF_NOTE_WEEKS);
+  return (notes || []).filter(n => n.week >= week && n.week < end).sort((a, b) => a.week - b.week).slice(0, TF_NOTE_MAX);
 }
 
 /* Who is deep at `pos`: every team but the reader's (`meKey`), best column first, ties to the higher lineup total.

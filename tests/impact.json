@@ -63,7 +63,7 @@
       "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/src/js/surface/finder/", "design/src/css/surface/finder/",
                 "design/teams.py", "design/trade_offers.py"],
       "tests": ["tests/test_teams_board.py", "tests/test_trade_offers.py", "tests/test_trade_edit.py", "tests/test_js_trade_score.py",
-                "tests/test_trade_finder.py", "tests/test_js_finder.py"],
+                "tests/test_trade_finder.py", "tests/test_js_finder.py", "tests/test_trade_lenses.py"],
       "render": ["lboard", "finder"]
     },
     "live": {
