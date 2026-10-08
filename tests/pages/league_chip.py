@@ -98,8 +98,9 @@ class LeagueChip:
         self.page.wait_for_function(DRAWN)
 
     def league_leaves(self):
-        """The League's leaves the sub-row shows."""
-        return self.page.evaluate("navTabsOf('league').filter(k => !NAV_HIDDEN.includes(k))")
+        """The leaves that draw the League's team line: Team's (Roster, Waivers, Trades) and League's, which
+        shared one group until 2026-10-08."""
+        return self.page.evaluate("[...navTabsOf('team'), ...navTabsOf('league')].filter(k => !NAV_HIDDEN.includes(k))")
 
     def visit(self, leaf):
         """Go to a leaf, to the top, and read its team line: {chips, heroes, name, top}."""

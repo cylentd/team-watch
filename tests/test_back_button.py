@@ -38,7 +38,7 @@ def test_back_from_the_first_tap_returns_to_the_digest_the_page_opened_on(start)
     """A page opened with no hash shows the Digest and has no hash to return to; Back after the first tap must
     show the Digest again, not stay on the view the tap opened."""
     history, _ = start("")
-    history.tap_group("league")
+    history.tap_group("team")
     assert history.entry()["hash"] == "#roster"
     history.back()
     history.page.wait_for_function("SURFACE === 'digest'")
@@ -46,7 +46,7 @@ def test_back_from_the_first_tap_returns_to_the_digest_the_page_opened_on(start)
 
 
 @pytest.mark.req(REQ, ac="a view change with an overlay open leaves no dead history entry")
-@pytest.mark.parametrize("view,opens,away", [("preview", "open_dossier", "matchups"), ("matchups", "open_compare", "news")])
+@pytest.mark.parametrize("view,opens,away", [("preview", "open_dossier", "matchups"), ("matchups", "open_compare", "weekrecap")])
 def test_leaving_a_view_with_its_layer_open_leaves_one_step_back_not_two(start, view, opens, away):
     """Preview's dossier (and Compare two) is a history entry. Tapping another view while it is up used to leave
     that entry behind the new one: Back came back to the view with nothing open, and a second Back did nothing."""
@@ -84,4 +84,5 @@ def test_picking_a_league_without_the_view_replaces_it_instead_of_adding_a_step(
     history.pick_team("espn")
     history.page.wait_for_function("SURFACE === 'recap'")
     assert history.entry()["hash"] == "#recap"
-    history.back_to("roster")
+    history.back_to("recap")
+    history.back_to("digest")

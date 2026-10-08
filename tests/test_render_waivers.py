@@ -248,8 +248,9 @@ def test_the_chat_button_says_ask_on_a_phone(open_waivers, width):
     assert box["w"] >= 44 and box["h"] >= 44 and box["right"] <= width      # a touch target, inside the screen
     assert box["label"][0] > 0 and box["label"][2]                          # drawn, and inside its button
     assert page.evaluate("document.documentElement.scrollWidth") <= width
-    # the bar still holds the four groups and search: nothing was pushed off by the wider button
-    assert page.evaluate("[...document.querySelectorAll('#nav .navitem')].every(b => b.getBoundingClientRect().right <= document.getElementById('navsearch').getBoundingClientRect().left + 1)")
+    # the header holds the team switch, Search and Ask side by side: nothing was pushed off by the wider button
+    assert page.evaluate("""(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      return r('hdrteam').right <= r('navsearch').left + 1 && r('navsearch').right <= r('chatfab').left + 1; })()""")
 
 
 def test_the_chat_word_is_hidden_on_a_desktop(open_waivers):

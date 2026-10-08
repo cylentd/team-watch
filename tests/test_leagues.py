@@ -169,10 +169,11 @@ def test_the_ayo_roster_waivers_and_recap_draw(browser, page_file):
     names = RosterRows(page).texts()
     assert len(names) == 5 and any("Justin Jefferson" in n or "J. Jefferson" in n for n in names)
     assert chip.subnav_leaves() == \
-        ["roster", "waivers", "teams", "trades", "recap", "records"], "AYO: all six League leaves; Trades is the finder, which needs only rosters (2026-10-06)"
+        ["roster", "waivers", "trades"], "AYO: all of Team's leaves; Trades is the finder, which needs only rosters (2026-10-06)"
     chip.tap_leaf("waivers")
     assert "Jaylen Warren" in chip.view_text(), "AYO's own wire"
-    chip.tap_leaf("recap")
+    chip.open_by_hash("recap")
+    assert chip.subnav_leaves() == ["recap", "teams", "records"], "AYO: all of League's leaves"
     assert "Don Wick" in chip.view_text(), "week 2's game against Don Wick, first on the page"
     assert errors == []
     ctx.close()
@@ -209,9 +210,9 @@ def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_fi
     drive(page, go("records"))
     assert records.empty_count() == 1 and records.head_to_head_count() == 0
     assert chip.chip_count() == 1, "the chip stays, so the reader can go back"
-    assert chip.subnav_leaves().count("trades") == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
     assert records.tab_count() == 0, "but AYO has no graded trades, so Records has no Trade history tab"
     chip.open_by_hash("trades")                    # a #trades link opens the finder, not the old history
+    assert chip.subnav_leaves().count("trades") == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
     chip.pick_team("yahoo")
     drive(page, go("records"))
     records.select(words("records.tab.trades"))

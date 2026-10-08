@@ -474,6 +474,8 @@ def test_a_trades_link_opens_the_finder_for_every_league_and_the_history_is_unde
         'try { localStorage.setItem("tw-team", "espn"); } catch (e) {}', serve(FIXTURE)))
     page.wait_for_selector("[data-testid=finder-chip]")
     assert page.locator(".mode-sub[aria-pressed='true']").inner_text().lower() == "trades"
+    page.locator("#nav .navitem[data-s='league']").click()              # Records is League's, not Team's (2026-10-08)
+    page.wait_for_selector(".mode-sub[data-leaf='teams']")
     assert page.locator(".mode-sub[data-leaf='records']").count() == 0, "ESPN has no record book, so no Records and no history"
     page.evaluate("pickTeam('yahoo')")                                  # the Madden Curse: a record book, so Records
     page.wait_for_selector(".mode-sub[data-leaf='records']")

@@ -55,7 +55,7 @@ def test_the_stats_sub_row_keeps_its_six_tabs_inside_the_phone(browser, page_fil
     the six are all there (Schedule back in the row, 2026-10-06), and the page itself never scrolls sideways."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
     nav = ScheduleNav(page)
-    assert nav.sub_row() == [words(f"nav.tab.{k}") for k in ("highlights", "ranks", "board", "movers", "grid", "schedule")]
+    assert nav.sub_row() == [words(f"nav.tab.{k}") for k in ("news", "ranks", "board", "movers", "grid", "schedule")]
     assert nav.sub_row_overflow_x() == "auto"
     assert nav.page_scroll_width() <= 360
     ctx.close()
