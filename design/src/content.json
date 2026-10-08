@@ -212,6 +212,7 @@
  "dfs.market.noExport": "No salary export loaded",
  "dfs.market.rest": "Yahoo's FPPG rescaled for the rest (Y)",
  "dfs.market.sample": "SAMPLE",
+ "dfs.market.slate": "Sunday early + afternoon games",
  "dfs.market.source": "{n} players · ${cap} cap · salaries as posted",
  "dfs.pager.players": "{n} player{s}",
  "dfs.pick.noSlot": "No open {pos} slot — tap one to swap instead",

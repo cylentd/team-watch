@@ -6,6 +6,7 @@ function marketHead(){
   return `<div class="mkthead">
     <div>
       <span class="lbl">${t("dfs.market.heading", {site: site.label})}</span>
+      <div class="mktsrc">${t("dfs.market.slate")}</div>
       <div class="mktsrc">${t("dfs.market.source", {n: site.pool.length, cap: site.cap.toLocaleString()})}${site.key==="yahoo" && !LIVE_YAHOO_DFS ? ` · ${t("dfs.market.sample")}` : ""}
           ${site.key === "yahoo" && LIVE_YAHOO_DFS && typeof LIVE_YAHOO_DFS.modeled === "number"
               ? ` · ${t("dfs.market.modeled", {n: LIVE_YAHOO_DFS.modeled})}`
