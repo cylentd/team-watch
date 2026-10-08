@@ -46,12 +46,7 @@ const OWN_GO = '<svg class="pf-own-go" viewBox="0 0 6 10" aria-hidden="true"><pa
 
 function ownOpenRoster(key){
   if (!TEAMS[key]) return;
-  const go = () => { VIEW = key; SEARCH_INDEX = null; navGo("roster"); };
-  const d = document.getElementById("modal");
-  if (history.state && history.state.layer === d.id){
-    window.addEventListener("popstate", () => setTimeout(go), {once: true});
-    closeModal(d);
-  } else { closeModal(d); go(); }
+  layersUnwind(() => { VIEW = key; SEARCH_INDEX = null; navGo("roster"); });   // the profile and any sheet under it close first
 }
 
 document.getElementById("modal").addEventListener("click", e => {

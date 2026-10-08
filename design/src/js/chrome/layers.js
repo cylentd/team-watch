@@ -42,10 +42,25 @@ function layerDone(id){
   }
 }
 
+/* Close every open layer and take their history entries back, then run `then` once the entries are gone.
+   A view change made with a layer up (a pill under Preview's dossier, a link out of a profile opened from the
+   search sheet) must not leave those entries behind the new one: Back would come back to the view and need
+   a second press, and the hash write's own popstate would close the topmost layer from underneath.
+   `then` runs at once when nothing is open, and the page is not scrolled back (null in LAYER_SKIP): the new
+   view starts at the top. A layer whose entry was left on purpose (layerForget) is not in LAYERS and stays. */
+function layersUnwind(then){
+  const open = LAYERS.splice(0).reverse();
+  open.forEach(l => l.close());
+  if (!open.length || !(history.state && history.state.layer)){ then(); return; }
+  LAYER_SKIP.push(null);
+  window.addEventListener("popstate", () => setTimeout(then), {once: true});
+  history.go(-open.length);
+}
+
 window.addEventListener("popstate", () => {
   if (LAYER_SKIP.length){
     const y = LAYER_SKIP.shift();
-    requestAnimationFrame(() => window.scrollTo(0, y));
+    if (y !== null) requestAnimationFrame(() => window.scrollTo(0, y));
     return;
   }
   const top = LAYERS.pop();

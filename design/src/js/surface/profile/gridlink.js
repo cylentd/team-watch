@@ -13,12 +13,7 @@ function pfGridLinkHTML(p){
 }
 
 function pfOpenGridRow(slug){
-  const go = () => { morphLogo(); navGoRow("usage", slug); };
-  const d = document.getElementById("modal");
-  if (history.state && history.state.layer === d.id){
-    window.addEventListener("popstate", () => setTimeout(go), {once: true});
-    closeModal(d);
-  } else { closeModal(d); go(); }
+  layersUnwind(() => { morphLogo(); navGoRow("usage", slug); });   // the profile and any sheet under it close first
 }
 
 document.getElementById("modal").addEventListener("click", e => {

@@ -15509,12 +15509,7 @@ const OWN_GO = '<svg class="pf-own-go" viewBox="0 0 6 10" aria-hidden="true"><pa
 
 function ownOpenRoster(key){
   if (!TEAMS[key]) return;
-  const go = () => { VIEW = key; SEARCH_INDEX = null; navGo("roster"); };
-  const d = document.getElementById("modal");
-  if (history.state && history.state.layer === d.id){
-    window.addEventListener("popstate", () => setTimeout(go), {once: true});
-    closeModal(d);
-  } else { closeModal(d); go(); }
+  layersUnwind(() => { VIEW = key; SEARCH_INDEX = null; navGo("roster"); });   // the profile and any sheet under it close first
 }
 
 document.getElementById("modal").addEventListener("click", e => {
@@ -15537,12 +15532,7 @@ function pfGridLinkHTML(p){
 }
 
 function pfOpenGridRow(slug){
-  const go = () => { morphLogo(); navGoRow("usage", slug); };
-  const d = document.getElementById("modal");
-  if (history.state && history.state.layer === d.id){
-    window.addEventListener("popstate", () => setTimeout(go), {once: true});
-    closeModal(d);
-  } else { closeModal(d); go(); }
+  layersUnwind(() => { morphLogo(); navGoRow("usage", slug); });   // the profile and any sheet under it close first
 }
 
 document.getElementById("modal").addEventListener("click", e => {
@@ -33617,7 +33607,9 @@ function pickTeam(k){
   // The league follows the team (2026-10-05), and a league lacks some leaves: a connected league has no
   // Waivers (ff-jarvis builds David's leagues only), ESPN has no Records or Trades. Land on the nearest.
   const next = navFallback(SURFACE, navTabsOf(navGroupOf(SURFACE)));
-  if (next !== SURFACE) navGo(next);
+  // The pick is not a step the reader took through the views, so the nearest leaf takes the current entry's
+  // place: Back then returns to the view before, not to a hash that shows another view.
+  if (next !== SURFACE){ history.replaceState(history.state, "", "#" + next); navGo(next, true); }
   else { render(); paintSubnav(); }   // the Waivers count is per league, and a connected league has none
   if (changed) zipFootball();
 }
@@ -34451,6 +34443,9 @@ const navFromHash = () => {
 };
 
 function navGo(leaf, fromHash){
+  // A layer still up (Preview's dossier, Compare, the search sheet) closes first, and its history entry goes
+  // with it, so the new view is one step from the one the reader left (layers.js layersUnwind).
+  if (!fromHash && LAYERS.length){ layersUnwind(() => navGo(leaf)); return; }
   leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
   if (leaf !== "trades" && TB_EDIT) tfLeft();   // the trade finder's edit page left open by a tap on another view (finder/page.js)
   SURFACE = leaf;
@@ -34469,6 +34464,7 @@ function navGo(leaf, fromHash){
 /* One player's row in Grid or Role (see the header). navRowPlan says where each view must stand; this
    sets it, opens the view, and puts the row in the middle of the screen, marked until the next draw. */
 function navGoRow(leaf, slug){
+  if (LAYERS.length){ layersUnwind(() => navGoRow(leaf, slug)); return true; }   // the row is found once the layers are gone
   const role = typeof LIVE_ROLE !== "undefined" && LIVE_ROLE;
   const plan = navRowPlan(leaf, slug, leaf === "usage" ? USAGE.rows : role && role.rows, {week: USAGE_WEEK, pos: RV_POS, first: RV_FIRST});
   // The row's position becomes Stats' one position (chrome/statspos.js); set on the view too, so the render keeps the sort and Show all.
@@ -34514,7 +34510,8 @@ function buildNav(){
   /* Back and forward move between views, which is what a browser's own buttons are for and what
      everyone tries first. The guard keeps a hash we just wrote from re-rendering the same view. */
   window.addEventListener("hashchange", () => {
-    const leaf = navFromHash();
+    // Back to the entry the page opened on has no hash: that entry showed the default view.
+    const leaf = navFromHash() || (navHash() === "" ? navDefaultLeaf() : null);
     if (leaf && leaf !== SURFACE) navGo(leaf, true);
   });
   // Crossing 760px swaps the layouts: the header's switch and the row's opened tabs are a phone's only.
@@ -34820,10 +34817,25 @@ function layerDone(id){
   }
 }
 
+/* Close every open layer and take their history entries back, then run `then` once the entries are gone.
+   A view change made with a layer up (a pill under Preview's dossier, a link out of a profile opened from the
+   search sheet) must not leave those entries behind the new one: Back would come back to the view and need
+   a second press, and the hash write's own popstate would close the topmost layer from underneath.
+   `then` runs at once when nothing is open, and the page is not scrolled back (null in LAYER_SKIP): the new
+   view starts at the top. A layer whose entry was left on purpose (layerForget) is not in LAYERS and stays. */
+function layersUnwind(then){
+  const open = LAYERS.splice(0).reverse();
+  open.forEach(l => l.close());
+  if (!open.length || !(history.state && history.state.layer)){ then(); return; }
+  LAYER_SKIP.push(null);
+  window.addEventListener("popstate", () => setTimeout(then), {once: true});
+  history.go(-open.length);
+}
+
 window.addEventListener("popstate", () => {
   if (LAYER_SKIP.length){
     const y = LAYER_SKIP.shift();
-    requestAnimationFrame(() => window.scrollTo(0, y));
+    if (y !== null) requestAnimationFrame(() => window.scrollTo(0, y));
     return;
   }
   const top = LAYERS.pop();

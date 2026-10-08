@@ -106,7 +106,9 @@ function pickTeam(k){
   // The league follows the team (2026-10-05), and a league lacks some leaves: a connected league has no
   // Waivers (ff-jarvis builds David's leagues only), ESPN has no Records or Trades. Land on the nearest.
   const next = navFallback(SURFACE, navTabsOf(navGroupOf(SURFACE)));
-  if (next !== SURFACE) navGo(next);
+  // The pick is not a step the reader took through the views, so the nearest leaf takes the current entry's
+  // place: Back then returns to the view before, not to a hash that shows another view.
+  if (next !== SURFACE){ history.replaceState(history.state, "", "#" + next); navGo(next, true); }
   else { render(); paintSubnav(); }   // the Waivers count is per league, and a connected league has none
   if (changed) zipFootball();
 }

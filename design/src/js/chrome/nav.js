@@ -154,6 +154,9 @@ const navFromHash = () => {
 };
 
 function navGo(leaf, fromHash){
+  // A layer still up (Preview's dossier, Compare, the search sheet) closes first, and its history entry goes
+  // with it, so the new view is one step from the one the reader left (layers.js layersUnwind).
+  if (!fromHash && LAYERS.length){ layersUnwind(() => navGo(leaf)); return; }
   leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
   if (leaf !== "trades" && TB_EDIT) tfLeft();   // the trade finder's edit page left open by a tap on another view (finder/page.js)
   SURFACE = leaf;
@@ -172,6 +175,7 @@ function navGo(leaf, fromHash){
 /* One player's row in Grid or Role (see the header). navRowPlan says where each view must stand; this
    sets it, opens the view, and puts the row in the middle of the screen, marked until the next draw. */
 function navGoRow(leaf, slug){
+  if (LAYERS.length){ layersUnwind(() => navGoRow(leaf, slug)); return true; }   // the row is found once the layers are gone
   const role = typeof LIVE_ROLE !== "undefined" && LIVE_ROLE;
   const plan = navRowPlan(leaf, slug, leaf === "usage" ? USAGE.rows : role && role.rows, {week: USAGE_WEEK, pos: RV_POS, first: RV_FIRST});
   // The row's position becomes Stats' one position (chrome/statspos.js); set on the view too, so the render keeps the sort and Show all.
@@ -217,7 +221,8 @@ function buildNav(){
   /* Back and forward move between views, which is what a browser's own buttons are for and what
      everyone tries first. The guard keeps a hash we just wrote from re-rendering the same view. */
   window.addEventListener("hashchange", () => {
-    const leaf = navFromHash();
+    // Back to the entry the page opened on has no hash: that entry showed the default view.
+    const leaf = navFromHash() || (navHash() === "" ? navDefaultLeaf() : null);
     if (leaf && leaf !== SURFACE) navGo(leaf, true);
   });
   // Crossing 760px swaps the layouts: the header's switch and the row's opened tabs are a phone's only.
