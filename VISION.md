@@ -22,6 +22,11 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-07: chose trade offers judged on four lenses (Now, Push, Playoff run, ROS) over ROS alone: "ROS gain is one lens, not the gate" (David).
 - 2026-10-07: chose a header and tab row that stay put on a phone scroll over ones that hide and return, because nothing should slide at the edge of the eye.
 - 2026-10-07: chose a group tab that opens its first view on every click, Tuesday included (League opens Roster), over returning to the last view seen (David).
+- 2026-10-08: chose our own rank and tiers, with Vegas as a supporting input, over the books' rank: "the rank was always supposed to be our own ranking system. if we use someone's else's, then what's the point?" Like borischen, keep only the sources that test accurate year to year and average them (ff-jarvis #40).
+- 2026-10-08: chose Bold calls without a test-status label: "it's intentional murky and it's a take... a mini test every week" (David). Other model marks keep theirs.
+- 2026-10-08: chose nav draft C (Team · Matchup · Players · League · Search, 28 tabs) as the target, reached through draft B's label-only regroup first (David).
+- 2026-10-08: chose Slips grouped by kickoff window, each window showing the best call per game (David).
+- 2026-10-08: chose the chrome its own darker surface, edge and shadow (David).
 
 ## Not doing
 
