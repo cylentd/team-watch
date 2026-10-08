@@ -16,8 +16,8 @@ const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
    Right now leads them on a day whose plan does not place it (a Thursday or Monday game on). */
 function dgCardsHTML(d, plan, now){
   const ctx = dgCardCtx(d, plan, now);
-  const drawn = Object.fromEntries(plan.cards.map(id => [id, dgCardDraw(id, ctx)]));
-  const ids = dgDayCards(plan, drawn);
+  const drawn = Object.fromEntries(dgCardOrder(plan).map(id => [id, dgCardDraw(id, ctx)]));
+  const ids = dgCardList(plan, drawn);
   if (!(ids[0] in drawn)) drawn[ids[0]] = dgCardDraw(ids[0], ctx);
   const live = plan.cards.includes("now") ? "" : dgNowHTML();
   return live + ids.map(id => drawn[id]).join("");
@@ -53,6 +53,8 @@ function wireDigest(v){
   v.querySelectorAll("[data-dggo]").forEach(b => b.addEventListener("click", () => {
     morphLogo(); navGo(b.dataset.dggo); window.scrollTo({top: 0});
   }));
+  // The night game's card and its link: Preview, open on that game.
+  v.querySelectorAll("[data-dgpv]").forEach(b => b.addEventListener("click", () => dgPreviewOpen(+b.dataset.dgpv)));
   // A row with research opens it in place, one at a time (row.js).
   const root = v.querySelector(".dg");
   v.querySelectorAll(".dg-r-b[data-dgr]").forEach(b => b.addEventListener("click", () => dgRowToggle(b, root)));

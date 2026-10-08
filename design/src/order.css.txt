@@ -117,6 +117,7 @@ surface/digest/cards/usage.css
 surface/digest/cards/defenses.css
 surface/digest/cards/status.css
 surface/digest/cards/vegas.css
+surface/digest/cards/night.css
 surface/digest/cards/game.css
 surface/digest/cards/smash.css
 surface/digest/cards/bold.css

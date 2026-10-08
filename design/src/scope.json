@@ -35,6 +35,7 @@
     "surface/digest/cards/defenses.css": ["digest"],
     "surface/digest/cards/status.css": ["digest"],
     "surface/digest/cards/vegas.css": ["digest"],
+    "surface/digest/cards/night.css": ["digest"],
     "surface/digest/cards/game.css": ["digest"],
     "surface/digest/cards/smash.css": ["digest"],
     "surface/digest/cards/bold.css": ["digest"],

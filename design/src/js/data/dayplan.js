@@ -35,6 +35,29 @@ function dgDayCards(plan, drawn){
   return cards.length ? cards : ["need"];
 }
 
+/* ---------------------------------------------------------------- the night-game card (2026-10-07)
+   One preview card, two days: Wednesday previews Thursday night's game, Sunday previews Sunday night's. It is not in
+   DG_PLAN's lists: it takes the second place on those two days (dgCardOrder), after the day's job card (usage movers,
+   Need to know). `slot` is the league's kickoff window from design/preview.py; the card goes at the kickoff. */
+const DG_NIGHT_SLOT = {wed: "thu", sun: "sunnight"};
+const DG_MAX_CARDS = 5;   // David, 2026-10-07: a day holds five cards at most
+
+/* {i, game}: the night game still to kick off, `i` its index in preview.games (what Preview opens on), or null.
+   Sunday's must be today's (a Sunday night game of another week is not tonight's). */
+function dgPickNight(preview, key, ms){
+  const slot = DG_NIGHT_SLOT[key], games = (preview && preview.games) || [];
+  if (!slot) return null;
+  const hits = games.map((game, i) => ({i, game})).filter(x => x.game.slot === slot && Date.parse(x.game.kickoff) > ms
+    && (key !== "sun" || dgToday(x.game.kickoff, ms)));
+  return hits.sort((a, b) => Date.parse(a.game.kickoff) - Date.parse(b.game.kickoff))[0] || null;
+}
+
+/* The plan's card ids with the night card second on the days that have one. */
+const dgCardOrder = plan => DG_NIGHT_SLOT[plan.key] ? [plan.cards[0], "night", ...plan.cards.slice(1)] : plan.cards;
+
+/* The cards to draw from what each drew: the plan's, empty ones skipped, five at most, Need to know when none. */
+const dgCardList = (plan, drawn) => dgDayCards({cards: dgCardOrder(plan)}, drawn).slice(0, DG_MAX_CARDS);
+
 /* The strip's views: Recap only while its week is fresh (dgRecap), as the Recap row was. */
 const dgStripLeaves = (plan, facts) => plan.strip.filter(leaf => leaf !== "weekrecap" || facts.recap);
 

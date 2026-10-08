@@ -20,7 +20,9 @@
 
 /* `more` is the view that holds the whole list: {leaf, label} (the label defaults to the nav's own). */
 function dgCardHTML({id, title, more, body, foot}){
-  const go = more ? `<button type="button" class="dg-card-more" data-testid="digest-card-more" data-dggo="${esc(more.leaf)}">${more.label || navLabel(more.leaf)}${DG_ARROW}</button>` : "";
+  // `more.game`: a game's index, so the link opens Preview on that game (dgPreviewOpen) instead of the view's own page.
+  const to = more && more.game != null ? `data-dgpv="${more.game}"` : more ? `data-dggo="${esc(more.leaf)}"` : "";
+  const go = more ? `<button type="button" class="dg-card-more" data-testid="digest-card-more" ${to}>${more.label || navLabel(more.leaf)}${DG_ARROW}</button>` : "";
   return `<section class="dg-card" data-testid="digest-card" data-dgcard="${esc(id)}" aria-labelledby="dg-c-${esc(id)}">
     <header class="dg-card-h"><h3 class="dg-card-t" id="dg-c-${esc(id)}" data-testid="digest-card-title">${title}</h3>${go}</header>
     ${body}${foot ? `<p class="dg-card-f" data-testid="digest-card-foot">${foot}</p>` : ""}</section>`;
@@ -46,7 +48,7 @@ function dgCardDraw(id, ctx){
   if (id === "need") return ctx.d && !dgNeedEmpty(ctx.d) ? dgNeedHTML(ctx.d) : "";
   if (id === "now") return ctx.d ? dgNowHTML() : "";
   const card = {adds: dgCardAdds, gains: dgCardGains, usage: dgCardUsage, defenses: dgCardDefenses, status: dgCardStatus,
-    vegas: dgCardVegas, game: dgCardGame, smash: dgCardSmash, bold: dgCardBold, calls: dgCardCalls, weather: dgCardWeather}[id];
+    vegas: dgCardVegas, night: dgCardNight, game: dgCardGame, smash: dgCardSmash, bold: dgCardBold, calls: dgCardCalls, weather: dgCardWeather}[id];
   return card ? card(ctx) || "" : "";
 }
 
