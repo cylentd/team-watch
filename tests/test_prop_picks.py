@@ -11,6 +11,7 @@ out. The record is the real week 4 totals."""
 import pytest
 
 from test_render import open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -102,7 +103,7 @@ def test_each_tier_has_its_word_and_its_side(page):
         got[slug] = (ln.locator(".sl-conf").inner_text(), ln.locator(".sl-conf").get_attribute("class").split()[-1],
                      [x.split("\n")[0] for x in ln.locator(".sl-side.pick").all_inner_texts()])
         close_sheet(page)
-    assert got == {"chase-brown": ("Very confident", "very", ["Higher"]),
+    assert got == {"chase-brown": (words("slips.tier.very"), "very", ["Higher"]),
                    "joe-burrow": ("Confident", "confident", ["Lower"]),
                    "george-kittle": ("No pick", "none", [])}, "no pick: no outline"
     page.evaluate("document.getElementById('view').insertAdjacentHTML('beforeend', `<div id=probe>${PROPS.map((p, i) => p.n === 'George Kittle' && p.mkt === 'REC' ? slLineHTML(i) : '').join('')}</div>`)")
@@ -214,7 +215,7 @@ def test_the_best_line_is_the_most_confident_and_a_row_without_one_says_only_its
       PROPS.push({...p, mkt: 'RECS', line: 6.5, model: 20, side: 'lower', tier: 'very', books: {}}); render(); }""")
     all_chips(page)
     r = row(page, "amonra-st-brown")
-    assert r.locator(".sl-pick").inner_text() == "Lower catches" and r.locator(".sl-r .sl-conf").inner_text() == "Very confident"
+    assert r.locator(".sl-pick").inner_text() == "Lower catches" and r.locator(".sl-r .sl-conf").inner_text() == words("slips.tier.very")
     assert r.locator(".sl-go").inner_text() == "3 lines"
     page.evaluate("GAL_WIN = 'evening-sun'; render()")
     all_chips(page)
@@ -231,8 +232,8 @@ def test_the_matchup_chip_follows_the_defence_rank(page):
         all_chips(page)
         for s in slugs:
             got[s] = row(page, s).locator(".sl-f").all_inner_texts()
-    assert got == {"chase-brown": ["Easy matchup"], "joe-burrow": ["Easy matchup"],
-                   "george-kittle": ["Easy matchup"], "brock-purdy": ["Tough matchup"]}
+    assert got == {"chase-brown": [words("slips.flag.easy")], "joe-burrow": [words("slips.flag.easy")],
+                   "george-kittle": [words("slips.flag.easy")], "brock-purdy": [words("slips.flag.tough")]}
 
 
 def test_a_phone_fits_every_row(page):

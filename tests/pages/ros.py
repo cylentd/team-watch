@@ -7,8 +7,9 @@ bar (`ranks-view-tab`): `pick_view` taps whichever is drawn. The positions are R
 desktop and Stats' strip above the bottom bar (`stats-pos-seg`, pages/statspos.py) on a phone, since 2026-10-06.
 """
 from pages.profile import ProfilePage
+from wording import words
 
-VIEWS = {"week": "This week", "ros": "Rest of season"}
+VIEWS = {"week": words("ranks.view.week"), "ros": words("ranks.view.ros")}
 
 
 class RosPage:

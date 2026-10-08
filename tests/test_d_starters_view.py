@@ -15,6 +15,7 @@ import pytest
 from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.dstarters import DefendersOut
 from pages.roster import on_roster
+from wording import words
 
 REQ = "Defenders out"
 SLOT = {"pos": "DT", "unit": "front7", "status": "Out", "snap_share": 0.1}
@@ -69,7 +70,7 @@ def test_a_defense_missing_both_units_says_starters_and_spells_each_status(mount
     ds, errors = preview_game(mount, 2)
     assert ds.lines() == ["CAR D: 2 starters out (Brown, Horn)"]
     ds.open()
-    assert ds.names() == [("Derrick Brown", "DT · Injured reserve · 10% of starter snaps"),
+    assert ds.names() == [("Derrick Brown", f"DT · {words('ds.status.ir')} · 10% of starter snaps"),
                           ("Jaycee Horn", "CB · Doubtful · 7% of starter snaps")]
     assert errors == []
 
@@ -79,7 +80,7 @@ def test_a_starter_with_no_unit_who_left_the_team_is_still_named(mount):
     ds, errors = preview_game(mount, 3)
     assert ds.lines() == ["NYJ D: 1 starter out (McDonald)"]
     ds.open()
-    assert ds.names() == [("Will McDonald IV", "EDGE · Left the team · 8% of starter snaps")]
+    assert ds.names() == [("Will McDonald IV", f"EDGE · {words('ds.status.offteam')} · 8% of starter snaps")]
     assert errors == []
 
 

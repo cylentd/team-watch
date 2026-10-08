@@ -11,6 +11,7 @@ import pytest
 from component import mount  # noqa: F401  (the fixture)
 from pages.roster_matchup import MatchupLine
 from pages.roster_sheet import RosterSheet
+from wording import words
 
 
 def espn_roster(mount, size, heads=False):
@@ -70,10 +71,10 @@ def test_an_early_projection_wears_a_label_and_a_lined_or_unstamped_one_does_not
     Fixture: Purdy early, Chase Brown lined, Kittle unstamped."""
     sheet, errors = espn_roster(mount, (1280, 900))
     got = sheet.stages(["brock-purdy", "chase-brown", "george-kittle"])
-    assert got["brock-purdy"] == {"stage": "early", "tag": "EARLY", "rowTip": "",
-                                  "tip": "No prop line for this game yet: model, opponent and game total."}, got
+    assert got["brock-purdy"] == {"stage": "early", "tag": words("teams.row.stageEarly"), "rowTip": "",
+                                  "tip": words("teams.row.stageEarlyTip")}, got
     assert got["chase-brown"] == {"stage": "lined", "tag": None, "tip": None,
-                                  "rowTip": "Lines are up for this game; blended with his own line if he has one."}, got
+                                  "rowTip": words("teams.row.stageLinedTip")}, got
     assert got["george-kittle"] == {"stage": None, "tag": None, "tip": None, "rowTip": ""}, got
     assert sheet.early_tags_drawn() == sheet.early_projections()
     assert errors == []

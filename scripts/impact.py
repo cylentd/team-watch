@@ -13,7 +13,7 @@ time, never coverage. A view's CSS counts as its area's only when design/src/sco
 it; a shared file can style any view. The scheduled rebuild runs the whole suite twice a day,
 which is the net for anything the map gets wrong.
 
-Five files every view shares are read by what changed inside them (2026-10-05), because nearly
+Files every view shares are read by what changed inside them (2026-10-05), because nearly
 every feature touches one, and until then 23 of the last 24 feature lands ran everything:
 
     design/src/content.json     a changed key counts as the files that say t("key") / {{copy:key}}
@@ -21,7 +21,7 @@ every feature touches one, and until then 23 of the last 24 feature lands ran ev
                                 JS part runs everything (load order), a moved CSS part counts as itself
     design/src/scope.json       a changed entry counts as the css file it names, plus the golden
                                 slice of any view its fence dropped; a file leaving `shared` runs everything
-    tests/golden/render.json    a changed state counts as its golden area (area_of)
+    tests/golden/<area>.json    a changed state counts as its golden area (area_of)
 
 A key, part or entry whose file no area owns still runs everything, as before.
 
@@ -42,7 +42,7 @@ SCOPE = ROOT / "design" / "src" / "scope.json"
 CSS_SURFACE = "design/src/css/surface/"
 SRC = "design/src/"
 CONTENT = SRC + "content.json"
-GOLDEN = "tests/golden/render.json"
+GOLDEN_DIR = "tests/golden/"      # one <area>.json per golden area (2026-10-07; was render.json)
 DESIGN_DOC = "design/DESIGN.md"
 ORDERS = {SRC + "order.js.txt": SRC + "js/", SRC + "order.css.txt": SRC + "css/"}
 
@@ -139,7 +139,7 @@ def expand(path, old, new, read):
         if any(v[:1] in "#." for v in dropped):
             return None
         return [SRC + "css/" + rel for rel in sorted(rels)], sorted(dropped)
-    if path == GOLDEN:
+    if path.startswith(GOLDEN_DIR) and path.endswith(".json"):
         return [], sorted({area_of(s) for s in changed_states(old, new)})
     return None
 

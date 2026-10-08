@@ -9,6 +9,8 @@ import json
 
 import pytest
 
+from wording import words
+
 # Names with an "&" and an apostrophe: the image and the text are not HTML, so they must stay as written.
 TEAMS = [{"id": 1, "mgr": "Chanel", "name": "Lamarley & Me", "avatar": "avatars/yahoo/1.webp"}, {"id": 2, "mgr": "Crystal W.", "name": "Two"},
          {"id": 3, "mgr": "Phillip", "name": "Three"}, {"id": 4, "mgr": "Jon & Kay", "name": "Four"},
@@ -115,7 +117,7 @@ def test_the_headline_is_claudes_and_a_line_that_repeats_it_is_left_out(share):
 def test_the_image_holds_the_league_and_nothing_about_the_reader(share):
     d = data(share)
     assert d["kicker"] == "Madden Curse · Week 4 · Final"
-    assert d["url"] == "teamwatch.cylentlabs.com/#recap"
+    assert d["url"] == words("league.share.url")
     assert set(d) == {"kicker", "headline", "rows", "url"}, "no dek, team, standings or your-game box"
     assert all(set(r) == {"win", "winPts", "lose", "losePts", "tie", "tags", "line", "winAv"} for r in d["rows"])
     assert all(set(tg) == {"label", "tone", "name", "side"} for r in d["rows"] for tg in r["tags"])
@@ -136,7 +138,7 @@ def test_the_text_version_is_kicker_headline_each_game_with_its_line_then_the_li
 def test_the_real_text_has_every_game_the_link_last_and_no_tone_word(share):
     text = share("lgShareText", data(share))
     lines = text.split("\n")
-    assert lines[-1] == "teamwatch.cylentlabs.com/#recap"
+    assert lines[-1] == words("league.share.url")
     assert lines[0] == "MADDEN CURSE · WEEK 4 · FINAL"
     assert sum(" beat " in ln or " tied " in ln for ln in lines) == len(GAMES)
     assert not any(w in text.lower() for w in ("roast", "props", "your game", "cheer"))
@@ -146,4 +148,4 @@ def test_the_real_text_has_every_game_the_link_last_and_no_tone_word(share):
 def test_a_week_with_no_games_is_a_headline_and_a_link_not_an_error(share):
     d = data(share, {"week": 4, "head": "", "lead": "", "games": []})
     assert d["rows"] == [] and d["headline"] == ""
-    assert share("lgShareText", d) == "MADDEN CURSE · WEEK 4 · FINAL\n\nteamwatch.cylentlabs.com/#recap"
+    assert share("lgShareText", d) == "MADDEN CURSE · WEEK 4 · FINAL\n\n" + words("league.share.url")

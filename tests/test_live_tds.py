@@ -6,6 +6,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.live_tds import LiveTdsPage
+from wording import words
 
 
 @pytest.mark.render
@@ -24,7 +25,7 @@ def test_scored_lists_rushers_and_receivers_not_passers_and_the_board_keeps_who_
     assert not any(r["who"].startswith(b_name[0][0] + ".") and r["who"].endswith(b_name[1]) for r in alive)
     # the top of the board, his game on and no TD: lime state with the game clock
     top = next(r for r in alive if r["who"].startswith(planted["a"][0][0] + "."))
-    assert top["cls"] == "live" and top["clock"] == "Q3 4:12" and top["line"] == "No TD yet"
+    assert top["cls"] == "live" and top["clock"] == "Q3 4:12" and top["line"] == words("live.tds.none")
     # his game over with no TD: red, and at the bottom (a club-mate's row sinks with him)
     scored, alive = live.rows_at(club, "post")
     assert alive[-1]["cls"] == "missed" and alive[-1]["clock"] == "Final" and alive[-1]["line"] == "Missed"
@@ -40,7 +41,7 @@ def test_scored_lists_rushers_and_receivers_not_passers_and_the_board_keeps_who_
     live.drop_lead()
     scored, alive = live.rows_at("ZZZ", "pre")
     assert scored == [] and alive and all(r["cls"] == "later" for r in alive)
-    assert live.empty_text_built() == "No touchdowns yet."
+    assert live.empty_text_built() == words("live.tds.noneYet")
     assert errors == []
 
 
@@ -50,9 +51,9 @@ def test_without_stats_the_tab_says_it_is_reading_and_a_row_opens_a_profile(moun
     live.plant_scorers()
     # a reply without `lead` (an older edge copy) is not "no touchdowns yet": the tab is still reading
     live.drop_lead_from_reply()
-    assert live.rows_and_text_built() == [0, "Reading Sleeper's live stats…"]
+    assert live.rows_and_text_built() == [0, words("live.tds.loading")]
     live.drop_stats()
-    assert live.rows_and_text_built() == [0, "Reading Sleeper's live stats…"]
+    assert live.rows_and_text_built() == [0, words("live.tds.loading")]
     live.plant_scorers()
     opened = live.profile_from_first_row_built()
     assert opened["n"] == "Test Rusher" and opened["slug"] == "test-rusher" and opened["pos"] == "RB"
@@ -111,7 +112,7 @@ def test_chips_narrow_both_views_and_an_empty_result_is_one_line(mount):
     assert len(cards) == 1 and cards[0]["rows"] == [mine]
     # nothing matches: one line, in either view
     chip("pass")
-    assert live.empty_count() == 1 and live.empty_text() == "No touchdowns match."
+    assert live.empty_count() == 1 and live.empty_text() == words("live.tds.noMatch")
     live.toggle_by_game()
     assert live.empty_count() == 1 and live.row_count() == 0
     # filters clear on a visit; the view stays (Feed here, so By game is not pressed either)
@@ -123,7 +124,7 @@ def test_chips_narrow_both_views_and_an_empty_result_is_one_line(mount):
 def test_mine_is_the_readers_pick_and_with_none_it_says_to_pick(mount):
     live, mine, errors = LiveTdsPage.open_games_day(mount)
     live.forget_team_and_filter_mine()
-    assert live.empty_text() == "Pick your team to see your players."
+    assert live.empty_text() == words("live.tds.pickTeam")
     assert errors == []
 
 

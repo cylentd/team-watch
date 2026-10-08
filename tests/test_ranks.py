@@ -13,6 +13,7 @@ from ranks import live_ranks, natural_breaks  # noqa: E402
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.ranks import RanksPage  # noqa: E402
 from pages.teamswitch import TeamSwitchPage  # noqa: E402
+from wording import words  # noqa: E402
 
 # A first visit: nothing picked, nothing followed (the suite's seed picks and follows David's teams).
 FRESH_READER = 'try { localStorage.removeItem("tw-team"); localStorage.removeItem("tw-follow"); } catch (e) {}\n'
@@ -245,8 +246,8 @@ def test_ranks_tags_a_matchup_from_half_a_point(mount):
     assert errors == []
 
 
-NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
-TIP = "The books priced a teammate, not him; backs like this score about a third of their projection."
+NOTE = words("ranks.rb.note")
+TIP = words("ranks.noline.tip")
 
 
 @pytest.mark.render
@@ -259,8 +260,8 @@ def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(mou
     rows = ranks.rows()
     assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
     sub = ranks.sub()
-    assert NOTE in sub and sub.count(NOTE) == 1 and "No line " + TIP in sub
-    assert [r["noline"] for r in rows if r["noline"]] == [{"text": "No line", "title": TIP}]
+    assert NOTE in sub and sub.count(NOTE) == 1 and words("ranks.noline.word") + " " + TIP in sub
+    assert [r["noline"] for r in rows if r["noline"]] == [{"text": words("ranks.noline.word"), "title": TIP}]
     assert next(r for r in rows if r["slug"] == "kendre-miller")["noline"] is not None
     ranks.pick("FLEX")
     assert ranks.sub().count(NOTE) == 0
@@ -282,7 +283,7 @@ def test_an_unlined_backups_profile_strip_wears_the_tag(mount):
     profile.close()
     page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
     profile = ranks.open_player("chase-brown")
-    assert profile.notes()[-1] == "No line" + TIP
+    assert profile.notes()[-1] == words("ranks.noline.word") + TIP
     assert profile.noline_tips() == [TIP]
     assert errors == []
 

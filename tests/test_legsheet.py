@@ -14,6 +14,7 @@ from pages.parlay import ParlayPage
 from pages.parlay_build import BuildPage
 from pages.warm import warm
 from test_render import open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -83,7 +84,7 @@ def test_a_receptions_sheet_with_usage_fits_one_phone_screen(mount):
     assert sheet.bar_count() == 10, "the last 10 of his 11 games"
     assert sheet.driver_cells() == 10, "targets under every bar"
     assert sheet.caption().startswith("Over 4.5 in ")
-    assert sheet.tile_labels() == ["Targets/gm", "Target share", "Catch rate"]
+    assert sheet.tile_labels() == [words("legsheet.tile.tgtPg"), words("legsheet.tile.tgtShare"), words("legsheet.tile.catch")]
     match = sheet.match_head()
     assert match.startswith("vs NYJ · allows 5% fewer WR receptions than average") and match.endswith("2 starters out")
     assert not sheet.match_names_visible(), "the names wait for a tap"

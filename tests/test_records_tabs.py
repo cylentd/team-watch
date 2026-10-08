@@ -8,6 +8,9 @@ import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.records import RecordsPage  # noqa: E402
+from wording import words  # noqa: E402
+
+ALL_TIME, TRADES = words("records.tab.alltime"), words("records.tab.trades")
 
 
 @pytest.mark.req("Trade history", ac="Records has two tabs, All-time first, and Trade history opens the old Trades page")
@@ -15,13 +18,13 @@ from pages.records import RecordsPage  # noqa: E402
 def test_records_has_all_time_and_trade_history_and_the_second_opens_the_old_trades_page(mount, size):
     page, errors = mount("records", size=size)
     r = RecordsPage(page)
-    assert r.tabs() == [{"label": "All-time", "pressed": True}, {"label": "Trade history", "pressed": False}]
+    assert r.tabs() == [{"label": ALL_TIME, "pressed": True}, {"label": TRADES, "pressed": False}]
     assert r.showing() == "alltime"
-    r.select("Trade history")
+    r.select(TRADES)
     assert r.showing() == "trades" and r.history_has_ranking(), "the ranking, the heists and the curses the Trades leaf drew"
-    assert r.labels() == ["All-time", "Trade history"] and r.tabs()[1]["pressed"] is True
+    assert r.labels() == [ALL_TIME, TRADES] and r.tabs()[1]["pressed"] is True
     assert r.fits()
-    r.select("All-time")
+    r.select(ALL_TIME)
     assert r.showing() == "alltime"
     assert errors == []
 
@@ -39,6 +42,6 @@ def test_a_league_with_no_graded_trades_has_no_trade_history_tab(mount):
 def test_the_chosen_tab_is_kept_for_the_visit(mount):
     page, _ = mount("records", size=(1280, 900))
     r = RecordsPage(page)
-    r.select("Trade history")
+    r.select(TRADES)
     page.evaluate("render()")
     assert r.showing() == "trades" and r.tabs()[1]["pressed"] is True

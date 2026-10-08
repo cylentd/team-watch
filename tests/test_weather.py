@@ -21,6 +21,7 @@ import pytest
 
 from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.weather import WeatherPage
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -64,7 +65,7 @@ def test_no_method_notes(weather):
 def test_the_heading_says_which_way_and_counts_in_words(weather):
     wx, _ = weather
     rule = wx.rule_text()
-    assert "Games where weather lowers scoring".upper() in rule.upper() and "1 game" in rule
+    assert words("weather.moves.lower").upper() in rule.upper() and "1 game" in rule
     assert not re.search(r"\b0\d\b", rule)
 
 
@@ -73,7 +74,7 @@ def test_every_other_game_is_one_compact_row(weather):
     wx, _ = weather
     got = wx.rows()
     assert [r.split(" ")[0:3] for r in got] == [["MIA", "@", "NE"], ["JAX", "@", "IND"], ["WSH", "@", "LAR"]]
-    assert "No forecast yet" in got[0] and "74°F · 7 mph" in got[1]
+    assert words("weather.row.nofc") in got[0] and "74°F · 7 mph" in got[1]
     assert "°F" not in got[2] and "mph" not in got[2]
     assert not any("your" in r for r in got)
 
@@ -81,7 +82,7 @@ def test_every_other_game_is_one_compact_row(weather):
 def test_a_week_with_no_qualifying_game_says_so_plainly(weather):
     wx, errors = weather
     html = wx.calm_week_html()
-    assert "The weather won't move scoring in any game this week." in html
+    assert words("weather.moves.none") in html
     assert 'class="wt-card"' not in html
     assert errors == []
 
@@ -97,16 +98,16 @@ def test_a_book_priced_hit_says_in_the_odds_and_why_on_tap(weather):
     wx, errors = weather
     wx.plant_hits([{"slug": "x-y", "n": "Xavier Young", "pos": "WR", "team": "DET", "wx": None, "src": "line"},
                    {"slug": "z-z", "n": "Zed Zee", "pos": "TE", "team": "DET", "wx": None, "src": "model"}], 9)
-    assert wx.probe_odds_label(0) == "in the odds"
+    assert wx.probe_odds_label(0) == words("weather.hits.odds")
     assert wx.probe_odds_count(1) == 0 and wx.probe_adj_count(1) == 0
     assert not wx.odds_tip_visible()
     wx.open_odds_tip_by_keyboard(0)
     assert wx.odds_tip_visible()
-    assert wx.odds_tip_text() == "His projection comes from sportsbook lines, which already price the forecast."
+    assert wx.odds_tip_text() == words("weather.hits.oddsTip")
     wx.press_escape()
     wx.unplant()
     head = wx.hits_head()
-    assert "Who it hits" in head and "already in his projection" in head
+    assert words("weather.hits.title") in head and words("weather.hits.adjHead") in head
     assert errors == []
 
 
@@ -154,7 +155,7 @@ def test_a_retractable_roof_says_it_may_close(node_js, built):
         const fc = Object.assign({}, r.fc, {wind: '20 mph', precip_pct: 0});
         const x = Object.assign({}, r, {fc, mph: 20}); x.conds = wtConditions(x); x.effects = wtEffects(x.conds);
         return wtCondHTML(x); }""")
-    assert "roof may close" in said
+    assert words("profile.weather.retractable") in said
 
 
 def test_projection_rows_pass_wx_through():

@@ -4,7 +4,8 @@ What one run captures, for every surface and its main toggles, at a desktop and 
 `#view`, `#drawer` and `#modal` markup (headshot data URIs elided) and the computed style of the first
 element carrying each class the CSS defines, over the properties a theme change would move.
 A refactor that promises "no visual change" is proved here by an empty diff; an intended change
-regenerates the golden with `pytest --update-golden` and the diff is the review.
+regenerates the golden (tests/golden/<area>.json, one file per area) with `pytest --update-golden`
+and the diff is the review.
 
 Deterministic by construction: fixture inputs, Math.random seeded and Date.now pinned before load
 (the gallery hides games that have kicked off), external requests
@@ -22,10 +23,18 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
 from impact import area_of  # noqa: E402  (scripts/impact.py maps a changed golden state the same way)
+from wording import words  # noqa: E402
 
 pytestmark = pytest.mark.render
 
-GOLDEN_FILE = "render.json"
+
+
+def golden_path(area):
+    """An area's golden file, tests/golden/<area>.json: its states, keyed viewport -> state."""
+    from conftest import GOLDEN
+    return GOLDEN / f"{area}.json"
+
+
 # My teams asks whose team first (teamswitch.js pickHTML, 2026-09-27). Every page here reads as David
 # on his own Yahoo team unless a test picked another; the picker's own tests clear it (test_picker.py).
 # And as David's own browser (data/owner.js): his Waivers, not the Most added list, unless a test
@@ -823,31 +832,36 @@ def test_no_fenced_rule_misses_its_element(snapshot, area):
     assert snapshot.outside[area] == {}
 
 
+def tab(key):
+    """A sub-row tab's label as the pressed tab reads it (the page upper-cases it)."""
+    return words(key).upper()
+
+
 @pytest.mark.parametrize("leaf,group,label", [
-    ("ranks", "scouting", "RANKS"),
-    ("board", "scouting", "LEADERS"),  # the leaf is still `board`, so its bookmarks land
-    ("movers", "scouting", "WORK VS POINTS"),   # Movers until 2026-09-29, Role until 2026-10-05; the leaf kept its name
-    ("highlights", "scouting", "HIGHLIGHTS"),
-    ("pool", "scouting", "WORK VS POINTS"),     # the old Movers view's hash, kept for bookmarks
-    ("usage", "scouting", "USAGE"),             # Grid until 2026-10-05
-    ("matchups", "week", "MATCHUPS"),   # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03 -> Matchups 2026-10-06; the leaf stayed
-    ("takes", "week", "MATCHUPS"),
-    ("startsit", "week", "MATCHUPS"),
-    ("news", "week", "NEWS"),           # Players until 2026-09-29; the leaf and hash stayed
+    ("ranks", "scouting", tab("nav.tab.ranks")),
+    ("board", "scouting", tab("nav.tab.board")),  # the leaf is still `board`, so its bookmarks land
+    ("movers", "scouting", tab("nav.tab.movers")),   # Movers until 2026-09-29, Role until 2026-10-05; the leaf kept its name
+    ("highlights", "scouting", tab("nav.tab.highlights")),
+    ("pool", "scouting", tab("nav.tab.movers")),     # the old Movers view's hash, kept for bookmarks
+    ("usage", "scouting", tab("nav.tab.grid")),             # Grid until 2026-10-05
+    ("matchups", "week", tab("nav.tab.matchups")),   # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03 -> Matchups 2026-10-06; the leaf stayed
+    ("takes", "week", tab("nav.tab.matchups")),
+    ("startsit", "week", tab("nav.tab.matchups")),
+    ("news", "week", tab("nav.tab.news")),           # Players until 2026-09-29; the leaf and hash stayed
     ("weather", "week", None),          # out of the sub-row since 2026-10-05 (nav.js NAV_HIDDEN): the hash still lands, no button is pressed
-    ("schedule", "scouting", "SCHEDULE"),   # Stats > Schedule: hidden 2026-10-05, back in the sub-row 2026-10-06
-    ("weekrecap", "week", "RECAP"),
-    ("preview", "week", "PREVIEW"),
-    ("waivers", "league", "WAIVERS"),   # Teams and League merged into one League group on 2026-10-05
-    ("roster", "league", "ROSTER"),
-    ("recap", "league", "RECAP"),
-    ("myrecap", "league", "RECAP"),     # Yahoo's My recap and ESPN's League are Recap now; their hashes still land
-    ("league", "league", "RECAP"),
-    ("parlay", "bets", "SLIPS"),        # the leaf is still `parlay`, so its bookmarks land
-    ("build", "bets", "ALL LINES"),   # Build until 2026-10-05; the leaf kept its name
-    ("records", "league", "RECORDS"),   # League became a group of its own on 2026-09-28
-    ("trades", "league", "TRADES"),
-    ("teams", "league", "TEAMS"),       # League > Teams, the League board (2026-10-05)
+    ("schedule", "scouting", tab("nav.tab.schedule")),   # Stats > Schedule: hidden 2026-10-05, back in the sub-row 2026-10-06
+    ("weekrecap", "week", tab("nav.tab.weekrecap")),
+    ("preview", "week", tab("nav.tab.preview")),
+    ("waivers", "league", tab("nav.tab.waivers")),   # Teams and League merged into one League group on 2026-10-05
+    ("roster", "league", tab("nav.tab.roster")),
+    ("recap", "league", tab("nav.tab.recap")),
+    ("myrecap", "league", tab("nav.tab.recap")),     # Yahoo's My recap and ESPN's League are Recap now; their hashes still land
+    ("league", "league", tab("nav.tab.recap")),
+    ("parlay", "bets", tab("nav.tab.parlay")),        # the leaf is still `parlay`, so its bookmarks land
+    ("build", "bets", tab("nav.tab.build")),   # Build until 2026-10-05; the leaf kept its name
+    ("records", "league", tab("nav.tab.records")),   # League became a group of its own on 2026-09-28
+    ("trades", "league", tab("nav.tab.trades")),
+    ("teams", "league", tab("nav.tab.teams")),       # League > Teams, the League board (2026-10-05)
 ])
 def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
     """The view lives in the hash so a reload lands where you were reading. Renaming a leaf, or
@@ -1123,9 +1137,9 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 
 
 @pytest.mark.parametrize("day,hash,surface,first", [
-    ("tue", "", "waivers", "WAIVERS"),     # claims day: Waivers opens and leads its group
-    ("tue", "#roster", "roster", "WAIVERS"),   # a hash still wins
-    ("sat", "", "digest", "DIGEST"),       # any other day: the Digest, first of This week (Digest, Weather)
+    ("tue", "", "waivers", tab("nav.tab.waivers")),     # claims day: Waivers opens and leads its group
+    ("tue", "#roster", "roster", tab("nav.tab.waivers")),   # a hash still wins
+    ("sat", "", "digest", tab("nav.tab.digest")),       # any other day: the Digest, first of This week (Digest, Weather)
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a
@@ -1211,15 +1225,16 @@ def diff(golden, now, limit=25):
 
 @pytest.mark.parametrize("area", by_slice(SLICES, lambda k: k))
 def test_matches_golden(snapshot, update_golden, area):
-    """One slice's states against the golden. An update rewrites that slice's states only, and drops
-    states that no longer exist, so `--areas x --update-golden` leaves every other area as it was."""
+    """One slice's states against its area's golden file. An update rewrites that slice's states in
+    that one file only, and drops states that no longer exist, so `--areas x --update-golden` leaves
+    every other area's file as it was."""
     from conftest import GOLDEN
     out, _ = snapshot(area)
-    path = GOLDEN / GOLDEN_FILE
+    path = golden_path(SLICES[area][0])
     golden = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     if update_golden or not path.exists():
         if os.environ.get("PYTEST_XDIST_WORKER"):
-            pytest.fail("--update-golden runs without -n: areas on two workers would each rewrite the one file")
+            pytest.fail("--update-golden runs without -n: an area's slices on two workers would each rewrite its one file")
         names = {s for s, _ in STATES}
         for vp in VIEWPORTS:
             kept = {s: p for s, p in golden.get(vp, {}).items() if s in names and s not in SLICES[area][1]}
@@ -1228,4 +1243,4 @@ def test_matches_golden(snapshot, update_golden, area):
         path.write_text(json.dumps(golden, indent=0, sort_keys=True), encoding="utf-8", newline="\n")
         pytest.skip(f"golden written for {area}: {path.relative_to(GOLDEN.parents[1])}")
     d = diff(golden, out)
-    assert d == [], "rendered page differs from tests/golden/render.json (pytest --update-golden if intended):\n" + "\n".join(d)
+    assert d == [], f"rendered page differs from tests/golden/{path.name} (pytest --update-golden if intended):\n" + "\n".join(d)

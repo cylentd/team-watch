@@ -14,6 +14,7 @@ import contract  # noqa: E402
 import teams  # noqa: E402
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.teams import open_teams  # noqa: E402
+from wording import words  # noqa: E402
 
 
 def slug(name):
@@ -342,7 +343,7 @@ def test_every_team_gets_a_card_with_its_starters_its_bench_and_bye_or_a_dash_fo
 def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_tap_on_a_card_opens_nothing(mount):
     board, _ = open_teams(mount, "nothing")
     board.show_league("espn")
-    assert [c["foot"] for c in board.cards()] == ["This is my team", "This is my team"]
+    assert [c["foot"] for c in board.cards()] == [words("lboard.team.mine")] * 2
     assert not any(c["mine"] or c["yours"] or c["tradeLink"] for c in board.cards()), "no team yet, so nobody to trade with"
     link = board.foot_box("espn-run-it-back")
     assert link["bg"] == "rgba(0, 0, 0, 0)", "a text link: lime is for the one primary action on a screen"
@@ -353,9 +354,9 @@ def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_ta
     cards = board.cards()
     assert [(c["name"], c["mine"], c["yours"], c["setButton"]) for c in cards] == [
         ("Run It Back", True, True, False), ("Purdy Big in Japan", False, False, False)]
-    assert cards[0]["foot"] == "Your team"
+    assert cards[0]["foot"] == words("lboard.team.yours")
     assert not cards[1]["setButton"] and not cards[1]["yours"], "once the reader has a team here no other card offers it"
-    assert cards[1]["foot"] == "Trades with them ›", "the other card ends in the trade link instead"
+    assert cards[1]["foot"] == words("lboard.team.trades"), "the other card ends in the trade link instead"
     assert board.stored_team() == "espn-run-it-back"
 
 
@@ -364,8 +365,8 @@ def test_with_no_team_every_foot_offers_this_is_my_team_as_a_quiet_link_and_a_ta
 def test_another_teams_card_ends_in_trades_with_them_at_the_right_end_of_its_foot(mount):
     board, errors = open_teams(mount, "espn")
     cards = {c["key"]: c for c in board.cards()}
-    assert cards["espn"]["foot"] == "Your team" and not cards["espn"]["tradeLink"], "the reader's own card has nobody to trade with"
-    assert cards["espn-run-it-back"]["foot"] == "Trades with them ›"
+    assert cards["espn"]["foot"] == words("lboard.team.yours") and not cards["espn"]["tradeLink"], "the reader's own card has nobody to trade with"
+    assert cards["espn-run-it-back"]["foot"] == words("lboard.team.trades")
     card, link = board.box("espn-run-it-back"), board.foot_box("espn-run-it-back")
     assert 0 <= (card["x"] + card["w"]) - (link["x"] + link["w"]) <= 14, f"flush with the card's right padding: {link} in {card}"
     assert link["h"] >= 44 and link["bg"] == "rgba(0, 0, 0, 0)"

@@ -52,7 +52,7 @@ tests, goldens, test history.
 | While working | `python scripts/run_tests.py` (what your edits can break, in parallel, ~12-15 s) |
 | Full suite | `python scripts/run_tests.py --full` (in parallel, ~43-110 s) |
 | One golden slice | `python -m pytest tests/test_render.py --areas ranks` (~10 s) |
-| Regenerate golden | `python -m pytest --update-golden` (never with `-n`: every area rewrites the one file) |
+| Regenerate golden | `python -m pytest --update-golden` (rewrites `tests/golden/<area>.json` for the areas it ran; add `--areas x` to limit; never with `-n`: an area's slices share one file) |
 | Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (`.testing.json` picks the files, `scripts/mutate_tests.py` the tests) |
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
 | Where a run's time went | `python scripts/testlog.py --profile` (harness vs tests, fixtures, workers; `--last` for any run) |
@@ -74,7 +74,7 @@ tests, goldens, test history.
   `Test-Reapproved: <entry> <reason>`, written only after David says yes. Source with no test
   needs `Test-Exempt: <reason>`. `$TESTING_SKILL` points the scripts at an uninstalled skill checkout.
 - **A new test file** is listed in `tests/impact.json` (`test_impact.py` fails otherwise).
-- **Protected:** `tests/golden/render.json` (only through `--update-golden`, diff read as the review);
+- **Protected:** `tests/golden/*.json` (only through `--update-golden`, diff read as the review);
   `tests/fixtures/` (only with the golden regenerated); the ratchet numbers in `test_budgets.py`
   and `test_layer_ratchet.py`, which only shrink.
 

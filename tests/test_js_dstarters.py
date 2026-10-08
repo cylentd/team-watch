@@ -14,6 +14,7 @@ import re
 import pytest
 
 from d_starters import live_d_starters
+from wording import words
 
 FIX = live_d_starters(json.loads((pathlib.Path(__file__).parent / "fixtures" / "data" / "d_starters.json").read_text(encoding="utf-8")))
 REQ = "Defenders out"
@@ -97,7 +98,8 @@ def test_singular_and_the_names_cap(ds):
 @pytest.mark.req(REQ, ac="a status is a word the reader knows, and a status the page does not know is shown as it came")
 def test_status_words(ds):
     assert [ds("dsStatusWord", s) for s in ("Out", "Doubtful", "IR", "PUP", "Sus", "Suspended", "Off team")] == [
-        "Out", "Doubtful", "Injured reserve", "PUP list", "Suspended", "Suspended", "Left the team"]
+        words("ds.status.out"), words("ds.status.doubtful"), words("ds.status.ir"), words("ds.status.pup"),
+        words("ds.status.sus"), words("ds.status.suspended"), words("ds.status.offteam")]
     assert ds("dsStatusWord", "Mystery") == "Mystery"
 
 

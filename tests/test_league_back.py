@@ -12,6 +12,7 @@ sys.path.insert(0, str(REPO / "api"))
 import contract                              # noqa: E402
 from league_recap import live_league_yahoo   # noqa: E402
 from _espn import slugify                    # noqa: E402
+from wording import words                    # noqa: E402
 
 FIX = REPO / "tests" / "fixtures" / "data"
 read = lambda n: json.loads((FIX / n).read_text(encoding="utf-8"))
@@ -288,7 +289,7 @@ def test_a_tag_carries_its_label_tone_and_team(recap_js):
     assert tags["top"] == {"k": "top", "label": "Top dog", "tone": "g", "id": 1}
     assert tags["close"]["label"] == "Nail-biter" and tags["close"]["tone"] == "x"
     far = {**BUSY, "awards": {"close": {"id": 1, "opp": 2, "v": 14.0, "p": 120.0, "op": 106.0}}}
-    assert recap_js("lgGameTags", far, BUSY["games"][0])[0]["label"] == "Closest game", "10 points or more is not a nail-biter"
+    assert recap_js("lgGameTags", far, BUSY["games"][0])[0]["label"] == words("league.sup.closest"),"10 points or more is not a nail-biter"
     rest = {**BUSY, "awards": {k: v for k, v in BUSY["awards"].items() if k not in ("top", "close")}}
     assert [(t["k"], t["tone"]) for t in recap_js("lgGameTags", rest, BUSY["games"][0])] == [("low", "r"), ("unluck", "r")]
     amber = {**BUSY, "awards": {"bench": BUSY["awards"]["bench"]}}
@@ -329,12 +330,13 @@ def test_the_luck_ladder_ranks_every_team_luckiest_first_and_never_says_robbed(r
     # "Unlucky", plain (David asked what "Snakebit" meant, 2026-10-06; its first name, kept clear of "Robbed")
     assert html.count("Lucky") == 1 and html.count("Unlucky") == 1 and "Robbed" not in html and "Snakebit" not in html
     assert "+1.2" in html and "−1.1" in html and ">0.0<" in html, "the luck as a signed number, one decimal"
-    assert "vs. what their points earned" in html and "all-play" not in html.lower()
+    assert words("league.luck.sub") in html and "all-play" not in html.lower()
     # A chart, not a second table (David, 2026-10-06, "looks the same" as the standings): a bar per team from
     # a zero line, its length against the week's biggest luck, its side by sign; no record column.
     bars = recap_js("(table) => [...lgLuckHTML({table}).matchAll(/lg-luckbar (up|dn|zero)\" style=\"--w:([\\d.]+)%/g)].map(m => [m[1], +m[2]])", table)
     assert bars == [["up", 100], ["up", 33.3], ["zero", 0], ["dn", 25], ["dn", 91.7]]
     assert "2–2" not in html, "the standings carry the records"
+    assert recap_js("(table) => lgLuckHTML({table})", []) == "", "no table, no section"
 
 
 def test_the_league_section_has_one_headline_and_it_tops_the_lead(recap_js):
@@ -344,7 +346,11 @@ def test_the_league_section_has_one_headline_and_it_tops_the_lead(recap_js):
                     " return lgLeagueHTML(w); }")
     lead = html[html.index('<article class="bp2-lead'):html.index("</article>")]
     assert html.count('class="lg-hl') == 1 and 'class="lg-hl' in lead, "one headline, inside the lead card"
-    assert recap_js("(table) => lgLuckHTML({table})", []) == "", "no table, no section"
+
+
+def test_the_unluckiest_loss_tag_is_the_ladders_word_for_bad_luck(recap_js):
+    # 2026-10-06: one word for bad luck, the week's tag and the season's chart alike.
+    assert recap_js("() => lgSupLabel('unluck', {v: 120})") == words("league.luck.unlucky")
 
 
 def test_the_lead_reads_headline_score_then_one_report_paragraph(recap_js):
@@ -385,17 +391,12 @@ def test_a_card_stacks_its_score_winner_over_loser_each_row_with_its_own_stamps(
     rows = html.split('class="bp2-sr ')[1:]
     assert len(rows) == 2 and "beat" not in html and "bp2-sgame" not in html
     assert recap_js("(id) => lgMgr(id)", winner) in rows[0] and 'lg-stamp g">Top dog<' in rows[0] and "Dumpster" not in rows[0]
-    assert recap_js("(id) => lgMgr(id)", loser) in rows[1] and 'lg-stamp r">Dumpster fire<' in rows[1]
+    assert recap_js("(id) => lgMgr(id)", loser) in rows[1] and f'lg-stamp r">{words("league.sup.low")}<' in rows[1]
     assert rows[0].startswith("bp2-w") and rows[1].startswith("bp2-w" if win == "tie" else "bp2-l"), "a tie dims neither"
     # the Nail-biter (two stamps a game at most, and it always keeps one place: lgGameTags) spans the rows
     close = {"games": [], "awards": {"close": {"id": winner, "v": 5}}}
     html = recap_js("(g, w) => lgScoreRowsHTML(g, w)", g, close)
     assert html.count("Nail-biter") == 1 and html.endswith('<span class="bp2-sgame"><span class="lg-stamp x">Nail-biter</span></span></span>')
-
-
-def test_the_unluckiest_loss_tag_says_unlucky_never_robbed(recap_js):
-    # 2026-10-06: one word for bad luck, the week's tag and the season's chart alike.
-    assert recap_js("() => lgSupLabel('unluck', {v: 120})") == "Unlucky"
 
 
 def test_a_score_line_says_beat_not_def(recap_js):
@@ -416,8 +417,8 @@ def test_each_stamp_sits_beside_the_team_it_names_and_the_nail_biter_closes_the_
     w = {"games": [], "awards": {"top": {"id": winner, "v": 150}, "low": {"id": loser, "v": 60}}}
     html = recap_js("(g, w) => lgScoreLineHTML(g, w)", g, w)
     first, second = html.split('class="bp2-d"', 1)        # the winner's half, then "beat" and the loser's
-    assert recap_js("(id) => lgMgr(id)", winner) in first and 'lg-stamp g">Top dog<' in first and "Dumpster fire" not in first
-    assert recap_js("(id) => lgMgr(id)", loser) in second and 'lg-stamp r">Dumpster fire<' in second and "Top dog" not in second
+    assert recap_js("(id) => lgMgr(id)", winner) in first and 'lg-stamp g">Top dog<' in first and words("league.sup.low") not in first
+    assert recap_js("(id) => lgMgr(id)", loser) in second and f'lg-stamp r">{words("league.sup.low")}<' in second and "Top dog" not in second
     close = {"games": [], "awards": {"close": {"id": winner, "v": 5}}}
     html = recap_js("(g, w) => lgScoreLineHTML(g, w)", g, close)
     assert html.rstrip().endswith('<span class="lg-stamp x">Nail-biter</span>'), html
@@ -472,7 +473,7 @@ def test_your_game_box_opens_nothing_by_default_and_names_three_disclosures(reca
     html = recap_js("() => { LG_WEEK = null; return lgBackWeekHTML(9); }")
     box = html[html.index('<div class="lg-you'):html.index('<section class="lg-league')]
     assert box.count("<details") == 3 and " open" not in box
-    assert "Box score" in box and "You in the record book" in box and "Next week vs" in box
+    assert "Box score" in box and words("myrecap.book") in box and "Next week vs" in box
     assert "Your game" in box
 
 

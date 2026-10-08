@@ -17,11 +17,12 @@ from component import mount  # noqa: F401  (the fixture)
 from pages.parlay import ParlayPage
 from pages.parlay_build import BuildPage
 from test_render import open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
 SECTION = "Parlay and DFS"
-NOTE = "Same-game legs move together; the combined chance isn't shown."
+NOTE = words("slips.joint.note")
 # The book moves every line far from the model (build.py `stale`): a moved line never counts as paying more.
 MOVE_EVERY_LINE = "() => { PROPS.forEach(p => { p.stale = 1; if (p.books && p.books.Underdog) p.books.Underdog.stale = 1; }); render(); }"
 
@@ -206,7 +207,7 @@ def test_the_player_sheet_holds_every_line_with_its_last_four(mount):
     assert [(line["cells"], line["notes"]) for line in lines] == [(4, 0), (4, 0)], "no N of 4 any more"
     assert board.sheet_model_pcts() == ["28% to score"], "only the touchdown keeps a %"
     long = board.sheet_longest()
-    assert long["count"] == 1 and long["market"] == "Longest catch"
+    assert long["count"] == 1 and long["market"] == words("slips.line.longest")
     assert long["extras"] == 0, "history only"
     assert len(long["cells"]) == 4 and long["cells"][-1] == "–", "no catch logged reads as a dash"
     rec, tdi = board.props_index("Amon-Ra St. Brown", "REC"), board.props_index("Amon-Ra St. Brown", "TD")

@@ -10,6 +10,7 @@ import pytest
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.digest_live import LEAD, DigestLivePage
 from test_render import open_at
+from wording import words
 
 PHONE = (390, 844)
 
@@ -26,7 +27,7 @@ def test_during_a_game_the_headline_is_the_top_score_and_right_now_lists_five(mo
     dg.plant_live(noHurt=True, clock={"DET": {"state": "in", "q": 3, "clock": "4:12", "half": False, "detail": "", "clubs": ["DET"]}})
     assert dg.headline() == "St. Brown ERUPTS: 10 catches, 180 yards, 2 TDs"
     assert dg.lead_fact() == "12 tgt · Q3 4:12"                      # what the head (10 catches, 180 yards, 2 TDs) leaves out
-    assert dg.now_title() == "Right now"
+    assert dg.now_title() == words("digest.live.title")
     assert dg.facts_panels() == 1                                    # Right now is the one .dg-facts panel
     assert dg.now_rows() == 3                                        # three rows, then More (2026-10-05)
     first = dg.now_first_row_text()
@@ -149,7 +150,7 @@ def test_monday_night_is_one_card(mount):
     story = dg.tn_story()
     assert story == "Caleb Williams is out (hamstring). Case Keenum is CHI's projected QB."
     assert "books" not in story and "combined" not in story and "flat" not in story
-    assert dg.tn_list_heads() == ["Out", "Our calls", "Projected"], "no Moved list"
+    assert dg.tn_list_heads() == ["Out", words("digest.tn.calls.h"), words("digest.tn.proj.h")], "no Moved list"
     assert "move" not in dg.tn_foot()
     assert dg.retired_rows() == 0
     # After kickoff the card is the game's one block (mnf.js), a tap away from its sheet.

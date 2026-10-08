@@ -16,6 +16,7 @@ import pytest
 from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.accuracy import AccuracyPage
 from test_render import open_at
+from wording import words
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "data" / "accuracy.json"
 RAW = json.loads(FIXTURE.read_text(encoding="utf-8"))
@@ -154,7 +155,7 @@ def test_null_rank_fields_are_a_stated_empty_state_not_zeros(ac):
 def test_null_season_is_a_stated_empty_state_not_zeros(ac):
     html = ac("acHTML", ac("acView", RAW))
     season = html.split("data-acseason")[1].split("data-acweek=")[0]
-    assert "Season to date" in text(season) and "yet" in text(season).lower()
+    assert words("weekrecap.acc.season") in text(season) and "yet" in text(season).lower()
     assert 'data-acpos' not in season                       # no row of zeros
     assert "0.00" not in text(season)
 

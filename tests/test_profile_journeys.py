@@ -9,6 +9,7 @@ from conftest import SharedPages
 from pages.profile import ProfilePage
 from test_render import drive, go
 from test_render import open_page as open_any_page
+from wording import words
 
 REQ = "The profile modal"
 ST_BROWN = "Amon-Ra St. Brown"
@@ -70,7 +71,7 @@ def test_the_profile_reaches_his_row_in_the_usage_grid_in_one_tap(shared):
     profile.roster.show_team("espn")
     profile.open_from_roster("Chase Brown")
     link = profile.grid_link()
-    assert link["text"] == "His row in Usage"
+    assert link["text"] == words("profile.grid.open")
     assert link["height"] >= 44
     profile.follow_grid_link()
     profile.wait_surface("usage")
@@ -116,12 +117,12 @@ def test_the_sphere_opens_the_sheet_over_the_profile(shared):
     profile, errors = shared((1400, 900))
     profile.open_from_roster(ST_BROWN)
     rank = profile.rank_mark("WR", "wopr", "amonra-st-brown")
-    assert profile.orb_text() == f"{rank} TARGET SHARE"
+    assert profile.orb_text() == f"{rank} {words('profile.axis.wopr').upper()}"
     assert profile.radars() == 0                              # not drawn until asked for
     profile.tab("usage")
     profile.open_sheet()
     assert profile.layer_radars() == 1
-    assert profile.sheet_stat() == "Target share"
+    assert profile.sheet_stat() == words("profile.axis.wopr")
     profile.press_escape()
     assert profile.layers() == 0
     assert profile.is_open()

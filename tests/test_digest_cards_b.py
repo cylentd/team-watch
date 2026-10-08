@@ -18,6 +18,7 @@ import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.digest_cards_b import DigestCardsPage
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -46,7 +47,7 @@ def nth(n):
 def test_vegas_card_is_one_row_per_bet_with_vegas_beside_claude(mount):
     dg, errors = cards(mount)
     dg.at(THU)
-    assert dg.title("vegas") == "Claude vs Vegas"
+    assert dg.title("vegas") == words("digest.card.vegas.title")
     assert dg.table_head() == ["Bet", "Vegas", "Claude"]
     assert [(b["bet"], b["vegas"], b["claude"]) for b in dg.bets()] == [
         ("Winner", "PIT 56%", "PIT wins 58% chance"), ("Spread", "PIT by 2.5", "No pick"), ("Total", "38.5", "No pick")]
@@ -111,7 +112,7 @@ def test_vegas_card_is_absent_when_the_game_has_neither_a_line_nor_a_take(mount)
 def test_game_card_leads_with_smash_then_bold_starts_and_answers_with_the_pill_and_rank(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
-    assert dg.title("game") == "Start in this game"
+    assert dg.title("game") == words("digest.card.game.title")
     assert [(r["name"], r["pill"], r["answer"], r["meta"]) for r in dg.rows("game")] == [
         ("J. Burrow", "SMASH", "SMASH QB3", "CIN @ PIT"), ("C. Brown", "SMASH", "SMASH RB5", "CIN @ PIT"),
         ("J. Chase", "SMASH", "SMASH WR5", "CIN @ PIT"), ("T. Higgins", "START", "START WR16", "CIN @ PIT")]
@@ -122,7 +123,7 @@ def test_game_card_leads_with_smash_then_bold_starts_and_answers_with_the_pill_a
 def test_game_card_is_start_tonight_on_monday(mount):
     dg, errors = cards(mount)
     dg.plant_game(MON, "CIN", "PIT", MNF_KICK)
-    assert dg.title("game") == "Start tonight"
+    assert dg.title("game") == words("digest.card.game.tonight")
     assert dg.rows("game")[0]["name"] == "J. Burrow"
     assert errors == []
 
@@ -147,8 +148,8 @@ def test_game_card_research_is_our_rank_the_season_average_the_line_and_the_td_p
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
     burrow, higgins = dg.rows("game")[0], dg.rows("game")[3]
-    assert burrow["research"] == [["Our rank", "QB3"], ["Season average", "QB5"], ["Line", "262.5 pass yds"], ["TD price", "+120"]]
-    assert higgins["research"] == [["Our rank", "WR16"], ["Season average", "WR41"],
+    assert burrow["research"] == [["Our rank", "QB3"], [words("digest.card.game.avg"), "QB5"], ["Line", "262.5 pass yds"], ["TD price", "+120"]]
+    assert higgins["research"] == [["Our rank", "WR16"], [words("digest.card.game.avg"), "WR41"],
                                    ["Why", "PIT D vs WRs: 3rd softest"], ["Why", "Team total 27.5, 3rd of 32"]]
     assert errors == []
 
@@ -246,7 +247,7 @@ def test_a_row_in_another_card_closes_the_open_one(mount):
 @pytest.mark.req("Digest", ac="a pick word carries what its model has been through")
 def test_bold_card_is_the_two_widest_starts_then_the_two_widest_sits(mount):
     dg, errors = cards(mount)
-    assert dg.title("bold") == "Bold calls"
+    assert dg.title("bold") == words("digest.card.bold.title")
     assert [(r["name"], r["pill"], r["mark"], r["meta"]) for r in dg.rows("bold")] == [
         ("R. Stevenson", "START", COPY["matchups.takes.markStart"], "NE · RB · Our rank 15 · his season 36"),
         ("T. Higgins", "START", COPY["matchups.takes.markStart"], "CIN · WR · Our rank 16 · his season 41"),
@@ -258,7 +259,7 @@ def test_bold_card_is_the_two_widest_starts_then_the_two_widest_sits(mount):
 def test_bold_research_is_the_reasons_the_call_carries(mount):
     dg, errors = cards(mount)
     stevenson, higgins, moore = dg.rows("bold")[0], dg.rows("bold")[1], dg.rows("bold")[2]
-    assert stevenson["research"] == [["Our rank", "RB15"], ["Season average", "RB36"], ["Why", "Work up 3.1 a game over his last 2"]]
+    assert stevenson["research"] == [["Our rank", "RB15"], [words("digest.card.bold.avg"), "RB36"], ["Why", "Work up 3.1 a game over his last 2"]]
     assert [x for x in higgins["research"] if x[0] == "Why"] == [["Why", "PIT D vs WRs: 3rd softest"], ["Why", "Team total 27.5, 3rd of 32"]]
     assert moore["research"][2:] == [["Why", "Team total 17.0, 28th of 32"]]
     assert errors == []
@@ -280,10 +281,10 @@ def test_bold_card_answer_is_on_the_right_and_the_record_is_not_repeated_from_sm
 
 def test_calls_card_is_the_three_strongest_lines_with_the_chance_and_its_word(mount):
     dg, errors = cards(mount)
-    assert dg.title("calls") == "Top calls"
+    assert dg.title("calls") == words("digest.card.calls.title")
     assert [(r["name"], r["meta"], r["answer"], r["delta"]) for r in dg.rows("calls")] == [
-        ("C. Brown", "CIN · over 65.5 rush yds", "72% Very confident", "flat"),
-        ("J. Burrow", "CIN · under 245.5 pass yds", "64% Confident", "flat"),
+        ("C. Brown", "CIN · over 65.5 rush yds", f"72% {words('slips.tier.very')}", "flat"),
+        ("J. Burrow", "CIN · under 245.5 pass yds", f"64% {words('slips.tier.confident')}", "flat"),
         ("B. Purdy", "SF · under 220.5 pass yds", "59% Slight", "flat")]
     assert dg.more("calls") == {"leaf": "parlay", "text": "Slips"}
     assert errors == []
@@ -301,7 +302,7 @@ def test_calls_row_research_is_the_game_the_kickoff_and_his_average_under_the_ma
     dg.tap("calls", 1)
     assert dg.open_rows() == ["calls:J. Burrow"]
     burrow = dg.rows("calls")[1]
-    assert burrow["research"] == [["Game", "CIN @ NYJ"], ["Kickoff", "Sun 10:00 AM"], ["His average", "230 pass yds, last 12 games"]]
+    assert burrow["research"] == [["Game", "CIN @ NYJ"], ["Kickoff", "Sun 10:00 AM"], [words("digest.card.calls.avg"), "230 pass yds, last 12 games"]]
     assert burrow["foot"] == COPY["slips.tier.mark"]
     assert errors == []
 

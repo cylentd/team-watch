@@ -11,6 +11,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.mates import MatesPage
+from wording import words
 
 
 def block(built, name):
@@ -32,7 +33,7 @@ def test_a_leaguemate_picks_their_team_and_it_sticks(mount, built):
     assert mate.rows.count() == 0, "no roster until a pick"
     # Waivers and Recap do not ask (2026-10-05, the League merge): the wire and the league's week are the league's.
     mate.forget_owner_and_show_waivers()
-    assert mate.picker_count() == 0 and mate.chip.team_name() == "Pick your team"
+    assert mate.picker_count() == 0 and mate.chip.team_name() == words("league.chip.pick")
     mate.show("recap")
     assert mate.picker_count() == 0 and mate.chip.chip_switch_count() == 1
     mate.show("roster")

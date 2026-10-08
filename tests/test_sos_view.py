@@ -17,6 +17,7 @@ from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.schedule import ScheduleNav, SchedulePage
 from pages.statspos import StatsPosStrip
 from test_render import open_at
+from wording import words
 
 LABEL = "Context only"
 
@@ -54,7 +55,7 @@ def test_the_stats_sub_row_keeps_its_six_tabs_inside_the_phone(browser, page_fil
     the six are all there (Schedule back in the row, 2026-10-06), and the page itself never scrolls sideways."""
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#schedule")
     nav = ScheduleNav(page)
-    assert nav.sub_row() == ["Highlights", "Ranks", "Leaders", "Work vs points", "Usage", "Schedule"]
+    assert nav.sub_row() == [words(f"nav.tab.{k}") for k in ("highlights", "ranks", "board", "movers", "grid", "schedule")]
     assert nav.sub_row_overflow_x() == "auto"
     assert nav.page_scroll_width() <= 360
     ctx.close()
@@ -125,6 +126,6 @@ def test_a_desktop_joins_the_opponents_to_the_teams_line(mount):
 def test_no_file_is_a_stated_empty_state_with_no_controls(without_file):
     page, errors = without_file()
     sched = SchedulePage(page)
-    assert sched.empty_text().startswith("NO SCHEDULE YET")
+    assert sched.empty_text().startswith(words("sos.empty.title"))
     assert sched.row_count() == 0 and sched.control_count() == 0
     assert errors == []

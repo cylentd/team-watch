@@ -13,7 +13,7 @@ import pytest
 
 import component
 from component import mount  # noqa: F401  (the fixture)
-from pages.ros import RosPage
+from pages.ros import VIEWS, RosPage
 from test_ros import RAW
 from test_ros_fp import COMPARE
 import ros as ros_cut
@@ -55,10 +55,10 @@ def open_ros(mount, size=PHONE, init=(), pos="WR"):
 def test_ranks_gets_two_view_tabs_in_the_tab_row_and_the_second_opens_the_rest_of_season(mount):
     page, errors = mount("ranks", size=PHONE)
     ros = RosPage(page)
-    assert ros.view_tabs() == [("This week", True), ("Rest of season", False)]
+    assert ros.view_tabs() == [(VIEWS["week"], True), (VIEWS["ros"], False)]
     assert ros.tiers() > 0, "This week is today's Ranks, unchanged"
     ros.pick_view("ros")
-    assert ros.view_tabs() == [("This week", False), ("Rest of season", True)]
+    assert ros.view_tabs() == [(VIEWS["week"], False), (VIEWS["ros"], True)]
     assert ros.chips() == ["QB", "RB", "WR", "TE"], "no FLEX, D/ST or K: the value covers four positions"
     assert ros.tiers() == 0 and ros.surface() == "ranks"
     assert ros.fits() and errors == []
@@ -177,7 +177,7 @@ def test_no_team_picked_reads_half_ppr(mount):
 @pytest.mark.req("Ranks", ac="Rest of season: a desktop has the chart across the width above the list")
 def test_a_desktop_draws_the_chart_across_the_width_above_the_list(mount):
     page, errors, ros = open_ros(mount, size=DESKTOP)
-    assert ros.view_tabs() == [("This week", False), ("Rest of season", True)], "the view's own bar from 760px"
+    assert ros.view_tabs() == [(VIEWS["week"], False), (VIEWS["ros"], True)], "the view's own bar from 760px"
     chart = ros.chart()
     assert chart["box"]["w"] > 700, "wide, not a phone's chart in a corner"
     assert chart["box"]["y"] + chart["box"]["h"] <= ros.first_row_top() + 1

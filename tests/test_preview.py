@@ -21,6 +21,7 @@ from component import mount  # noqa: F401  (the fixture)
 from pages.preview import PreviewPage
 from preview import _ats, _base, _blind, _total, live_preview
 from test_render import open_at
+from wording import words
 
 FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "data" / "game_previews.json"
 
@@ -188,8 +189,9 @@ def preview(mount):
 @pytest.mark.render
 def test_the_slate_lists_every_game_by_window(preview):
     pv, errors = preview
-    assert pv.windows() == [["Thursday night", ["PIT @ CLE"]], ["Sunday morning", ["JAX @ LA"]], ["Sunday early", ["DET @ CAR"]],
-                            ["Sunday late", ["SF @ NYJ"]], ["Monday night", ["ATL @ NO"]]]
+    assert pv.windows() == [[words("preview.win.thu"), ["PIT @ CLE"]], [words("preview.win.sunam"), ["JAX @ LA"]],
+                            [words("preview.win.sun1"), ["DET @ CAR"]], [words("preview.win.sunlate"), ["SF @ NYJ"]],
+                            [words("preview.win.mon"), ["ATL @ NO"]]]
     assert pv.first_window_time() == "5:15 PM"      # the reader's clock (Pacific here), no "ET"
     assert not pv.is_open() and not pv.dossier_visible()
     assert errors == []
@@ -203,7 +205,7 @@ def test_a_row_is_the_call_then_the_headline(preview):
     screen and a confident pick."""
     pv, errors = preview
     assert pv.legacy_slate_parts() == 0
-    assert pv.lime_words() == ["Very confident", "Confident"]           # the phone has no game on screen
+    assert pv.lime_words() == [words("preview.conf.strong"), words("preview.conf.solid")]         # the phone has no game on screen
     assert pv.window_head_font().startswith("Newsreader")                # the day reads as a section head
     assert pv.row_head_font().startswith("Newsreader")
     assert "Claude's call arrives" in pv.row_text(4)
@@ -235,7 +237,7 @@ def test_a_row_shows_only_a_confident_pick(preview):
     confident speak there. A slight pick, no pick and no take draw nothing right of the matchup."""
     pv, errors = preview
     assert [pv.row_ats_count(i) for i in range(5)] == [0, 1, 1, 0, 0]    # no pick, strong, solid, slight, no take
-    assert pv.ats_words() == ["Very confident", "Confident"]
+    assert pv.ats_words() == [words("preview.conf.strong"), words("preview.conf.solid")]
     assert pv.side_word_count() == 0
     assert errors == []
 
@@ -289,7 +291,7 @@ def test_the_game_page_reads_like_a_newspaper(preview):
     ans = pv.answer_text().replace("\n", " ")
     assert [want for want in ("DET covers", "Confident", "Under", "Slight", "50.5", "DET by 3.5")
             if want not in ans] == []
-    assert pv.risk_text().startswith("What could go wrong.")
+    assert pv.risk_text().startswith(words("preview.risk"))
     # Show, don't tell (2026-09-30): no research notes, no before-the-line process, no footnotes.
     dz = pv.dossier_text()
     assert [gone for gone in ("before seeing the line", "moved it to 11", "Research notes", "5.1 yards a carry",
@@ -327,7 +329,7 @@ def test_past_games_opens_from_under_the_slate_and_back_closes_it(preview):
     pv, errors = preview
     assert pv.record.legacy_cards() == 0                                 # no record card on the slate
     assert pv.title() == "Game previews · Week 2"
-    assert pv.fold_texts() == ["Past weeks · Claude's record ›"]
+    assert pv.fold_texts() == [f"{words('preview.arc.past')} · {words('preview.arc.pastSub')} ›"]
     fold_top, games_bottom = pv.fold_edges()
     assert fold_top > games_bottom - 1                                   # under the games, not above them
     # Scrolled down to the row: a phone's bottom tab bar (2026-10-05) covers the screen's last 64px, so a
@@ -376,7 +378,7 @@ def test_a_game_that_is_over_leaves_the_slate_for_past_games(preview):
     assert [t.split(" ")[0:3] for t in pv.record.game_matches()] == [["PIT", "@", "CLE"], ["JAX", "@", "LA"]]
     pv.record.tap_game(1)
     assert pv.is_open() and pv.match() == "JAX @ LA"
-    assert pv.back_text() == "‹ Past games"
+    assert pv.back_text() == words("preview.backArc")
     assert pv.section_count("handoff") == 0                              # a finished game's lines are gone
     pv.tap_back()
     assert pv.record.visible() and pv.record.week_label() == "Week 2"
@@ -389,7 +391,8 @@ def test_every_game_over_says_so_on_the_slate(preview):
     pv.end_games(0, 1, 2, 3, 4)
     assert pv.window_count() == 0
     assert pv.all_over_text().startswith("Every game this week is over.")
-    assert pv.fold_texts() == ["Final · 5 games this week ›", "Past weeks · Claude's record ›"]
+    assert pv.fold_texts() == ["Final · 5 games this week ›",
+                               f"{words('preview.arc.past')} · {words('preview.arc.pastSub')} ›"]
     assert errors == []
 
 
@@ -417,7 +420,7 @@ def test_an_earlier_weeks_game_opens_from_the_archive(preview):
     pv.record.tap_archived_game()
     assert pv.is_open() and pv.match() == "DET @ CAR"
     assert pv.kickoff_text().startswith("Week 1 · ")
-    assert pv.back_text() == "‹ Past games"
+    assert pv.back_text() == words("preview.backArc")
     assert pv.section_kinds() == []                                      # an archived game keeps only its take
     assert all(t == "" for t in pv.projections())                        # no projection was archived
     pv.tap_back()
@@ -640,7 +643,7 @@ def test_the_dossier_hands_its_players_to_the_slip(browser, page_file):
         assert pv.section_count("handoff") == 0, "no game of the props slate is open"
         pv.handoff.plant_game_as_sea_sf()
         pv.handoff.open_game_for_real(3)   # the real open: it pushes the dossier's history entry
-        assert pv.handoff.title() == "From this game to your slip"
+        assert pv.handoff.title() == words("preview.row.slip")
         assert pv.handoff.players() == 1 and pv.handoff.lines() == 1, "one line each, his position's own (REC)"
         assert pv.handoff.market().startswith("Rec yds"), "the primary line is his yards market"
         assert pv.handoff.lines_label().startswith("2 lines"), "TD and yards; LONG is no line"

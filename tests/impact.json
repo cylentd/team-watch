@@ -18,7 +18,8 @@
     "tests/test_impact.py",
     "tests/test_sources_behind.py",
     "tests/test_page_leak.py",
-    "tests/test_smoke_views.py"
+    "tests/test_smoke_views.py",
+    "tests/test_wording.py"
   ],
   "areas": {
     "gestures": {

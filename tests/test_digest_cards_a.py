@@ -14,6 +14,7 @@ import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.digest_cards import DigestCardsPage
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -32,7 +33,7 @@ def day(mount, key):
 def test_top_adds_are_five_rows_with_the_number_that_earned_each(mount):
     dg, errors = day(mount, "tue")
     assert dg.card_ids() == ["adds", "gains", "usage"]
-    assert dg.card_head("adds") == {"title": "Top adds", "more": "waivers"}
+    assert dg.card_head("adds") == {"title": words("digest.card.adds.title"), "more": "waivers"}
     rows = dg.card_rows("adds")
     assert [(r["name"], r["answer"], r["dir"]) for r in rows] == [
         ("D. Boston", "53% +27 rostered", "up"), ("B. Young", "58% +25 rostered", "up"),
@@ -64,13 +65,13 @@ def test_an_adds_answer_is_sleepers_count_or_the_role_and_red_when_it_shrank(mou
 @pytest.mark.req("Digest", ac="Out and who gains: the next man's face and snaps, the starter out and why, facts with no verdict word")
 def test_gains_names_the_man_behind_the_starter_who_is_out(mount):
     dg, errors = day(mount, "tue")
-    assert dg.card_head("gains") == {"title": "Out, and who gains", "more": None}
+    assert dg.card_head("gains") == {"title": words("digest.card.gains.title"), "more": None}
     row = dg.card_rows("gains")[0]
     assert (row["name"], row["meta"], row["answer"], row["right"]) == (
         "D. Robinson", "LA · P. Nacua doubtful · Hip", "61% snaps", True)
     dg.open_row("gains", 0)
     text = dg.research("gains", 0)
-    assert "Targets last week" in text and "| 6" in text and "WR2" in text and "14%" in text
+    assert words("digest.card.gains.targets") in text and "| 6" in text and "WR2" in text and "14%" in text
     dg.plant_gains_without_a_backup()
     row = dg.card_rows("gains")[0]
     assert (row["name"], row["meta"], row["pill"]) == ("P. Nacua", "LA · No clear backup", "D")
@@ -80,9 +81,9 @@ def test_gains_names_the_man_behind_the_starter_who_is_out(mount):
 @pytest.mark.req("Digest", ac="Monday's gains card says it holds tonight's game only: gains drops the teams whose game started")
 def test_mondays_gains_card_is_about_tonight(mount):
     dg, errors = day(mount, "tue")
-    assert dg.card_head("gains")["title"] == "Out, and who gains"
+    assert dg.card_head("gains")["title"] == words("digest.card.gains.title")
     dg.at("2026-09-14T19:00:00Z")                      # a Monday inside the fixture packet's week
-    assert dg.card_head("gains")["title"] == "Out tonight and who's next"
+    assert dg.card_head("gains")["title"] == words("digest.card.gains.titleMon")
     assert errors == []
 
 
@@ -91,7 +92,7 @@ def test_usage_movers_show_the_share_the_line_and_the_untested_mark(mount):
     dg, errors = day(mount, "wed")
     # Top calls is in Wednesday's plan but the fixture's lines all kicked off in September, so it draws nothing here.
     assert dg.card_ids() == ["usage", "gains", "defenses", "adds"]
-    assert dg.card_head("usage") == {"title": "Usage movers", "more": "usage"}
+    assert dg.card_head("usage") == {"title": words("digest.card.usage.title"), "more": "usage"}
     rows = dg.card_rows("usage")
     assert [(r["name"], r["answer"], r["dir"], r["spark"], r["right"]) for r in rows] == [
         ("B. Robinson", "78% snaps +23 pts", "up", True, True), ("H. Fannin", "28% targets +17 pts", "up", True, True)]
@@ -100,14 +101,14 @@ def test_usage_movers_show_the_share_the_line_and_the_untested_mark(mount):
     assert "weeks 2–4" in foot and SAYS.search(foot), foot
     dg.open_row("usage", 1)
     text = dg.research("usage", 1)
-    assert "Target share" in text and "11% · 12% · 28%" in text and "David Njoku" in text and "24% → 12%" in text
+    assert words("digest.card.usage.tgtShare") in text and "11% · 12% · 28%" in text and "David Njoku" in text and "24% → 12%" in text
     assert dg.fits() and errors == []
 
 
 @pytest.mark.req("Digest", ac="Defenses giving up the most: one row per position, points a game and 'most of N', the schedule's own mark")
 def test_defenses_name_the_one_allowing_the_most_to_each_position(mount):
     dg, errors = day(mount, "wed")
-    assert dg.card_head("defenses") == {"title": "Softest defenses", "more": "schedule"}
+    assert dg.card_head("defenses") == {"title": words("digest.card.defenses.title"), "more": "schedule"}
     assert dg.title_fits("defenses"), "the title is one line at 360px"
     rows = dg.card_rows("defenses")
     assert [(r["tile"], r["name"], r["answer"]) for r in rows] == [
@@ -126,7 +127,7 @@ def test_defenses_name_the_one_allowing_the_most_to_each_position(mount):
 @pytest.mark.req("Digest", ac="Friday's Game status: every hurt player, the status at the right, Wed/Thu/Fri practice marks between")
 def test_game_status_shows_the_status_and_three_practice_marks(mount):
     dg, errors = day(mount, "fri")
-    assert dg.card_head("status") == {"title": "Game status", "more": "news"}
+    assert dg.card_head("status") == {"title": words("digest.card.status.title"), "more": "news"}
     rows = dg.card_rows("status")
     assert len(rows) == 12
     first, out, ir = rows[0], rows[1], rows[4]
@@ -154,7 +155,7 @@ def test_game_status_shows_the_status_and_three_practice_marks(mount):
 def test_thursdays_status_card_is_the_injury_watch_of_questionable_players(mount):
     dg, errors = day(mount, "thu")
     assert "status" in dg.card_ids()
-    assert dg.card_head("status")["title"] == "Injury watch"
+    assert dg.card_head("status")["title"] == words("digest.card.status.titleThu")
     rows = dg.card_rows("status")
     assert len(rows) == 7 and {r["answer"] for r in rows} == {"Q"}
     assert "P. Nacua" not in [r["name"] for r in rows]

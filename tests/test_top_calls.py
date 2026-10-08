@@ -7,6 +7,7 @@ Lower confident, Purdy PASS Lower slight, St. Brown REC Higher slight."""
 import pytest
 
 from test_render import open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -45,11 +46,11 @@ def test_top_calls_lead_slips_with_a_verdict_each(page):
     first = rows.first
     assert first.locator(".tpc-who b").inner_text() == "C. Brown"
     assert first.locator(".tpc-pick").inner_text().startswith("Higher rush yds"), "the side and the line"
-    assert first.locator(".sl-pc").inner_text() == "72%" and first.locator(".sl-conf").inner_text() == "Very confident"
+    assert first.locator(".sl-pc").inner_text() == "72%" and first.locator(".sl-conf").inner_text() == words("slips.tier.very")
     assert page.locator(".tpc-edge").count() == 0 and "break-even" not in page.locator(".tpc").inner_text(), \
         "no edge over the book's break-even (12.31: the model's +EV overs lose at the close; removed 2026-10-06)"
     tiers = page.locator(".tpc .sl-conf").all_inner_texts()
-    assert tiers == sorted(tiers, key=["Slight", "Confident", "Very confident"].index, reverse=True), "strongest first"
+    assert tiers == sorted(tiers, key=[words("slips.tier.slight"), words("slips.tier.confident"), words("slips.tier.very")].index, reverse=True), "strongest first"
 
 
 def test_one_tap_puts_the_calls_side_on_the_slip(page):
@@ -97,7 +98,7 @@ def test_the_scrim_and_back_close_the_modal(page):
 def test_the_sheets_model_side_carries_its_chance_beside_the_tier_word(page):
     page.evaluate("playerSheetOpen('chase-brown')")
     ln = page.locator("#legsheet .sl-ln.tiered")
-    assert ln.locator(".sl-tp").inner_text().replace("\n", " ") == "72% Very confident"
+    assert ln.locator(".sl-tp").inner_text().replace("\n", " ") == "72% " + words("slips.tier.very")
     page.keyboard.press("Escape")
     page.wait_for_function("LEG_SHEET === null")
 
@@ -105,9 +106,9 @@ def test_the_sheets_model_side_carries_its_chance_beside_the_tier_word(page):
 def test_build_is_all_lines_and_says_what_its_first_chip_keeps(page):
     page.evaluate("navGo('build')")
     assert page.locator("#subnav").inner_text().split("\n")[:3] == ["Slips", "All lines", "DFS"]
-    assert page.locator(".bets-best").inner_text() == "Better price"
+    assert page.locator(".bets-best").inner_text() == words("parlay.bar.best")
     calls = page.locator(".bl-call")
     got = [c.inner_text().replace("\n", " ") for c in calls.all()[:6]]
-    assert any(c.startswith("Higher 72% Very confident") for c in got), got
+    assert any(c.startswith("Higher 72% " + words("slips.tier.very")) for c in got), got
     assert any(c.startswith("Lower 64% Confident") for c in got), got
     assert not [c for c in got if c.startswith("Scores") and ("onfident" in c or "Slight" in c)], "a touchdown has no tier"

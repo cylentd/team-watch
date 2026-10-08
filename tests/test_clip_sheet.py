@@ -11,6 +11,7 @@ import pytest
 from component import mount as base_mount  # noqa: F401  (the fixture, `mount` below)
 from pages.clip_sheet import YT_STUB, ClipSheet
 from pages.warm import warm
+from wording import words
 
 PHONE = (360, 800)
 
@@ -134,7 +135,7 @@ def test_error_150_shows_the_link_stage_and_play_all_moves_on_after_two_seconds(
     with sheet.virtual_clock():
         sheet.error(150)
         link = sheet.link_stage()
-        assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link["text"]
+        assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and words("teams.clips.onYouTube") in link["text"]
         assert link["img"] == "https://i.ytimg.com/vi/bbbbbbbbbb1/oar2.jpg"
         assert sheet.loads() == ["bbbbbbbbbb1"], "it has not moved on yet"
         sheet.run_virtual(2400)
@@ -163,7 +164,7 @@ def test_blocked_autoplay_plays_muted_with_a_pill_and_a_tap_gives_the_sound_back
     sheet.play_all(3)
     assert sheet.sound_hidden()
     sheet.fire("onAutoplayBlocked")
-    assert sheet.sound_visible() and sheet.sound_text() == "Tap for sound"
+    assert sheet.sound_visible() and sheet.sound_text() == words("teams.clips.sound")
     assert sheet.calls("mute") == 1
     assert sheet.sound_background() == "rgb(200, 255, 46)"
     sheet.state(0)         # still muted on the next clip: the pill stays
@@ -240,7 +241,7 @@ def test_a_failed_api_load_while_the_theater_waits_shows_the_youtube_links(mount
     sheet.open(3)
     sheet.wait_for_link_stage()
     link = sheet.link_stage()
-    assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and "Watch on YouTube" in link["text"]
+    assert link["href"] == "https://www.youtube.com/shorts/bbbbbbbbbb1" and words("teams.clips.onYouTube") in link["text"]
     assert sheet.blocked() is True and sheet.waiting_clip() is None
     assert sheet.player_count() == 0 and sheet.loads() == []
     assert errors == []

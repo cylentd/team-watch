@@ -15,6 +15,7 @@ import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.finder import COPY_REFUSED, FinderPage, finder, serve, FIXTURE  # noqa: E402
+from wording import words  # noqa: E402
 
 MEDIAN = {"QB": 18.0, "RB": 22.0, "WR": 20.0, "TE": 7.0, "FLX": 8.0}
 RULES = {"top": 3, "per_pos": 5, "per_partner_pos": 2, "max_out": 3, "max_in": 2, "min_gain": 6.5, "min_gain_week": 0.5,
@@ -170,7 +171,7 @@ def test_a_partner_with_no_offer_says_so_in_one_line_and_the_way_back_stays(moun
 def test_with_no_team_one_line_and_the_picker_stand_in_for_the_chips(mount):
     page, errors = finder(mount, None)
     f = FinderPage(page)
-    assert f.need_text() == "A trade needs your team. Pick yours."
+    assert f.need_text() == words("finder.need")
     assert f.chips() == [] and f.cards() == [], "nothing to offer without a team"
     assert "Run It Back" in f.picker_teams() and len(f.picker_teams()) >= 4
     f.pick_team("Run It Back")
@@ -185,7 +186,7 @@ def test_with_no_team_one_line_and_the_picker_stand_in_for_the_chips(mount):
 @pytest.mark.req("Trade finder", ac="the file is fetched on first open, once; shapes while it loads; an error with a retry")
 def test_the_finder_shows_shapes_while_loading_and_an_error_with_a_retry_and_fetches_once(mount):
     page, _ = finder(mount, "espn", init=("window.__tb = 'hold';",))
-    assert page.locator(".tb-skel").count() == 3 and page.locator(".tb-line").inner_text() == "Finding offers"
+    assert page.locator(".tb-skel").count() == 3 and page.locator(".tb-line").inner_text() == words("lboard.offer.loading")
     assert page.get_by_test_id("finder-chip").count() == 4, "the chips do not wait for the file"
     page.evaluate("__tbRelease()")
     f = FinderPage(page)
@@ -197,7 +198,7 @@ def test_the_finder_shows_shapes_while_loading_and_an_error_with_a_retry_and_fet
     page, errors = finder(mount, "espn", init=("window.__tb = 'fail';",))
     f = FinderPage(page)
     page.wait_for_selector("[data-testid=finder-error]")
-    assert "Offers did not load" in page.get_by_test_id("finder-error").inner_text() and f.cards() == []
+    assert words("lboard.offer.error") in page.get_by_test_id("finder-error").inner_text() and f.cards() == []
     assert f.deep(), "who's deep needs no file"
     page.evaluate("window.__tb = 'ok'")
     page.locator("[data-tbretry]").click()
@@ -225,7 +226,7 @@ def test_a_file_in_another_unit_is_an_error_not_a_card_with_the_wrong_words(moun
         retry_with(body)
         page.wait_for_function("TB_BUSY === null && TB_ERR === true")
         seen.append({"held_nothing": page.evaluate("TB_DATA") is None and f.cards() == [],
-                     "says_so": "Offers did not load" in page.get_by_test_id("finder-error").inner_text(),
+                     "says_so": words("lboard.offer.error") in page.get_by_test_id("finder-error").inner_text(),
                      "deep_without_file": bool(f.deep())})
     # a file in the wrong unit is never held, and who's deep needs no file
     assert seen == [{"held_nothing": True, "says_so": True, "deep_without_file": True}] * 2

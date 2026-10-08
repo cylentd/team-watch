@@ -67,7 +67,7 @@ def test_select_narrows_to_its_areas_and_files(paths, areas, extra):
     ["design/src/js/chrome/nav.js"],             # no area owns chrome
     ["design/build.py"],
     ["tests/conftest.py"],
-    ["tests/golden/render.json"],
+    ["tests/golden/ranks.json"],
 ])
 def test_select_runs_everything(paths):
     got = impact.select(paths, CFG, SCOPE)
@@ -158,9 +158,9 @@ def test_a_file_leaving_shared_runs_everything():
 
 
 def test_a_changed_golden_state_counts_as_its_area():
-    old = {"desk": {"ranks": {"a": 1}, "live-tds": {"a": 1}}, "phone": {"ranks": {"a": 1}}}
-    new = {"desk": {"ranks": {"a": 1}, "live-tds": {"a": 2}}, "phone": {"ranks": {"a": 1}, "teams-x": {}}}
-    paths, golden = expand("tests/golden/render.json", json.dumps(old), json.dumps(new))
+    old = {"desk": {"live-feed": {"a": 1}, "live-tds": {"a": 1}}, "phone": {"live-feed": {"a": 1}}}
+    new = {"desk": {"live-feed": {"a": 1}, "live-tds": {"a": 2}}, "phone": {"live-feed": {"a": 1}, "teams-x": {}}}
+    paths, golden = expand("tests/golden/live.json", json.dumps(old), json.dumps(new))
     assert paths == [] and golden == ["live", "roster"]
     got = impact.select([], CFG, SCOPE, golden=golden)
     assert not got["all"] and got["areas"] == ["live", "roster"]
@@ -267,5 +267,5 @@ def test_the_runner_runs_everything_when_impact_says_all(capsys):
 
 
 def test_update_golden_never_runs_in_parallel():
-    """Every area rewrites the one golden file, so workers would overwrite each other."""
+    """An area's slices share its one golden file, so two workers would overwrite each other."""
     assert runner.parallel(["--update-golden"]) == []

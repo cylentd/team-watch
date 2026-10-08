@@ -11,6 +11,7 @@ from component import mount as base_mount
 from pages.pack_layout import PackLayout
 from pages.roster_motion import show_cards
 from pages.warm import warm
+from wording import words
 
 PHONES = [(360, 740), (390, 844)]
 
@@ -45,7 +46,7 @@ def test_the_pack_stands_in_the_middle_of_the_free_area(stage):
 @pytest.mark.req("Phone layout", ac="the rip hint stands over the pack and the lead line under it, each in the same room")
 def test_the_hint_stands_over_the_pack_and_the_lead_line_under_it(stage):
     lay, errors = stage
-    assert lay["hintText"] == "DRAG ACROSS THE TOP TO RIP" and re.fullmatch(r"Week \d+ is in\. Your starters are inside, best card last\.", lay["msgText"])
+    assert lay["hintText"] == words("teams.pack.hint") and re.fullmatch(r"Week \d+ is in\. Your starters are inside, best card last\.", lay["msgText"])
     assert lay["hint"]["bottom"] <= lay["pack"]["top"], "the hint is over the pack"
     assert lay["msg"]["top"] >= lay["pack"]["bottom"], "the lead line is under the pack"
     over, under = lay["pack"]["top"] - lay["hint"]["top"], lay["msg"]["bottom"] - lay["pack"]["bottom"]

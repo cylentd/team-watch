@@ -15,6 +15,7 @@ from component import Mounter, mount as base_mount
 from pages.roster_matchup import MatchupLine
 from pages.roster_motion import show_cards
 from pages.warm import warm
+from wording import words
 
 PHONE = (360, 660)
 SUN = {"opening": "2026-10-11T20:05:00Z", "morning": "2026-10-11T17:00:00Z"}     # Sun 1:05 PM and 10:00 AM Pacific
@@ -74,7 +75,7 @@ def test_a_row_says_the_game_with_its_roof_and_the_kickoff_under_it(mount):
     rows = roster.lines()
     purdy, kittle, brown, higgins = (rows[n] for n in ("B. Purdy", "G. Kittle", "C. Brown", "T. Higgins"))
     assert (purdy["game"], purdy["kick"], purdy["roof"], purdy["roofClass"]) == ("vs ARI 5th", "Sun 1:05 PM", "Dome", "ml-roof dome")
-    assert (brown["game"], brown["kick"], brown["roof"], brown["roofClass"]) == ("@ ATL 25th", "RB · Sun 10:00 AM", "Retractable roof", "ml-roof retractable")
+    assert (brown["game"], brown["kick"], brown["roof"], brown["roofClass"]) == ("@ ATL 25th", "RB · Sun 10:00 AM", words("teams.line.retractable"),"ml-roof retractable")
     assert (higgins["game"], higgins["kick"]) == ("@ ATL 8th", "WR · Sun 10:00 AM")      # the bench shows no slot, so it says WR
     assert (kittle["game"], kittle["kick"]) == ("vs ARI 14th", "Sun 1:05 PM"), "no factor of his own: the opponent's form rank"
     assert errors == []
@@ -206,7 +207,7 @@ def test_every_back_fits_its_card_at_360px(signed_mount, case):
 def test_an_injury_replaces_the_kickoff_on_the_second_line(mount):
     roster, errors = cards(mount)
     got = roster.back("brock-purdy", injury={"s": "Q", "code": "Questionable", "note": "Hamstring"})
-    assert got["kick"] is None and "QUESTIONABLE" in got["sub"].upper() and got["matchup"] == "vs ARI 5th"
+    assert got["kick"] is None and words("teams.inj.questionable").upper() in got["sub"].upper() and got["matchup"] == "vs ARI 5th"
     assert errors == []
 
 

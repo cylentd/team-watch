@@ -10,6 +10,8 @@ import re
 
 import pytest
 
+from wording import words
+
 JS = pathlib.Path(__file__).resolve().parents[1] / "design" / "src" / "js"
 
 
@@ -206,6 +208,6 @@ def test_the_digests_recap_chip_stays_short_and_the_note_carries_final_tomorrow(
     js = page(week=5)
     assert js("recapChip", {"week": 4, "complete": False}) == "Wk 4"
     assert js("recapChip", {"week": 4, "complete": True}) == "Wk 4"
-    assert js("recapNote", {"week": 4, "complete": False}) == "Final tomorrow"
+    assert js("recapNote", {"week": 4, "complete": False}) == words("digest.recapRow.final")
     assert js("recapNote", {"week": 4, "complete": True}) == ""
     assert page(week=4)("recapNote", {"week": 4, "complete": False}) == ""

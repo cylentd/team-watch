@@ -9,6 +9,7 @@ import build
 from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.profile import ProfilePage
 from pages.roster import on_roster
+from wording import words
 
 REQ = "The profile modal"
 ST_BROWN = "Amon-Ra St. Brown"
@@ -32,7 +33,7 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(mount):
     profile.tab("usage")
     # Usage: target depth, red zone, middle vs outside.
     assert profile.season_blocks() == 0
-    assert profile.zones_in("Target depth") == 4
+    assert profile.zones_in(words("profile.role.label")) == 4
     assert "31% · 4 of 13" in profile.section_text("Red zone")
     assert profile.rank() is None
     profile.tab("matchup")
@@ -54,7 +55,7 @@ def test_panes_split_the_blocks_and_only_one_is_in_the_dom(mount):
     assert profile.selected_tab() == "season"
     profile.tab("usage")
     text = profile.text()
-    assert "Target depth" not in text and profile.zone_blocks() == 0   # a back: no block
+    assert words("profile.role.label") not in text and profile.zone_blocks() == 0   # a back: no block
     assert text.index("6 of 11") < text.index("1 of 13")                 # carries before targets
     assert errors == []
 
@@ -68,7 +69,7 @@ def test_a_back_with_a_bye_counts_carries_and_says_so_in_matchup(mount):
     profile.tab("usage")
     assert "5 of 9" in profile.text()                                    # carries, under 10
     profile.tab("matchup")
-    assert "Bye, or no schedule yet." in profile.text()
+    assert words("profile.next.bye") in profile.text()
     assert errors == []
 
 
@@ -442,7 +443,7 @@ def test_market_row_falls_back_to_model_pts(mount):
     text = profile.text()
     assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "13.1 pts, the model's number" in text
-    assert "No market priced yet." in text
+    assert words("profile.market.noMarket") in text
     assert errors == []
 
 
@@ -485,7 +486,7 @@ def test_market_row_partial_markets_shows_priced_not_no_market(mount):
     assert "UNTESTED" not in text                             # tags cut 2026-09-29 (David)
     assert "11.2 pts, the model's number" in text
     assert "Priced: REC" in text
-    assert "No market priced yet." not in text
+    assert words("profile.market.noMarket") not in text
     assert errors == []
 
 

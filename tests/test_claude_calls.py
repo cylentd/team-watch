@@ -10,6 +10,7 @@ The fixture's calls, against the model's tier on the same line (tests/fixtures/R
 import pytest
 
 from test_render import open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -86,7 +87,7 @@ def test_agree_is_a_lime_badge_on_the_models_outlined_side(page):
     assert ln.locator(".sl-cwhy").count() == 0, "Claude agreeing needs no second line"
     assert higher.get_attribute("aria-label") == "Higher, Claude picks this"
     assert ln.locator(".sl-side.lower").get_attribute("aria-label") is None
-    assert ln.locator(".sl-conf").all_inner_texts() == ["Very confident"], "the model's tier word stays the only confidence word"
+    assert ln.locator(".sl-conf").all_inner_texts() == [words("slips.tier.very")], "the model's tier word stays the only confidence word"
     b, h = badge.bounding_box(), higher.bounding_box()
     assert (round(b["width"]), round(b["height"])) == (18, 18)
     # offset -7px from the padding box, which sits 1px inside the border

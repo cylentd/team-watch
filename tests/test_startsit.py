@@ -16,6 +16,7 @@ import contract  # noqa: E402
 from sources import load_startsit  # noqa: E402
 from startsit import live_startsit  # noqa: E402
 from startsit_page import PRISTINE_JS, RESET_JS, open_view  # noqa: E402
+from wording import words  # noqa: E402
 
 
 def test_the_best_spots_are_the_only_thing_the_view_keeps_of_the_calls_file():
@@ -161,7 +162,7 @@ def test_the_verdict_judges_the_margin_as_shown_to_one_decimal(ss):
 
 
 PICK_RBS = "SS_PICKS = %s; SS_OPEN = false; SS_Q = ''; SS_CMP = true;"
-NOTE = "Running backs are ordered by the sportsbooks' prices, which rank them better than our points do."
+NOTE = words("ranks.rb.note")
 
 
 @pytest.mark.render
@@ -193,7 +194,7 @@ def test_an_unlined_backup_wears_the_tag_and_the_page_says_what_it_means(ss):
     """Kendre Miller (the books priced a teammate, not him; ff-jarvis METHODOLOGY 12.87)."""
     pg = ss(PICK_RBS % "['breece-hall', 'kendre-miller']")
     assert pg.locator(".ssv-who .ssv-noline").all_inner_texts() == ["No line"]
-    tip = "The books priced a teammate, not him; backs like this score about a third of their projection."
+    tip = words("ranks.noline.tip")
     assert pg.locator(".ssv-why").all_inner_texts() == ["No line" + tip]
     assert pg.locator(".ssv-who .ssv-noline").get_attribute("title") == tip
     assert verdict(pg)["name"] == "B. Hall", "one back unpriced: points decide, so no reorder note"
@@ -224,9 +225,9 @@ def test_focus_lands_on_the_search_box_then_back_on_a_control(ss):
 def test_one_player_or_none_is_a_prompt_not_a_verdict(ss):
     pg = ss(picks_js(11.0))
     assert pg.locator(".ssv-verdict").count() == 0
-    assert pg.inner_text(".ssv-prompt") == "Add one more to see who starts."
+    assert pg.inner_text(".ssv-prompt") == words("startsit.pick.one")
     pg = ss("SS_PICKS = []; SS_CMP = true;")
-    assert pg.inner_text(".ssv-prompt") == "Pick two players to see who starts."
+    assert pg.inner_text(".ssv-prompt") == words("startsit.pick.none")
     assert pg.locator(".ssv-who, .ssv-row").count() == 0
     assert pg.locator("[data-ssadd]").count() == 1
 
@@ -235,12 +236,12 @@ def test_one_player_or_none_is_a_prompt_not_a_verdict(ss):
 def test_the_wr_note_rides_on_the_defense_row_only_when_a_wr_is_picked(ss):
     pg = ss(picks_js(12.0, 9.0, pos="WR"))
     row = pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense vs WR"))
-    assert row.locator(".ssv-lbl em").inner_text() == "matters little for WRs"
+    assert row.locator(".ssv-lbl em").inner_text() == words("startsit.def.wr")
     # a mixed pair names no one position, and still says it for the receiver
     pg = ss(picks_js(12.0, 9.0) + "; SS_PICKS[1] = 'amonra-st-brown'")
     assert pg.locator(".ssv-lbl span", has_text="Defense").text_content() == "Defense"
     # (the Projected row has its own note about the range, plan U5: the WR note is the defense row's)
-    assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").inner_text() == "matters little for WRs"
+    assert pg.locator(".ssv-row", has=pg.locator(".ssv-lbl", has_text="Defense")).locator(".ssv-lbl em").inner_text() == words("startsit.def.wr")
 
 
 @pytest.mark.render
@@ -258,12 +259,12 @@ def test_rows_read_the_blocks_and_drop_when_nobody_has_data(ss):
       LIVE_PROJECTIONS.players[SS_PICKS[1]].wx = null;""")
     rows = pg.evaluate("""() => Object.fromEntries([...document.querySelectorAll('.ssv-row')].map(r =>
         [r.querySelector('.ssv-lbl span').textContent, [...r.querySelectorAll('.ssv-v')].map(v => v.textContent)]))""")
-    assert list(rows) == ["Projected", "Rank", "Defense vs QB", "FantasyPros", "Teammate out", "Weather", "Usage"]
+    assert list(rows) == ["Projected", "Rank", "Defense vs QB", "FantasyPros", words("startsit.row.out"), "Weather", "Usage"]
     # the number, then its floor-ceiling (plan U5) in the same lane
     assert [re.match(r"\d+\.\d", v).group() for v in rows["Projected"]] == ["12.0", "9.0"]
     assert all("–" in v for v in rows["Projected"])
     assert rows["FantasyPros"] == ["QB14", "QB21"]
-    assert rows["Teammate out"] == ["J. CokerWR · Out", "—"]
+    assert rows[words("startsit.row.out")] ==["J. CokerWR · Out", "—"]
     assert rows["Weather"] == ["−1.1wind · rain", "—"]
     # with no block and no weather, FantasyPros, Teammate out and Weather are not drawn
     pg = ss(picks_js(12.0, 9.0) + CLEAR_SSB + "; for (const s of SS_PICKS) LIVE_PROJECTIONS.players[s].wx = null;")
@@ -290,7 +291,8 @@ def test_the_board_tabs_switch_position_in_place(ss):
     first = lambda: pg.evaluate("""() => [...document.querySelectorAll('.ssv-bl')].map(l =>
         [l.querySelector('h4').firstChild.textContent, l.querySelectorAll('.ssv-br').length, l.querySelector('.ssv-bt').textContent,
          l.querySelector('.ssv-bo').textContent, l.querySelector('em').textContent])""")
-    assert first() == [["Best matchups", 4, "DAL", "vs NYG", "26.1"], ["Worst matchups", 4, "NYG", "vs SF", "12.4"]]
+    assert first() == [[words("startsit.board.best"), 4, "DAL", "vs NYG", "26.1"],
+                       [words("startsit.board.worst"), 4, "NYG", "vs SF", "12.4"]]
     pg.evaluate("window.__takes = document.querySelector('.mu-calls')")
     pg.click("[data-ssbpos='RB']")
     assert pg.locator(".ssv-board h3").text_content().startswith("RB matchups")
@@ -392,7 +394,7 @@ def test_a_reader_with_no_team_opens_on_an_empty_card_with_the_search_open_and_f
     pg = ss(NO_TEAM_JS)
     assert pg.locator(".ssv-who").count() == 0 and pg.locator("#ssv-box").count() == 1
     assert pg.evaluate("document.activeElement.id") == "ssv-q"
-    assert pg.inner_text(".ssv-prompt") == "Pick two players to see who starts."
+    assert pg.inner_text(".ssv-prompt") == words("startsit.pick.none")
 
 
 @pytest.mark.render
@@ -402,7 +404,7 @@ def test_the_search_stays_open_until_there_are_two_and_the_first_tap_is_a_name(s
     pg.locator(".ssv-opt").first.click()                             # tap 1: a name
     assert pg.locator(".ssv-who").count() == 1 and pg.locator("#ssv-box").count() == 1
     assert pg.evaluate("document.activeElement.id") == "ssv-q"      # the cursor is back in it for the second
-    assert pg.inner_text(".ssv-prompt") == "Add one more to see who starts."
+    assert pg.inner_text(".ssv-prompt") == words("startsit.pick.one")
     pg.fill("#ssv-q", "Chase Brown")
     pg.locator(".ssv-opt").first.click()                             # tap 2: the other
     assert pg.locator(".ssv-who").count() == 2 and pg.locator("#ssv-box").count() == 0
@@ -492,7 +494,7 @@ def test_add_by_search_and_remove_keep_the_picks(ss):
     assert pg.locator("#ssv-box").count() == 1 and pg.locator("[data-ssadd]").get_attribute("aria-expanded") == "true"
     # his roster at the first pick's position comes first, and neither pick is offered again
     assert pg.evaluate("[...document.querySelectorAll('.ssv-opt')].map(b => b.dataset.ssslug)") == []
-    assert pg.inner_text(".ssv-none") == "Search for a player to add."
+    assert pg.inner_text(".ssv-none") == words("startsit.list.hint")
     pg.click("[data-ssx='test-back']")                     # one pick left: the other roster RB is offered, list still open
     assert pg.locator(".ssv-cap").text_content() == "Chat Take the Wheel · RB"
     assert pg.evaluate("[...document.querySelectorAll('.ssv-opt')].map(b => b.dataset.ssslug)") == ["test-back"]

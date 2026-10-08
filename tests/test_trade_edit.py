@@ -17,6 +17,7 @@ import pytest
 
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.finder import COPY_REFUSED, FIXTURE, builder, finder, tap_all  # noqa: E402
+from wording import words  # noqa: E402
 
 RUN = "espn-run-it-back"
 ESPN = FIXTURE["leagues"]["espn"]
@@ -224,7 +225,7 @@ def test_a_package_the_cap_cannot_take_says_so_and_cannot_be_copied(mount):
     assert len(names) == 16, "every player on his roster"
     tap_all(page, names)
     assert gain(page) == f"— {PTS}"
-    assert page.locator(".tb-edrop").inner_text() == "Over the roster limit, no one to drop"
+    assert page.locator(".tb-edrop").inner_text() == words("lboard.edit.nocap")
     assert page.locator("[data-tbedcopy]").is_disabled()
 
 
@@ -291,7 +292,7 @@ def test_make_your_own_is_under_the_offers_and_in_the_empty_states_and_starts_em
     page, errors = finder(mount, "espn-run-it-back")        # three offers with Purdy
     builder(page, "espn")
     page.wait_for_selector(".tb-card .tb-gain")
-    assert page.locator("[data-tbown]").inner_text() == "Make your own offer"
+    assert page.locator("[data-tbown]").inner_text() == words("lboard.offer.own")
     assert page.evaluate("(() => { const b = document.querySelector('[data-tbown]'), c = [...document.querySelectorAll('.tb-card')].pop();"
                          " return b.getBoundingClientRect().top >= c.getBoundingClientRect().bottom; })()"), "under the last offer"
     assert page.locator(".tb-card").count() == 3

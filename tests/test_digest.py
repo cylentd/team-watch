@@ -22,6 +22,7 @@ from component import mount  # noqa: E402,F401  (the fixture)
 from digest import kicks, live_digest, report  # noqa: E402
 from pages.digest import DigestPage  # noqa: E402
 from sources import load_digest  # noqa: E402
+from wording import words  # noqa: E402
 
 PHONE, WALL = (390, 844), (1400, 900)
 
@@ -125,7 +126,8 @@ def test_before_kickoff_the_digest_has_no_highlights_section(mount):
     dg = DigestPage(page)
     dg.plant_not_live()
     assert dg.retired_highlights() == 0
-    assert "Highlights" not in dg.section_titles() and "Right now" not in dg.section_titles()
+    # The retired section's word is typed, not read: no content.json key holds it any more, so this is an absence check, not coupling.
+    assert "Highlights" not in dg.section_titles() and words("digest.live.title") not in dg.section_titles()
     assert errors == []
 
 
@@ -162,7 +164,7 @@ def test_a_finished_weeks_need_to_know_waits_on_next_weeks_report(mount):
     dg = DigestPage(page)
     # The fixture's page week is 2, the packet's is 3: the page week is set to the packet's, as it is live.
     dg.set_clock("2026-09-20T12:00:00Z", nobody_out=True, packet_week=True)
-    assert dg.need_none() == "Nobody new is out since Tuesday."
+    assert dg.need_none() == words("digest.need.none")
     dg.set_clock("2026-09-22T12:00:00Z", nobody_out=True, packet_week=True)
     dg.plant_empty("adds", "gains", "usage")
     assert dg.need_none() == "Week 4's injury report is still in the trainer's room."

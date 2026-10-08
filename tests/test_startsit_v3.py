@@ -16,6 +16,7 @@ import contract  # noqa: E402
 import sources  # noqa: E402
 import startsit_v3  # noqa: E402
 from startsit_page import PRISTINE_JS, RESET_JS, open_view  # noqa: E402
+from wording import words  # noqa: E402
 
 FIX = REPO / "tests" / "fixtures" / "data" / "startsit_v3.json"
 
@@ -159,7 +160,7 @@ def test_the_record_is_three_separate_hit_miss_counts_since_week_5(view):
 @pytest.mark.render
 def test_before_any_graded_week_the_record_is_calm_not_zeros(view):
     pg = view(NO_GRADE)
-    assert pg.inner_text(".mu-rec.none .mu-rec-none") == "No week graded yet."
+    assert pg.inner_text(".mu-rec.none .mu-rec-none") == words("matchups.record.none")
     assert pg.locator(".mu-rt").count() == 0 and pg.locator(".mu-fun").count() == 0
     assert pg.locator(".mu-last").count() == 0
     assert pg.inner_text(".mu-rec-s") == "since week 5"
@@ -189,7 +190,7 @@ def test_smash_rows_lead_with_the_main_line_and_the_td_price(view):
 @pytest.mark.render
 def test_the_smash_card_ends_in_a_link_to_slips(view):
     pg = view()
-    assert pg.inner_text(".mu-smash .mu-cf .mu-go").strip() == "Build in Slips"
+    assert pg.inner_text(".mu-smash .mu-cf .mu-go").strip() == words("matchups.smash.build")
     pg.click(".mu-smash [data-ssgo]")
     assert pg.evaluate("SURFACE") == "parlay"
 
@@ -240,7 +241,7 @@ def test_an_empty_group_is_omitted_and_no_takes_at_all_is_one_quiet_line(view):
     assert pg.evaluate("[...document.querySelectorAll('.mu-takes .mu-grp')].map(h => h.textContent)") == ["Sit"]
     pg = view("LIVE_SS3.takes.length = 0")
     assert pg.locator(".mu-takes").count() == 0
-    assert pg.inner_text(".mu-calls .mu-empty") == "No bold START or SIT calls this week."
+    assert pg.inner_text(".mu-calls .mu-empty") == words("matchups.takes.none")
     assert pg.locator(".mu-smash .mu-sm").count() == 10                    # SMASH stands
     assert pg.locator(".mu-calls.two").count() == 0
 
@@ -248,7 +249,7 @@ def test_an_empty_group_is_omitted_and_no_takes_at_all_is_one_quiet_line(view):
 @pytest.mark.render
 def test_no_calls_at_all_is_blip_not_an_error(view):
     pg = view("LIVE_SS3.takes.length = 0; LIVE_SS3.smash.length = 0")
-    assert pg.locator(".mu-blip q").inner_text() == "No calls posted yet this week."
+    assert pg.locator(".mu-blip q").inner_text() == words("matchups.blip.none")
     assert pg.locator(".mu-smash, .mu-takes, .mu-empty").count() == 0
     assert pg.locator(".mu-rec").count() == 1 and pg.locator("[data-sscmp]").count() == 1     # Compare two and the record stand
 

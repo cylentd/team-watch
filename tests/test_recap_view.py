@@ -13,6 +13,7 @@ from component import Mounter, mount  # noqa: F401  (the fixture)
 from pages.digest import DigestPage
 from pages.recap import RecapNav, RecapPage
 from test_render import drive, go, open_page
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -189,7 +190,7 @@ def test_claude_tab_tiles_calls_and_the_every_week_link(mount):
     # best: a winner picked against the market (CLE at home getting 2.5); worst: the surest miss
     best, worst = rc.call(0), rc.call(1)
     assert "BEST CALL" in best.upper() and "CLE over PIT, 27–24" in best
-    assert "Picked the underdog to win outright" in best
+    assert words("weekrecap.claude.bestDog") in best
     assert "WORST CALL" in worst.upper() and "JAX at 57% to win" in worst and "CIN won 27–14" in worst
     rc.open_every_week()
     assert rc.surface() == "preview" and rc.preview_record_open() is True
@@ -199,7 +200,7 @@ def test_claude_tab_tiles_calls_and_the_every_week_link(mount):
 def test_no_recap_file_says_so_in_one_line(planted):
     page, errors = planted("none", lambda d: None)
     rc = RecapPage(page)
-    assert rc.empty_title() == "No recap yet"
+    assert rc.empty_title() == words("weekrecap.empty.title")
     assert rc.tab_count() == 0 and rc.cards() == 0
     assert rc.sideways() <= 0
     assert errors == []

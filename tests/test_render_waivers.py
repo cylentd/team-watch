@@ -6,6 +6,7 @@ import re
 import pytest
 
 from test_render import LOAD_MS, SEED, TUESDAY
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -83,20 +84,20 @@ def test_the_league_filter_follows_the_team_switch(open_waivers):
     Must claim in ESPN and Worth a claim in Yahoo (the packet's per-league tier)."""
     page = open_waivers("espn")
     espn = dict(_cards(page))
-    assert espn["Emanuel Wilson"] == "Must claim" and "Parker Washington" in espn
+    assert espn["Emanuel Wilson"] == words("waiver.tier.must") and "Parker Washington" in espn
     assert page.locator(".wvr-row").count() == 5
     assert "2 must-claims" in page.locator(".wvhero").inner_text()
     # Switch in place, the way a reader does.
     _switch(page, "yahoo")
     yahoo = dict(_cards(page))
-    assert yahoo["Emanuel Wilson"] == "Worth a claim" and "Parker Washington" not in yahoo
+    assert yahoo["Emanuel Wilson"] == words("waiver.tier.worth") and "Parker Washington" not in yahoo
     assert page.locator(".wvr-row").count() == 4
     assert "0 must-claims" in page.locator(".wvhero").inner_text()
     # The other league shrinks to one line on the back.
     other = page.locator(".wvc-other").first.inner_text()
     assert other.startswith("ESPN: on waivers")
     # And the tab's count is this league's, stash left out.
-    live = sum(1 for tier in yahoo.values() if tier != "Stash")
+    live = sum(1 for tier in yahoo.values() if tier != words("waiver.tier.stash"))
     assert page.locator("#subnav [data-leaf='waivers'] .tabcount").inner_text() == str(live)
     assert page.errors == []
 
@@ -106,8 +107,8 @@ def test_an_unknown_status_is_said_never_fa(open_waivers):
     that says so; the Yahoo path event reads the same way."""
     page = open_waivers("yahoo")
     ford = page.locator(".wvc:has(h3:text-is('Jerome Ford'))")
-    assert ford.locator(".wvc-front .wvc-st").inner_text().endswith("Availability unknown")
-    assert "(availability unknown)" in page.locator(".wvr-row.k-path").inner_text()
+    assert ford.locator(".wvc-front .wvc-st").inner_text().endswith(words("waiver.card.unknown"))
+    assert words("waiver.rail.unknown") in page.locator(".wvr-row.k-path").inner_text()
     espn = open_waivers("espn")
     assert "Yahoo: availability unknown" in espn.locator(".wvc:has(h3:text-is('Jerome Ford')) .wvc-other").text_content()
 
@@ -115,9 +116,9 @@ def test_an_unknown_status_is_said_never_fa(open_waivers):
 def test_the_lane_tag_names_why_he_is_listed(open_waivers):
     page = open_waivers("espn")
     tag = page.locator(".wvc:has(h3:text-is('Jerome Ford')) .wvc-lane")
-    assert tag.text_content() == "Beats a starter" and "healthy starters" in tag.get_attribute("title")
+    assert tag.text_content() == words("waiver.lane.starter") and "healthy starters" in tag.get_attribute("title")
     out = page.locator(".wvc:has(h3:text-is('Tank Dell')) .wvc-lane")
-    assert out.text_content() == "Out now"
+    assert out.text_content() == words("waiver.lane.injured")
     # 2026-10-06: each lane's tooltip says what test it has had; only Beats a starter, Depth move and Out now are untested.
     assert tag.get_attribute("title").endswith("Untested.") and out.get_attribute("title").endswith("Untested.")
     # A card's tier stamp and its swap line say the same (the tiers and the margin rules are judgment).

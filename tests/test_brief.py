@@ -8,6 +8,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.roster_brief import RosterBrief
+from wording import words
 
 PHONE = (360, 800)
 DESKTOP = (1280, 900)
@@ -86,7 +87,7 @@ def test_a_starter_who_will_sit_is_a_red_pill_in_the_week_row_not_a_strip(mount,
     brief.unfold()
     assert brief.sit_pill()["count"] == 1, "the open list keeps it"
     brief.plant_sits(2, mode)
-    assert brief.sit_pill()["text"] == "2 starters out", "several: one pill with the count"
+    assert brief.sit_pill()["text"] == words("teams.inj.pillMany").format(n=2), "several: one pill with the count"
     brief.plant_sits(0, mode)
     assert brief.warn_count() == 0, "a clean lineup has none"
     assert errors == []

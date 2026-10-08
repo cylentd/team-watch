@@ -13,6 +13,7 @@ import pytest
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.digest_day import DigestDayPage
 from test_render import open_at
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -68,7 +69,7 @@ def test_wednesdays_banner_is_the_top_usage_mover_in_a_short_head(mount):
     dg, errors = day(mount)
     dg.plant_usage_movers(NOON["wed"], [mover()])
     assert dg.headline() == "T. McMillan got 41% of his team's targets"
-    assert dg.lead_fact() == "The week's biggest role change."
+    assert dg.lead_fact() == words("digest.day.wed.fact")
     assert dg.banner_marks()["head"] == COPY["digest.card.usage.mark"], "a change in usage is untested, and the banner says so"
     assert dg.lead_label() == "Open Tetairoa McMillan’s profile", "the profile button names him"
     dg.plant_usage_movers(NOON["wed"], [mover(slug="bijan-robinson", name="Bijan Robinson", metric="snap", now=78)])
@@ -94,7 +95,7 @@ def test_thursdays_banner_is_the_games_take(mount):
     assert dg.headline() == "Dallas wins, but Tampa's rookie keeps it close"
     assert dg.lead_fact().endswith("Claude: DAL 28–21")
     assert dg.banner()["side"] == "vs" and dg.banner_vs() == ["TB", "at", "DAL"]
-    assert dg.banner_marks()["fact"] == "Untested: Claude's call, not backtested."
+    assert dg.banner_marks()["fact"] == words("preview.call.mark")
     assert dg.banner()["h"] == 128
     assert errors == []
 
@@ -149,7 +150,7 @@ def test_a_rows_research_opens_in_place_one_at_a_time(mount):
     dg.plant_empty("gains", "usage")                   # Tuesday's other cards: the rows below are the planted card's alone
     dg.plant_card()
     assert dg.card_ids() == ["adds"] and dg.need_count() == 0, "a card that drew takes Need to know's place"
-    assert dg.card_title() == "Top adds" and dg.card_more() == {"leaf": "waivers", "text": "Waivers"}
+    assert dg.card_title() == words("digest.card.adds.title") and dg.card_more() == {"leaf": "waivers", "text": "Waivers"}
     rows = dg.rows()
     assert [(r["name"], r["answer"]) for r in rows] == [(dg.first_hurt_name(), "23% +16 targets"), ("Trey McBride", "SMASH TE1"),
                                                         ("Detroit", "OUT")]

@@ -5,6 +5,8 @@ are all data: no DOM, so no browser. What the bar and the sub-row look like at 3
 test_render.py and test_nav_merge.py, in the browser."""
 import pytest
 
+from wording import words
+
 # `trades` is the trade finder since 2026-10-06 (chrome/nav.js navFacts): every league with rosters has it, like `teams`.
 YAHOO = {"waivers": True, "teams": True, "recap": True, "records": True, "trades": True}
 ESPN = {"waivers": True, "teams": True, "recap": True, "records": False, "trades": True}
@@ -195,4 +197,4 @@ def test_only_grid_and_role_take_a_row(nav):
 
 def test_the_stats_views_are_named_by_what_they_hold(nav):
     """The group says Stats and each sub-tab says what is in it (2026-10-05, David: A + C). Leaves keep their ids."""
-    assert [nav("navLabel", k) for k in ("board", "movers", "usage")] == ["Leaders", "Work vs points", "Usage"]
+    assert [nav("navLabel", k) for k in ("board", "movers", "usage")] == [words(f"nav.tab.{k}") for k in ("board", "movers", "grid")]

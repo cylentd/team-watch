@@ -105,7 +105,8 @@ backlog, lint, freeze, mutate (the skill's SKILL.md section 4 has each one's way
   than 75% killed fails (90% is the target). `-SkipMutate` leaves it out.
 
 - **Frozen.** `tests/.frozen.json` hashes every top-level test, fixture and helper in `tests/`
-  (by AST: comments and docstrings do not count), `tests/golden/render.json`, and nothing else.
+  (by AST: comments and docstrings do not count), every `tests/golden/<area>.json` (listed one by one
+  in `.testing.json` `freeze.files`: a new area's file is added there), and nothing else.
   Land writes it after the gate passes and folds it into the landed commit like `index.html`; a
   branch never commits it. Deleting an expected value, or a test, changes its hash and fails the
   land naming the entry. `.testing.json` `freeze.shrink` lists the ratchet constants
@@ -133,9 +134,12 @@ backlog, lint, freeze, mutate (the skill's SKILL.md section 4 has each one's way
 ## Goldens
 
 The suite builds against `tests/fixtures/` (never ff-jarvis) and compares the rendered page, in
-Chromium, to `tests/golden/render.json`. A refactor proves "no visual change" with an empty diff;
-an intended change regenerates the golden with `pytest --update-golden` and the diff is the
-review. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed with
+Chromium, to `tests/golden/<area>.json`, one file per area (since 2026-10-07; it was one 11.5 MB
+`render.json` that every UI change rewrote). A state lives in the file of the area its name starts
+with (`impact.area_of`), keyed viewport -> state. A refactor proves "no visual change" with an empty
+diff; an intended change regenerates the golden with `pytest --update-golden` (add `--areas x` to
+rewrite only that area's file) and the diff is the review. Never with `-n`: an area of over six
+states is several slices, and two workers would each rewrite its one file. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed with
 its size and may only shrink.
 
 ## How land picks tests
@@ -143,7 +147,7 @@ its size and may only shrink.
 (2026-09-27) `scripts/impact.py` maps the branch's paths to areas through `tests/impact.json`: a
 change fenced to one view runs that view's tests, the core and its golden slice (a Ranks change:
 ~14 s, against ~65 s for everything). A path no area claims, shared CSS, and shared test setup
-run everything; `content.json`, the order files, `scope.json` and the golden are read by what
+run everything; `content.json`, the order files, `scope.json` and the golden files are read by what
 changed inside them (since 2026-10-05; the docstring of `scripts/impact.py` says how). The
 scheduled rebuild runs the whole suite twice a day, the net for whatever the map misses. A new
 golden state belongs to the area its name starts with. Fixture files are never claimed by an
@@ -232,6 +236,7 @@ object does not lower it; moving the test to Node does.
 | `watch_errors`, `LOAD_MS` | `test_render.py` | Collect page errors; the 30 s page-load timeout |
 | `open_view` | `startsit_page.py` | A touch page already on Start/Sit |
 | `VCLOCK` | `pages/roster_pack.py` | A virtual clock so motion tests wait on a condition, not a duration |
+| `words` | `wording.py` | The page's text for a content.json key: `words("ranks.head")`. Never type a phrase the page shows; a rewording is then a content.json edit only (2026-10-07) |
 | `jsunit` | `jsunit.py` | The Node host behind `node_js`; read its docstring for the file-order rules |
 | `req`, `quarantine`, `journey`, `area`, `render` | markers, above | Trace, flake quarantine, full-page journey, impact area, Chromium |
 | `integration` | marker, conftest `layer_of` | A test that runs git, a subprocess, a real build or a whole-repo scan: the integration layer and its 1 s limit, not unit's 50 ms |

@@ -5,7 +5,7 @@ a failure is a change in this repo, not in tonight's data.
     pytest tests/test_js_*.py  # the JS unit layer, in Node: no build, no browser, under a second
     pytest -n auto --dist loadgroup  # everything in parallel, about 50 s (serial about 200 s)
     pytest -m "not render"     # no browser, about 30 s
-    pytest --update-golden     # rewrite tests/golden/render.json after an intended visual change
+    pytest --update-golden     # rewrite the tests/golden/<area>.json files it ran after an intended visual change
 """
 import contextlib
 import os

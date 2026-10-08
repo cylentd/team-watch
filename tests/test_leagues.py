@@ -24,6 +24,7 @@ from pages.league_recap import LeagueRecapPage
 from pages.records import RecordsPage
 from pages.roster import RosterPage, RosterRows
 from test_render import drive, go, open_at
+from wording import words
 
 def read(name):
     return json.loads((FIXTURES / "data" / name).read_text(encoding="utf-8"))
@@ -185,7 +186,7 @@ def test_the_one_chip_changes_recap_and_a_reload_keeps_it(mount):
     recap = LeagueRecapPage(page)
     chip = recap.chip
     assert chip.old_league_chips() == 0, "no league chips of their own"
-    assert chip.chip_switch_count() == 1 and chip.league_text() == "Madden Curse"
+    assert chip.chip_switch_count() == 1 and chip.league_text() == words("league.switch.yahoo")
     assert "Madden" in recap.kicker(), "Recap B (2026-10-06): the League header names its league"
     chip.pick("ayo")
     assert chip.league_text() == "AYO"
@@ -195,7 +196,7 @@ def test_the_one_chip_changes_recap_and_a_reload_keeps_it(mount):
     chip.reload()
     assert chip.league_text() == "AYO", "the pick survives a reload: it is the team"
     chip.pick("yahoo")
-    assert chip.league_text() == "Madden Curse"
+    assert chip.league_text() == words("league.switch.yahoo")
     assert errors == []
 
 
@@ -213,7 +214,7 @@ def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_fi
     chip.open_by_hash("trades")                    # a #trades link opens the finder, not the old history
     chip.pick_team("yahoo")
     drive(page, go("records"))
-    records.select("Trade history")
+    records.select(words("records.tab.trades"))
     assert records.history_has_ranking(), "the Madden Curse's trades, on Records' Trade history tab"
     assert errors == []
     ctx.close()
@@ -233,7 +234,7 @@ def test_one_yahoo_league_still_draws_the_chip(browser, tmp_path, monkeypatch):
         chips[leaf] = chip.chip_count()
     assert chips == {"recap": 1, "records": 1, "trades": 1}
     drive(page, go("recap"))
-    assert chip.league_text() == "Madden Curse"
+    assert chip.league_text() == words("league.switch.yahoo")
     drive(page, go("roster"))
     chip.open_header_switch()
     assert chip.header_switch_teams() == ["yahoo", "espn"]

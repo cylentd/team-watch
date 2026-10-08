@@ -11,6 +11,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.live_tabs import DESK, LiveTabsPage
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -18,7 +19,7 @@ pytestmark = pytest.mark.render
 def test_three_tabs_and_my_league_is_a_mirrored_row_per_starter_slot(mount):
     live, errors = LiveTabsPage.open_league(mount)
     # A phone (2026-10-05): the Live pill opens in place into the three tabs, and the board draws no bar of its own.
-    assert live.tab_names() == ["My league", "NFL", "TDs"]
+    assert live.tab_names() == [words("live.tab.myleague"), "NFL", "TDs"]
     assert live.open_pill() == "Live"
     assert live.row_pressed_tab() == "league"
     assert live.bar_is_hidden()
@@ -75,7 +76,7 @@ def test_games_tab_lists_every_game_live_first_and_a_tile_opens_the_sheet(mount)
     live.plant_week_states()
     # NFL carries the lime count of games on now, in the tab row on a phone (repainted with each poll)
     assert live.row_live_text() == "1"
-    assert live.row_live_label() == "1 game live now"
+    assert live.row_live_label() == words("live.tab.liveNow1")
     live.make_first_two_games_live()
     assert live.row_live_label() == "2 games live now"
     assert live.bar_live_label() == "2 games live now"   # and in the desktop's bar
@@ -200,7 +201,7 @@ def test_a_team_with_no_game_this_week_says_so_and_the_strip_leads_with_the_clos
     live, errors = LiveTabsPage.open_league(mount)
     # a bye: the reader's game leaves the week (out of the fantasy playoffs and week 18 look the same)
     live.remove_my_game()
-    assert live.bye_text().endswith("No game this week")
+    assert live.bye_text().endswith(words("live.bye"))
     assert live.bye_switch_count() == 1                      # the name still switches team
     assert live.mirror_count() == 0 and live.my_chip_count() == 0
     # the order itself is tested in Node (test_js_gdstrip.py); here, the first chip's two scores are the closest

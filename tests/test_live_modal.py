@@ -13,6 +13,7 @@ from component import mount  # noqa: F401  (the fixture)
 from pages.gamesheet import GameSheetPage
 from pages.live_ball import LiveBallPage
 from pages.live_tabs import LiveTabsPage
+from wording import words
 
 
 def open_game(mount, size):
@@ -90,7 +91,7 @@ def test_a_live_card_shows_who_has_the_ball_and_the_red_zone(mount):
     assert live.in_tile_ball_count() == 1
     # the ball sits beside the club that has it: SEA, the second row
     assert live.in_tile_ball_by_club() == [0, 1]
-    assert live.in_tile_ball_label() == "SEA has the ball"
+    assert live.in_tile_ball_label() == words("live.games.ball").format(club="SEA")
     assert live.in_tile_down_text() == "3rd & 4"
     sit_box, rz_box = live.in_tile_down_and_zone_boxes()
     assert live.in_tile_down_fits()                                  # the down is never cut off

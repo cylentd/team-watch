@@ -12,6 +12,7 @@ import contract  # noqa: E402
 from highlights import VIEWS, live_highlights  # noqa: E402
 from sources import load_highlights  # noqa: E402
 from test_render import open_at  # noqa: E402
+from wording import words  # noqa: E402
 
 
 def test_block_keeps_the_tabs_order_and_each_views_leaf():
@@ -44,7 +45,7 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
         page.wait_for_selector(".hl-v")
         assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights", "Players opens on Highlights"
         heads = [h.strip() for h in page.locator(".hl-go").all_inner_texts()]
-        assert heads == ["Ranks", "Leaders", "Work vs points", "Usage"]
+        assert heads == [words(f"highlights.view.{k}") for k in ("ranks", "leaders", "role", "grid")]
         assert page.locator(".hl-ln").count() == 8
         assert page.locator(".hl-ln .hl-art :is(img, .fallback)").count() == 8, "every card shows the player"
         # The Reel (2026-09-30): every number has its unit, and a sign says up or down in colour.

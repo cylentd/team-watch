@@ -16,6 +16,7 @@ import pytest
 from component import mount  # noqa: F401  (the fixture)
 from pages.gamesheet import GameSheetPage
 from pages.live_mine import MATE, LiveMinePage
+from wording import words
 
 pytestmark = pytest.mark.render
 
@@ -26,7 +27,7 @@ def test_a_first_visit_has_no_team_of_its_own_on_live(mount):
     live, errors = LiveMinePage.open_bare(mount)
     assert live.my_team_and_follows() == [None, []]
     # My league asks whose game it is, one card listing every league: no score, no lineups, no "you"
-    assert live.who_title() == "Whose game are you watching?"
+    assert live.who_title() == words("live.who.title")
     assert live.who_league_count() == live.league_count()
     assert live.my_league_parts_count() == 0
     # the NFL tab counts none as yours; the sheet marks none

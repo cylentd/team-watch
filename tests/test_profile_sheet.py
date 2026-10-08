@@ -5,6 +5,7 @@ import pytest
 
 from component import mount  # noqa: F401  (the fixture)
 from pages.roster import on_roster
+from wording import words
 
 REQ = "The profile modal"
 ST_BROWN = "Amon-Ra St. Brown"
@@ -115,7 +116,7 @@ def test_stat_sheet_draws_the_positions_own_axes(mount):
     assert mark == f"#{rank}"
     assert "*" not in profile.radar_text()
     # Rank first, then the stat's plain name (HTML labels over the chart since 2026-09-25).
-    assert f"{mark}Target share" in profile.radar_box_text()
+    assert f"{mark}{words('profile.axis.wopr')}" in profile.radar_box_text()
     assert profile.sheet_caps() == 0
     # The ladder under the chart (2026-09-29): every stat at once, best first, each row with its
     # own denominator (everyone with a target, but only those with routes).
@@ -137,7 +138,7 @@ def test_stat_sheet_draws_the_positions_own_axes(mount):
     # And the initials are defined, with a second clause on what to do with the number.
     assert "air yards" in wopr["def"]
     assert "predictor" in wopr["why"]
-    assert profile.label_lit("Target share")
+    assert profile.label_lit(words("profile.axis.wopr"))
     assert profile.lit_dot() == "wopr"
     assert errors == []
 
@@ -152,13 +153,13 @@ def test_a_label_tap_lights_the_chart_and_opens_that_row_alone(mount):
     profile.open_sheet()
     profile.toggle_ladder("wopr")
     assert profile.lr("wopr")["open"]
-    assert profile.label_lit("Target share")
+    assert profile.label_lit(words("profile.axis.wopr"))
     # A label tap lights the chart and the row together and opens that row alone.
     profile.tap_label("Yds/route")
     yprr = profile.lr("yprr")
     assert yprr["on"] and yprr["open"]
     assert not profile.lr("wopr")["open"]
-    assert not profile.label_lit("Target share")
+    assert not profile.label_lit(words("profile.axis.wopr"))
     assert profile.lit_dot() == "yprr"
     assert yprr["rank_small"] == f"of {profile.stat_rank('WR', 'yprr', ST_BROWN_SLUG)[1]}"
     # And a row tap moves the chart.
@@ -284,13 +285,14 @@ def test_a_rate_under_its_floor_shows_its_sample_and_no_rank(mount):
     profile, errors = on_roster(mount)
     got = profile.floor_probe()
     assert got["rank"] is None and got["allen"] is not None
-    assert "1 of 4 team carries inside the 5" in got["facts"]
+    unit = words("profile.sample.teamGlCar")
+    assert f"1 of 4 {unit}" in got["facts"]
     # Why there is no rank, in words: the floor, and what a rate on fewer would be.
     assert got["floor"] == "Ranked from 5 team carries inside the 5: a rate on fewer is one game's noise, not a season."
     assert got["dim"] == "pf-lr-v dim"
-    assert got["have"] == "4 of 5team carries inside the 5"   # his sample against the floor, not a rank
+    assert got["have"] == f"4 of 5{unit}" # his sample against the floor, not a rank
     assert got["last"]                                       # unranked rows sit under every ranked one
-    assert "3 of 5 team carries inside the 5" in got["allenFacts"] and got["allenFloor"] == 0
+    assert f"3 of 5 {unit}" in got["allenFacts"] and got["allenFloor"] == 0
     assert got["allenRk"].startswith("#")
     assert got["held"] == ["3/4", "2/3", "1/4"]           # C. Ward 75%, T. Shough 66.7%, L. Jackson 25%
     assert errors == []

@@ -27,6 +27,7 @@ import pytest
 from component import mount  # noqa: F401  (the fixture)
 from pages.hurt import RANKS, HurtPage, served
 from test_js_hurt import play, summary
+from wording import words
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 
@@ -173,7 +174,7 @@ def test_live_row_wears_a_hurt_chip_until_he_is_back(mount):
     plain = hurt.lineups_html()
     hurt.leave_hurt_on_live(PURDY)
     assert hurt.purdy_chip_count() == 1 and hurt.purdy_chip_text().lower() == "hurt"
-    assert hurt.purdy_chip_label() == "Left the game hurt"
+    assert hurt.purdy_chip_label() == words("live.hurt.label")
     assert hurt.chip_count() == 1
     # beside his name, inside the one name button, and the red is --down
     assert hurt.purdy_chip_in_name_count() == 1

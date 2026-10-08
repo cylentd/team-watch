@@ -7,6 +7,8 @@ backs were tested, against running backs: FLEX and every other position order by
 so ff-jarvis cuts his `pts` to 30% and flags him `unlined_backup`; the page tags him."""
 import pytest
 
+from wording import words
+
 
 @pytest.fixture(scope="module")
 def rb(node_js):
@@ -94,8 +96,7 @@ def test_a_tier_names_its_highest_and_lowest_points_not_its_first_and_last_row(r
 
 def test_the_tag_reads_in_plain_words_for_an_unlined_backup(rb):
     tag = rb("rbNoLine", {"pos": "RB", "unlined_backup": True, "pts": 3.1, "pts_before_unlined": 10.3})
-    assert tag == {"word": "No line",
-                   "tip": "The books priced a teammate, not him; backs like this score about a third of their projection."}
+    assert tag == {"word": words("ranks.noline.word"), "tip": words("ranks.noline.tip")}
 
 
 def test_no_tag_for_a_back_the_books_priced_or_for_a_file_without_the_field(rb):
