@@ -3,8 +3,9 @@
    the player sheet and Preview share: the market and its line,
    the sides, then the last four games against the line. Lime
    is a game that cleared it and a side on the slip; an earlier
-   season's game is faded. The model's side is outlined in lime
-   with its tier word under it (2026-10-05); the fill stays the
+   season's game is faded. Our pick is outlined in lime with its
+   tier word under it (2026-10-05; ours, Claude and the model on
+   one side, since 2026-10-08); the fill stays the
    reader's own pick, so a side can be both.
    ============================================================ */
 .sl-ln{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:10px 0;
@@ -41,17 +42,6 @@
 .sl-conf.confident{color:var(--lime);font-weight:700}
 .sl-conf.very{padding-inline:6px;background:var(--lime);color:var(--on-lime);font-weight:700}
 .sl-conf.none{opacity:.7}
-/* Claude's pick (2026-10-05, storyboard "Claude Calls" A): an 18px round "C" on the corner of the side it
-   picked, ringed in the panel colour. Lime on the model's outlined side when they agree; ink on the other
-   side when they do not, with Claude's why in one line under the row. Decorative: the button's own name
-   says "Claude picks this". The board's best-pick label wears the same badge (board.css gives it the corner). */
-.sl-side{position:relative}
-.sl-cb{position:absolute;top:-7px;right:-7px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;
-  background:var(--ink);color:var(--void);box-shadow:0 0 0 2px var(--panel);font-family:var(--disp);font-size:var(--t-1);
-  font-style:normal;font-weight:800;line-height:1;pointer-events:none}
-.sl-cb.agree{background:var(--lime);color:var(--on-lime)}
-.sl-cb.static{position:static;flex:none}
-.sl-cwhy{grid-column:1 / -1;display:flex;align-items:flex-start;gap:8px;font-size:var(--t-1);line-height:1.35;color:var(--ink-2)}
 /* Longest catch: history only, the market and his last four games on one line */
 .sl-long{grid-template-columns:auto minmax(0,1fr)}
 .sl-long .sl-hist{grid-column:auto;justify-content:flex-end}

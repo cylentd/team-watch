@@ -47,7 +47,7 @@ def test_a_board_row_opens_the_player_sheet_and_back_closes_it(full):
     rushing lines. Back closes it before the view."""
     board, sheet, errors = full(PHONE)
     board.show_slips("morning", "underdog")
-    board.tap_chip("all")
+    board.open_games()
     before = board.href()
     board.tap_row("chase-brown")
     assert board.sheet_open() and sheet.close_button_focused()

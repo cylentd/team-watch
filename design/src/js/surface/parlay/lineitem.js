@@ -1,8 +1,9 @@
 /* ONE LINE, THE ROW THE PLAYER SHEET AND PREVIEW SHARE (2026-10-03). The market and today's line,
    Higher and Lower (a touchdown: Yes), then his last four games against that line: lime where the
    game cleared it (over the line, one score for a touchdown), faded when the game is from an earlier
-   season. The model's side gets a lime outline with its tier word under it (2026-10-05, storyboard
-   "Prop Picks" A): Slight, Confident or Very confident, or "No pick" under Lower; the fill stays
+   season. Our pick gets a lime outline with the model's tier word under it (2026-10-05, storyboard
+   "Prop Picks" A; our pick, not the model's alone, since 2026-10-08): Slight, Confident or Very confident,
+   or "Split" or "No pick" under Lower; the fill stays
    the reader's own pick. A touchdown has no side or tier, only "N% to score". The tier is
    ff-jarvis's (`tier`, `side` on the row and on each book, for that book's own line); the page never
    cuts one from the chance. A tap on a side puts the line on the slip at that side; the same side
@@ -57,47 +58,41 @@ function slHistHTML(p, line, m){
   return `<span class="sl-hist" data-testid="parlay-hist">${cells}${md}</span>`;
 }
 
-/* Claude's call at the line shown, or null (2026-10-05, storyboard "Claude Calls" A): its side and one
-   line of why, from ff-jarvis's claude_props. Found by player, market and the exact line value, so on
-   Underdog a call made for another number gets nothing. A touchdown has no sides, so no call. */
+/* Claude's side at the line shown, or null (2026-10-05), from ff-jarvis's claude_props. Found by player,
+   market and the exact line value, so on Underdog a call made for another number gets nothing. A touchdown
+   has no sides, so no call. It is never drawn on its own (2026-10-08): it only decides our pick (opCall). */
 function slClaude(p){
   const L = typeof LIVE_CLAUDE_PROPS !== "undefined" ? LIVE_CLAUDE_PROPS : null;
   const rows = L && L.calls && L.calls[slSlug(p)], line = slLine(p);
   const c = rows && p.mkt !== "TD" ? rows.find(r => r.mkt === p.mkt && r.line === line) : null;
-  return c && (c.side === "higher" || c.side === "lower") ? {side: c.side, why: c.why || ""} : null;
+  return c && (c.side === "higher" || c.side === "lower") ? {side: c.side} : null;
 }
 
-/* Claude backs the model's outlined pick: lime. Any other call (the other side, or a line the model gave
-   no pick) is ink. The model's tier word stays the only confidence word; Claude's is never shown. */
-const slClaudeAgrees = (c, m) => !!c && !!m && !m.td && m.tier !== "none" && m.side === c.side;
-const slClaudeBadge = (agree, more = "") => `<i class="sl-cb${agree ? " agree" : ""}${more}" aria-hidden="true" title="${t("slips.claude.mark")}">${t("slips.claude.c")}</i>`;
+/* Our call on the line shown (data/ourpicks.js): one side when Claude and the model agree, none when they split. */
+const slOurCall = p => opCall(slModel(p), slClaude(p));
 
-/* Higher and Lower, the model's side outlined; the tier word under that side ("No pick" under Lower).
-   A line without a tier is just the two buttons. Claude's side wears a badge on its corner and is named
-   "Higher, Claude picks this" to a screen reader. */
-function slSidesHTML(i, m, side, c){
-  const agree = slClaudeAgrees(c, m);
-  const btn = (s, label) => {
-    const mine = !!c && c.side === s;
-    return `<button type="button" class="sl-side ${s}${m && m.side === s && m.tier !== "none" ? " pick" : ""}" data-testid="parlay-side" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${mine ? ` aria-label="${t("slips.claude.name", {side: label})}"` : ""}>${label}${mine ? slClaudeBadge(agree) : ""}</button>`;
-  };
-  // "72% Very confident" is wider than one side, so it spans both under the buttons, to the right edge; "No pick"
-  // has no chance and stays under Lower.
-  const under = m && m.tier ? ["higher", "lower"].map(s => {
-    const mine = m.tier === "none" ? s === "lower" : m.side === s;
-    return `<span class="sl-under${mine && m.tier !== "none" ? " wide" : ""}">${mine ? slTierHTML(m.tier, m.q) : ""}</span>`;
-  }).join("") : "";
+/* Higher and Lower, our pick outlined with its chance and tier word under it, to the right edge (2026-10-08,
+   one pick per line); a split says so under Lower; a line with no pick of ours says "No pick" there. A line the
+   model sent no tier for (an older producer, an Out player) is just the two buttons. */
+function slSidesHTML(i, call, side, tiered){
+  const ours = call && call.kind === "ours";
+  const btn = (s, label) => `<button type="button" class="sl-side ${s}${ours && call.side === s ? " pick" : ""}" data-testid="parlay-side" data-slpick="${i}" data-side="${s}" aria-pressed="${side === s}"${ours && call.side === s ? ` aria-label="${t("slips.our.name", {side: label})}"` : ""}>${label}</button>`;
+  const word = ours ? slTierHTML(call.tier, call.pct)
+    : `<span class="sl-tp"><b class="sl-conf none" data-testid="parlay-tier">${call ? t("slips.our.split") : t("slips.tier.none")}</b></span>`;
+  const under = !tiered ? "" : ["higher", "lower"].map(s => {
+    const mine = ours ? call.side === s : s === "lower";
+    return `<span class="sl-under${mine && ours ? " wide" : ""}">${mine ? word : ""}</span>`;
+  }).join("");
   return `<span class="sl-sides">${btn("higher", t("slips.side.higher"))}${btn("lower", t("slips.side.lower"))}${under}</span>`;
 }
 
 function slLineHTML(i){
-  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p), c = slClaude(p);
+  const p = PROPS[i], line = slLine(p), td = p.mkt === "TD", on = SLIP.includes(i), side = on ? slipSide(i) : null, m = slModel(p);
   const yes = `<span class="sl-sides"><button type="button" class="sl-side higher" data-testid="parlay-side" data-slpick="${i}" data-side="higher" aria-pressed="${side === "higher"}">${t("slips.side.yes")}</button></span>`;
-  return `<div class="sl-ln${on ? " on" : ""}${m && m.tier ? " tiered" : ""}" data-testid="parlay-line-item">
+  return `<div class="sl-ln${on ? " on" : ""}${!td && m && m.tier ? " tiered" : ""}" data-testid="parlay-line-item">
       <span class="sl-mk" data-testid="parlay-line-market">${esc(MKT[p.mkt] || p.mkt)}${!td && line != null ? ` <b>${line}</b>` : ""}</span>
-      ${td ? yes : slSidesHTML(i, m, side, c)}
+      ${td ? yes : slSidesHTML(i, slOurCall(p), side, !!(m && m.tier))}
       ${slHistHTML(p, line, m)}
-      ${c && c.why && !slClaudeAgrees(c, m) ? `<span class="sl-cwhy">${slClaudeBadge(false, " static")}<span>${esc(c.why)}</span></span>` : ""}
     </div>`;
 }
 

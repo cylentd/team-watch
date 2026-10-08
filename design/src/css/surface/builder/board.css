@@ -1,25 +1,13 @@
 /* ============================================================
-   THE SLIPS BOARD (2026-10-03, js/surface/parlay/board.js)
-   One card per game: matchup and kickoff, the implied-points
-   bar, Preview's headline as a link, four chips, then a row per
-   player in two columns (2026-10-05): on the left his name, his
-   work as bars with every number under them (the last bold, green
-   when his work is rising), his snaps and a chip only when one
-   applies; on the right the model's best line with its tier
-   word, then "N lines". A phone stacks the cards; from 760px
-   they sit two or three across, each as tall as its own players.
+   AN OPENED GAME'S RESEARCH (2026-10-03 as the Slips board,
+   js/surface/parlay/board.js; inside a kickoff window since
+   2026-10-08, windows.css draws the window and the game row).
+   The implied-points bar, Preview's headline as a link, then a
+   row per player in two columns: on the left his name, his work
+   as bars with every number under them (the last bold), his snaps
+   and a chip only when one applies; on the right "N lines".
    ============================================================ */
-.sl-board{display:grid;gap:12px;margin-top:12px}
-@media (min-width:760px){
-  .sl-board{grid-template-columns:repeat(auto-fill,minmax(340px,1fr));align-items:start;gap:16px}
-}
-.sl-game{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0}
-
-/* ---- the game ---- */
-.sl-gh{padding:12px 14px 10px;border-bottom:1px solid var(--line);display:grid;gap:6px}
-.sl-gt{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.sl-gt h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em}
-.sl-gt span{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
+.sl-gm{display:grid;gap:6px;padding:4px 14px 10px}
 .sl-imp{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;
   font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
 .sl-imp b{color:var(--ink);font-weight:700}
@@ -30,12 +18,12 @@
   font-size:var(--t-2);font-weight:600;line-height:1.35;text-align:left;cursor:pointer;text-wrap:pretty}
 .sl-take span{margin-left:4px;color:var(--lime);font-weight:700}
 .sl-take:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
-.sl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.sl-chips .chip{padding:5px 10px;font-size:var(--t-1)}
+.sl-every{margin:0;padding:10px 14px 6px;border-top:1px solid var(--line);font-family:var(--ui);font-size:var(--t-1);
+  font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
 
 /* ---- a player: two columns, the whole row one tap ---- */
 .sl-rows{margin:0;padding:0;list-style:none}
-.sl-rows > li + li{border-top:1px solid var(--line)}
+.sl-rows > li{border-top:1px solid var(--line)}
 .sl-row{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px;width:100%;
   padding:10px 14px;border:0;background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer;
   transition:background .15s var(--ease)}
@@ -61,11 +49,7 @@
 .sl-f::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink-3)}
 .sl-f.easy::before{background:var(--up)}
 .sl-f.tough::before{background:var(--down)}
-/* the model's best line, button-like, its tier under it, then the line count */
 .sl-r{display:grid;justify-items:end;gap:4px}
-.sl-pick{position:relative;padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;
-  font-size:var(--t-1);font-weight:700;line-height:1.2;white-space:nowrap;color:var(--ink)}
 .sl-go{display:inline-flex;align-items:center;gap:4px;font-size:var(--t-1);color:var(--ink-3)}
 .sl-go svg{width:6px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none}
-.sl-none{padding:12px 14px;font-size:var(--t-1);color:var(--ink-3)}
 .sl-empty{margin:20px 0;min-height:120px}

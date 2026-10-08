@@ -12,7 +12,7 @@ function parlayHTML(){
   return `<div class="wrap bets">
     ${betsBarHTML(build)}
     ${betsPanelHTML(build)}
-    ${build ? buildHTML() : slRecordHTML() + slTopHTML() + slBoardHTML()}
+    ${build ? buildHTML() : slRecordHTML() + slBoardHTML()}
     ${build ? `<p class="note bets-foot">${schedWeek() ? t("parlay.hero.eyebrow", {n: buildCount(), week: schedWeek()}) : t("parlay.hero.eyebrowNoWeek", {n: buildCount()})}</p>` : ""}
   </div>
   ${trayHTML()}${sheetHTML()}`;

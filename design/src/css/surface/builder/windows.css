@@ -1,0 +1,81 @@
+/* ============================================================
+   SLIPS BY KICKOFF WINDOW (2026-10-08, js/surface/parlay/windows.js)
+   A heading per window in the display face, then one card of its
+   games. A game is a row: the matchup, its pick count and kickoff,
+   a chevron; under it its best pick (face, full name, "Our pick"
+   and the outlined side and line, the chance and tier word, a
+   round + for the slip). Opened, the row tints and the research
+   follows (board.css). The window's Split fold closes the card.
+   ============================================================ */
+.sl-board{display:grid;gap:4px}
+.sl-wh{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:18px 2px 8px}
+/* the first heading sits close under the record line, so the first game starts inside STYLE.md's ~200px */
+.sl-win:first-child .sl-wh{margin-top:4px}
+.sl-wh h2{margin:0;font-family:var(--tab);font-weight:900;font-size:var(--t-5);line-height:1;letter-spacing:.02em;text-transform:uppercase}
+.sl-wh span{font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sl-wcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.sl-game + .sl-game,.sl-split{border-top:1px solid var(--line)}
+.sl-game.open{background:var(--panel-2)}
+
+/* ---- the game row: matchup, count, kickoff, chevron ---- */
+.sl-gr{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:baseline;gap:10px;width:100%;
+  min-height:44px;padding:12px 14px 6px;border:0;background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.sl-gr:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.sl-gr h3{margin:0;font-family:var(--disp);font-weight:800;font-size:var(--t-4);letter-spacing:-.01em;white-space:nowrap}
+.sl-gn{min-width:0;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl-gk{font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sl-chev{align-self:center;width:8px;height:8px;margin:0 2px 0 4px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);
+  transform:rotate(45deg);transition:transform var(--dur-spring) var(--spring)}
+[aria-expanded="true"] > .sl-chev{transform:rotate(225deg);border-color:var(--lime)}
+.sl-game:not(:has(.sl-pks)) .sl-gr{padding-bottom:12px}
+
+/* ---- a pick: face, who, our side and line, chance and tier; the + at the right ---- */
+.sl-pks{margin:0;padding:0;list-style:none}
+.sl-pk{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.sl-pk + .sl-pk{border-top:1px solid var(--line)}
+.sl-pkm{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;width:100%;
+  padding:6px 0 12px 14px;border:0;background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer}
+.sl-pk + .sl-pk .sl-pkm{padding-top:12px}
+.sl-pkm:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.sl-face{width:44px;height:44px}
+.sl-pkb{display:grid;justify-items:start;gap:6px;min-width:0}
+.sl-pkb .sl-who{max-width:100%}
+.sl-pkl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.sl-our{font-size:var(--t-1);font-weight:600;color:var(--ink-2)}
+.sl-pick{padding:4px 8px;border:1px solid var(--lime);box-shadow:inset 0 0 0 1px var(--lime);border-radius:8px;
+  font-size:var(--t-1);font-weight:700;line-height:1.2;white-space:nowrap;color:var(--ink)}
+.sl-pick b{font-family:var(--mono);font-weight:700}
+/* the + is a 52px target around a 28px disc; lime once the side is on the slip */
+.sl-add{appearance:none;display:grid;place-items:center;width:52px;height:52px;border:0;background:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent}
+.sl-add i{position:relative;display:block;width:28px;height:28px;border:1px solid var(--line-2);border-radius:50%;background:var(--panel-2);
+  transition:background .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
+.sl-add i::before,.sl-add i::after{content:"";position:absolute;left:50%;top:50%;background:var(--ink);border-radius:1px;transform:translate(-50%,-50%)}
+.sl-add i::before{width:12px;height:2px}
+.sl-add i::after{width:2px;height:12px;transition:transform .15s var(--ease)}
+.sl-add:active i{transform:scale(var(--press))}
+.sl-add:focus-visible{outline:2px solid var(--lime);outline-offset:-4px;border-radius:12px}
+.sl-add.on i{background:var(--lime);border-color:var(--lime)}
+.sl-add.on i::before,.sl-add.on i::after{background:var(--on-lime)}
+.sl-add.on i::after{transform:translate(-50%,-50%) scaleY(0)}
+.sl-game.open .sl-add i{background:var(--panel)}
+.sl-game.open .sl-add.on i{background:var(--lime)}
+
+/* ---- the Split fold: no side on any of its lines ---- */
+.sl-spb{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;gap:10px;width:100%;
+  min-height:44px;padding:12px 14px;border:0;background:none;color:var(--ink-2);font-family:var(--ui);text-align:left;cursor:pointer}
+.sl-spb span{font-size:var(--t-2);font-weight:700}
+.sl-spb small{min-width:0;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sl-spb:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.sl-sps{margin:0;padding:0 0 4px;list-style:none}
+.sl-sp{appearance:none;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:baseline;gap:8px;width:100%;
+  padding:8px 14px;border:0;background:none;color:var(--ink);font-family:var(--ui);font-size:var(--t-2);text-align:left;cursor:pointer}
+.sl-sp > b{font-weight:700;white-space:nowrap}
+.sl-spm{justify-self:end;font-size:var(--t-1);color:var(--ink-2);white-space:nowrap}
+.sl-spm b{font-family:var(--mono);color:var(--ink)}
+.sl-sp:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+
+@media (min-width:760px){
+  .sl-board{max-width:640px}
+}

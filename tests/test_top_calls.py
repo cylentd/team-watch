@@ -37,37 +37,38 @@ def page(shared):
 
 
 def test_top_calls_lead_slips_with_a_verdict_each(page):
-    box = page.locator(".tpc").bounding_box()
+    """Since 2026-10-08 (ledger #33) Top calls are each game's best pick, under its kickoff window."""
+    page.evaluate("GAL_WIN = 'morning'; render()")
+    box = page.locator(".sl-win").bounding_box()
     assert box["y"] + page.evaluate("window.scrollY") <= 212, "the first data starts by ~200px"
-    assert page.evaluate("document.querySelector('.tpc').compareDocumentPosition(document.querySelector('.sl-board')) & Node.DOCUMENT_POSITION_FOLLOWING"), "above the board"
-    assert page.locator(".tpc h2").inner_text() == "Top calls"
-    rows = page.locator(".tpc-row")
-    assert 1 <= rows.count() <= 5
+    rows = page.locator(".sl-pk")
+    assert rows.count() >= 1
     first = rows.first
-    assert first.locator(".tpc-who b").inner_text() == "C. Brown"
-    assert first.locator(".tpc-pick").inner_text().startswith("Higher rush yds"), "the side and the line"
+    assert first.locator(".sl-who b").inner_text() == "Chase Brown"
+    assert first.locator(".sl-pick").inner_text().startswith("Higher rush yds"), "the side and the line"
     assert first.locator(".sl-pc").inner_text() == "72%" and first.locator(".sl-conf").inner_text() == words("slips.tier.very")
-    assert page.locator(".tpc-edge").count() == 0 and "break-even" not in page.locator(".tpc").inner_text(), \
+    assert "break-even" not in page.locator(".sl-board").inner_text(), \
         "no edge over the book's break-even (12.31: the model's +EV overs lose at the close; removed 2026-10-06)"
-    tiers = page.locator(".tpc .sl-conf").all_inner_texts()
+    tiers = page.locator(".sl-pks .sl-conf").all_inner_texts()
     assert tiers == sorted(tiers, key=[words("slips.tier.slight"), words("slips.tier.confident"), words("slips.tier.very")].index, reverse=True), "strongest first"
 
 
 def test_one_tap_puts_the_calls_side_on_the_slip(page):
-    first = page.locator(".tpc-add").first
+    page.evaluate("GAL_WIN = 'morning'; render()")
+    first = page.locator(".sl-add").first
     assert first.get_attribute("aria-pressed") == "false"
     first.click()
     assert page.evaluate("SLIP.length") == 1 and page.evaluate("slipSide(SLIP[0])") == "higher"
-    assert page.locator(".tpc-add").first.get_attribute("aria-pressed") == "true"
+    assert page.locator(".sl-add").first.get_attribute("aria-pressed") == "true"
     assert page.locator(".tray-n").inner_text() == "1"
-    page.locator(".tpc-add").first.click()
+    page.locator(".sl-add").first.click()
     assert page.evaluate("SLIP.length") == 0, "the same side again takes it off"
-    box = page.locator(".tpc-add").first.bounding_box()
+    box = page.locator(".sl-add").first.bounding_box()
     assert box["width"] >= 44 and box["height"] >= 44, "a 44px target"
 
 
 def test_a_players_sheet_is_a_centred_modal_and_one_bet_stays_at_the_bottom_edge(page):
-    page.locator(".tpc-main").first.click()
+    page.locator(".sl-pkm").first.click()
     sheet = page.locator("#legsheet.on")
     assert sheet.count() == 1 and "ls-read" in sheet.get_attribute("class")
     b = sheet.bounding_box()
@@ -90,7 +91,7 @@ def test_a_players_sheet_is_a_centred_modal_and_one_bet_stays_at_the_bottom_edge
 
 
 def test_the_scrim_and_back_close_the_modal(page):
-    page.locator(".tpc-main").first.click()
+    page.locator(".sl-pkm").first.click()
     page.locator("#legsheet-scrim").click(position={"x": 4, "y": 4})
     page.wait_for_function("LEG_SHEET === null")
 

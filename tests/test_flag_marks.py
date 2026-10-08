@@ -25,7 +25,7 @@ MARKS = {
     "teams.card.wxMark": "F22", "teams.brief.wxMark": "F22", "startsit.out.mark": "F23", "startsit.wx.mark": "F24",
     "waiver.lane.usageMark": "F27", "dfs.tag.handcuffMark": "F28",
     "matchups.takes.markSmash": "U1", "preview.conf.mark": "U4",
-    "preview.call.mark": "U5", "slips.claude.mark": "U6", "parlay.tag.roleMark": "U8", "waiver.tier.mark": "U9",
+    "preview.call.mark": "U5", "parlay.tag.roleMark": "U8", "waiver.tier.mark": "U9",
     "waiver.lane.starterMark": "U10", "waiver.lane.roleMark": "U11", "waiver.lane.injuredMark": "U12",
     "waiver.swap.mark": "U13", "waiver.rail.pathMark": "U14", "teams.brief.wireMark": "U15",
     "teams.brief.wxMarkWind": "U16", "lboard.offer.mark": "U17", "lboard.chip.mark": "U18",

@@ -458,11 +458,11 @@ STATES = [
     ("build-underdog", go("build")),
     ("build-panel", go("build") + [("click", "[data-betspanel]")]),
     # The research board (2026-10-03; it replaced the deal table): the Sunday tab, Monday night's
-    # game on All, St. Brown's player sheet with two legs on, and the tray's sheet with a saved slip.
+    # game opened, St. Brown's player sheet with two legs on, and the tray's sheet with a saved slip.
     # The first kickoff tab: Slips' own row on a desktop, the Slips pill's first segment in the tab row on a phone.
     ("parlay-day", go("parlay") + [("click", "[data-gwin]")]),
-    ("parlay-board-mon", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']")]),
-    ("parlay-player", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slchip='all']"),
+    ("parlay-board-mon", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slopen]")]),
+    ("parlay-player", go("parlay") + [("eval", "GAL_WIN = 'evening-mon'; render()"), ("click", "[data-slopen]"),
                                       ("click", ".sl-row[data-slplayer='amonra-st-brown']"),
                                       ("click", "#legsheet [data-slpick][data-side='higher']"),
                                       ("click", "#legsheet .sl-ln:nth-child(2) [data-side='lower']")]),

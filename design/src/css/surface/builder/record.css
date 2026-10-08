@@ -1,48 +1,38 @@
 /* ============================================================
-   THE PROP RECORD (2026-10-05, js/surface/parlay/record.js)
-   One line above the Slips board, no card: RECORD, then each
-   tier's word and hit rate. It is a button; a tap opens the
-   three tiles under it. Slight in ink-2, Confident in lime,
-   Very a filled lime chip. Start/Sit's record in this view's
-   own class names (that file is fenced to its view).
+   THE RECORD LINE (2026-10-05; one "Our picks" record since
+   2026-10-08, js/surface/parlay/record.js). One button above the
+   kickoff windows, no card: RECORD, then our picks' hit rate and
+   W-L in mono (or the week the numbers start), and under it the
+   note that the pick is unproven until scored. A tap opens our
+   tile and the tier tiles: Slight in ink-2, Confident in lime,
+   Very a filled lime chip.
    ============================================================ */
 .pr-rec{margin-top:4px}
-.pr-rec-b{display:flex;flex-direction:column;justify-content:center;gap:4px;width:100%;min-height:36px;padding:4px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.pr-rec-r{display:flex;align-items:center;gap:8px;width:100%}
-.pr-rec-b:active{transform:scale(var(--press))}
+.pr-rec-b{display:flex;flex-direction:column;justify-content:center;gap:4px;width:100%;min-height:44px;padding:4px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pr-rec-b:disabled{cursor:default;color:inherit}
+.pr-rec-r{display:flex;align-items:center;gap:8px;width:100%;height:16px}
+.pr-rec-b:not(:disabled):active{transform:scale(var(--press))}
 .pr-rec-b:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:6px}
 .pr-rec-l{margin:0 2px 0 0;font-size:var(--t-1);font-weight:600;line-height:1.2;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
-.pr-rq,.pr-cq{display:inline-flex;align-items:baseline;gap:4px;font-family:var(--mono);font-size:var(--t-1);line-height:16px}
-.pr-rq i,.pr-cq i{font-style:normal;font-weight:700;color:var(--ink-2)}
-.pr-rq b,.pr-cq b{font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink)}
-.pr-rq.confident i{color:var(--lime)}
-.pr-rq.very i{padding:0 5px;border-radius:4px;background:var(--lime);color:var(--on-lime)}
-.pr-rec-d{color:var(--ink-3)}
+.pr-oq{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:var(--t-1);line-height:16px}
+.pr-oq i{font-style:normal;font-family:var(--ui);font-weight:700;color:var(--ink)}
+.pr-oq b{font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pr-rec-dot,.pr-rec-from{font-family:var(--mono);font-size:var(--t-1);line-height:16px;color:var(--ink-3)}
+.pr-rec-note{font-size:var(--t-1);line-height:16px;color:var(--ink-3);white-space:normal}
 .pr-rec-c{width:7px;height:7px;margin:-3px 4px 0 auto;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);flex:none;transition:transform var(--dur-spring) var(--spring)}
 .pr-rec-b[aria-expanded="true"] .pr-rec-c{margin-top:3px;transform:rotate(225deg)}
 .pr-rec-more{display:grid;gap:8px;margin-top:2px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
 .pr-rec-more[hidden]{display:none}
-.pr-rec-s,.pr-rec-cs{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.pr-rec-s{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .pr-rts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.pr-rt,.pr-ct{display:grid;justify-items:center;align-content:center;gap:3px;min-height:64px;padding:8px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
-.pr-rt b,.pr-ct b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
-.pr-rt span,.pr-ct span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.pr-ots{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.pr-rt{display:grid;justify-items:center;align-content:center;gap:3px;min-height:64px;padding:8px 6px;border-radius:10px;background:var(--panel-2);text-align:center}
+.pr-rt b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pr-rt span{font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.pr-rt.ours span{color:var(--ink)}
 .pr-rt.confident span{color:var(--lime)}
 .pr-rt.very span{padding:0 5px;border-radius:4px;background:var(--lime);color:var(--on-lime)}
-.pr-rt small,.pr-ct small{min-height:1em;font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3)}
-/* CLAUDE's row under the line (2026-10-05, LIVE_CLAUDE_RECORD): the same label and mono numbers, a lime C badge
-   before "agrees". The row is 16px, so the whole button is 44px and the first game card stays under 212px at 360px. */
-.pr-rec-cl{height:16px}
-.pr-cq{align-items:center}
-.pr-rec-dot,.pr-rec-from{font-family:var(--mono);font-size:var(--t-1);line-height:16px;color:var(--ink-3)}
-/* The line sheet's Claude badge, copied (round, display font, 800, lime on on-lime). Dedupe once both are on main. */
-.pr-cb{display:inline-grid;place-items:center;flex:none;width:18px;height:18px;border-radius:50%;background:var(--lime);color:var(--on-lime);font:800 var(--t-1)/1 var(--disp);font-style:normal;letter-spacing:0;text-transform:none}
-.pr-cts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.pr-cts .pr-ct span{display:inline-flex;align-items:center;gap:6px}
-/* A phone has no room for the dots between the tiers. */
-@media (max-width:430px){
-  .pr-rec-d{display:none}
-}
+.pr-rt small{min-height:1em;font-family:var(--mono);font-size:var(--t-1);line-height:1;color:var(--ink-3)}
 @media (min-width:760px){
   .pr-rec{max-width:560px}
 }

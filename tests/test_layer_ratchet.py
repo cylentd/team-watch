@@ -126,7 +126,6 @@ def test_the_backlog_is_current(data_calls):
 # A loader call inside a test marked `@pytest.mark.journey` (navigation, hash, Back, cross-view: it needs
 # the full page) is not counted, in any file; a helper's loads count where the helper is called.
 FULL_LOADS = {
-    "test_claude_calls.py": 1, "test_claude_record.py": 1,
     "test_gestures.py": 1, "test_highlights.py": 1,
     "test_profile_journeys.py": 1, "test_prop_picks.py": 1,
     "test_range_view.py": 1, "test_render.py": 10,

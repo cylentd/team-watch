@@ -51,8 +51,7 @@ class ParlayPage:
         tid = page.get_by_test_id
         self._kick_tabs, self._kick_tab = tid("parlay-kick-tabs"), tid("parlay-kick-tab")
         self._games, self._titles, self._board = tid("parlay-game"), tid("parlay-game-title"), tid("parlay-board")
-        self._rows, self._names, self._chips = tid("parlay-row"), tid("parlay-row-name"), tid("parlay-chip")
-        self._none, self._bars = tid("parlay-none"), tid("parlay-spark-bar")
+        self._rows, self._names, self._bars = tid("parlay-row"), tid("parlay-row-name"), tid("parlay-spark-bar")
         self._tray, self._tray_open, self._count = tid("parlay-tray"), tid("parlay-tray-open"), tid("parlay-tray-count")
         self._save, self._slipsheet = tid("parlay-tray-save"), tid("parlay-slipsheet")
         self._pay, self._verdict = tid("parlay-pay-input"), tid("parlay-pay-verdict")
@@ -81,9 +80,12 @@ class ParlayPage:
 
     # ---- Slips: what a reader does ----
 
-    def tap_chip(self, kind):
-        """A chip on the first game's card: 'rise', 'te', 'role' or 'all'."""
-        self._chips.and_(self.page.locator(f"[data-slchip='{kind}']")).first.click()
+    def open_games(self):
+        """Every game in the kickoff opened, by a tap on each closed one (2026-10-08: a game is one closed row
+        until tapped; the TE, Role guys and All chips are gone)."""
+        closed = self.page.get_by_test_id("parlay-game-toggle").and_(self.page.locator("[aria-expanded='false']"))
+        while closed.count():   # Enter on the focused toggle: the slip tray may sit over a low one
+            closed.first.press("Enter")
 
     def tap_row(self, slug):
         self._row(slug).click()
@@ -144,19 +146,6 @@ class ParlayPage:
 
     def board_text(self):
         return self._board.inner_text()
-
-    def none_notes(self):
-        return self._none.count()
-
-    def chip_text(self, kind):
-        return self._chips.and_(self.page.locator(f"[data-slchip='{kind}']")).first.inner_text()
-
-    def pressed_chip(self):
-        return self._chips.and_(self.page.locator("[aria-pressed='true']")).first.get_attribute("data-slchip")
-
-    def chip_kinds(self):
-        """The first game card's chips, left to right."""
-        return self._games.first.get_by_test_id("parlay-chip").evaluate_all("cs => cs.map(c => c.dataset.slchip)")
 
     def rising_bars(self):
         """Last bars drawn in the green of a rise (retired 2026-10-06)."""

@@ -21,7 +21,8 @@ RESET = """() => { 'use strict';
   Object.assign(LIVE_REASONS, JSON.parse(__REASONS));
   LIVE_PREVIEW.games.splice(0, LIVE_PREVIEW.games.length, ...JSON.parse(__PV));
   Object.assign(LIVE_PROPS_RECORD, JSON.parse(__REC));
-  SLIP.length = 0; SL_CHIP = {}; SL_FOCUS = null; SL_REC_OPEN = false; PV_OPEN = false; PV_I = null;
+  LIVE_CLAUDE_PROPS.calls['amonra-st-brown'] = [{mkt: 'REC', line: 75.5, side: 'higher', why: ''}];
+  SLIP.length = 0; SL_OPEN = {}; SL_FOCUS = null; SL_REC_OPEN = false; PV_OPEN = false; PV_I = null;
   PARLAY_BOOK = 'dk'; GAL_WIN = 'evening-mon'; SURFACE = 'parlay'; render(); }"""
 
 # The fixture's preview games and its props slate are different games (tests/test_preview.py), so game 3
@@ -74,7 +75,8 @@ def right(loc):
 
 
 def all_chips(page):
-    page.locator("[data-slchip='all']").first.click()
+    """Every game in the kickoff opened (Slips by kickoff window, 2026-10-08: a game is closed until tapped)."""
+    page.evaluate("() => { document.querySelectorAll('[data-slopen]').forEach(b => { SL_OPEN[b.dataset.slopen] = true; }); render(); }")
 
 
 def test_the_models_side_is_outlined_with_its_tier_under_it(page):
@@ -99,12 +101,11 @@ def test_each_tier_has_its_word_and_its_side(page):
     for slug, label in (("chase-brown", "Rush yds"), ("joe-burrow", "Pass yds"), ("george-kittle", "Rec yds")):
         sheet = open_sheet(page, slug)
         ln = line(sheet, label)
-        # a side Claude picked carries its "C" badge after the word (tests/test_claude_calls.py)
         got[slug] = (ln.locator(".sl-conf").inner_text(), ln.locator(".sl-conf").get_attribute("class").split()[-1],
                      [x.split("\n")[0] for x in ln.locator(".sl-side.pick").all_inner_texts()])
         close_sheet(page)
     assert got == {"chase-brown": (words("slips.tier.very"), "very", ["Higher"]),
-                   "joe-burrow": ("Confident", "confident", ["Lower"]),
+                   "joe-burrow": (words("slips.our.split"), "none", []),
                    "george-kittle": ("No pick", "none", [])}, "no pick: no outline"
     page.evaluate("document.getElementById('view').insertAdjacentHTML('beforeend', `<div id=probe>${PROPS.map((p, i) => p.n === 'George Kittle' && p.mkt === 'REC' ? slLineHTML(i) : '').join('')}</div>`)")
     unders = page.locator("#probe .sl-under").all_inner_texts()
@@ -155,6 +156,7 @@ def test_underdog_shows_the_tier_of_underdogs_own_line(page):
     tier for the number it shows, none is drawn rather than the other book's."""
     page.evaluate("""() => { const p = PROPS.find(p => p.n === 'Amon-Ra St. Brown' && p.mkt === 'REC');
       p.books.Underdog.line = 78.5; p.books.Underdog.side = 'lower'; p.books.Underdog.tier = 'confident';
+      LIVE_CLAUDE_PROPS.calls['amonra-st-brown'].push({mkt: 'REC', line: 78.5, side: 'lower', why: ''});
       PARLAY_BOOK = 'underdog'; render(); }""")
     sheet = open_sheet(page, "amonra-st-brown")
     ln = line(sheet, "Rec yds")
@@ -178,20 +180,19 @@ def row(page, slug):
 def test_a_row_is_work_bars_chips_and_the_best_line(page):
     """St. Brown: his three bars (targets 7, 9, 11) with all three numbers, none of them green (12.33: a rise in
     work is priced into the line), his snaps absent (no usage log), no chip for his two teammates out (12.55: the
-    book prices it) and none for the matchup (GB is mid-table); the pick is his one priced yards line,
-    outlined, its tier under it."""
+    book prices it) and none for the matchup (GB is mid-table). No pick on the row since 2026-10-08: the game's
+    picks sit above its players."""
     all_chips(page)
     r = row(page, "amonra-st-brown")
-    assert r.locator(".sl-who b").inner_text() == "A. St. Brown" and r.locator(".sl-pos").inner_text() == "WR · DET"
+    assert r.locator(".sl-who b").inner_text() == "Amon-Ra St. Brown" and r.locator(".sl-pos").inner_text() == "WR · DET"
     assert r.locator(".sl-use .sl-ul").first.inner_text() == "Targets"
     assert r.locator(".sl-spark em").all_inner_texts() == ["7", "9", "11"]
     assert r.locator(".sl-spark > span").evaluate_all("els => els.map(e => e.classList.contains('up'))") == [False, False, False]
     assert r.locator(".sl-f").count() == 0
-    assert r.locator(".sl-pick").inner_text() == "Higher rec yds" and r.locator(".sl-r .sl-conf").inner_text() == "Slight"
+    assert r.locator(".sl-pick, .sl-conf").count() == 0
     assert r.locator(".sl-go").inner_text() == "2 lines"
     assert r.locator(".sl-why, .sl-odds").count() == 0
     assert r.evaluate("e => e.tagName") == "BUTTON", "the whole row is one tap"
-    assert abs(right(r.locator(".sl-pick")) - right(r.locator(".sl-r .sl-conf"))) <= 1, "the pick and its word share the right edge"
 
 
 def test_no_bar_is_green_even_when_ff_jarvis_tags_the_work_as_rising(page):
@@ -212,16 +213,16 @@ def test_a_teammate_out_draws_no_chip(page):
 
 def test_the_best_line_is_the_most_confident_and_a_row_without_one_says_only_its_lines(page):
     page.evaluate("""() => { const p = PROPS.find(p => p.n === 'Amon-Ra St. Brown' && p.mkt === 'REC');
-      PROPS.push({...p, mkt: 'RECS', line: 6.5, model: 20, side: 'lower', tier: 'very', books: {}}); render(); }""")
+      PROPS.push({...p, mkt: 'RECS', line: 6.5, model: 20, side: 'lower', tier: 'very', books: {}});
+      LIVE_CLAUDE_PROPS.calls['amonra-st-brown'].push({mkt: 'RECS', line: 6.5, side: 'lower', why: ''}); render(); }""")
+    best = page.locator(".sl-pk").first
+    assert best.locator(".sl-pick").inner_text() == "Lower catches 6.5" and best.locator(".sl-conf").inner_text() == words("slips.tier.very")
     all_chips(page)
-    r = row(page, "amonra-st-brown")
-    assert r.locator(".sl-pick").inner_text() == "Lower catches" and r.locator(".sl-r .sl-conf").inner_text() == words("slips.tier.very")
-    assert r.locator(".sl-go").inner_text() == "3 lines"
+    assert row(page, "amonra-st-brown").locator(".sl-go").inner_text() == "3 lines"
     page.evaluate("GAL_WIN = 'evening-sun'; render()")
+    assert "George Kittle" not in page.locator(".sl-pks").all_inner_texts(), "his only yards line is No pick, a touchdown never counts"
     all_chips(page)
-    k = row(page, "george-kittle")
-    assert k.locator(".sl-pick, .sl-r .sl-conf").count() == 0, "his only yards line is No pick, a touchdown never counts"
-    assert k.locator(".sl-go").inner_text() == "2 lines"
+    assert row(page, "george-kittle").locator(".sl-go").inner_text() == "2 lines"
 
 
 def test_the_matchup_chip_follows_the_defence_rank(page):
@@ -249,6 +250,7 @@ def test_a_phone_fits_every_row(page):
 
 def test_a_game_card_is_a_headline_link_and_no_sentences(page):
     page.evaluate(AS_SEA_SF)
+    all_chips(page)
     g = page.locator(".sl-game[data-slgamecard='SEA @ SF']")
     assert g.locator(".sl-odds, .sl-script, .sl-why").count() == 0
     take = g.locator(".sl-take")
@@ -260,6 +262,7 @@ def test_a_game_card_is_a_headline_link_and_no_sentences(page):
 
 def test_the_headline_opens_that_games_dossier(page):
     page.evaluate(AS_SEA_SF)
+    all_chips(page)
     page.locator(".sl-game[data-slgamecard='SEA @ SF'] .sl-take").click()
     assert page.evaluate("SURFACE") == "preview" and page.evaluate("PV_I") == 3 and page.evaluate("PV_OPEN") is True
     assert page.locator(".pv-dz").count() == 1
@@ -268,17 +271,14 @@ def test_the_headline_opens_that_games_dossier(page):
 
 
 def test_the_record_is_one_line_with_the_three_tiers(page):
+    """One "Our picks" record since 2026-10-08 (ledger #33); the three tiers moved into its detail."""
     rec = page.locator(".pr-rec")
     assert rec.count() == 1
     btn = rec.locator("button.pr-rec-b")
     assert btn.get_attribute("aria-expanded") == "false"
-    assert btn.locator(".pr-rec-l").all_text_contents() == ["Record", "Claude"], "Claude's row is the second line (tests/test_claude_record.py)"
-    assert btn.locator(".pr-rq i").all_inner_texts() == ["Slight", "Confident", "Very"]
-    assert btn.locator(".pr-rq b").all_inner_texts() == ["55%", "53%", "57%"]
-    assert btn.locator(".pr-rq b").first.evaluate("e => getComputedStyle(e).fontFamily").lower().endswith("monospace")
+    assert btn.locator(".pr-rec-l").all_text_contents() == [words("slips.record.label")]
+    assert btn.locator(".pr-oq i").all_inner_texts() == [words("slips.record.ours")] and btn.locator(".pr-rq").count() == 0
     assert page.evaluate("document.querySelector('.pr-rec').compareDocumentPosition(document.querySelector('.sl-board')) & 4"), "above the board"
-    assert btn.locator(".pr-rq.very i").evaluate("e => getComputedStyle(e).backgroundColor") != "rgba(0, 0, 0, 0)", "Very is a filled chip"
-    assert btn.locator(".pr-rq.slight i").evaluate("e => getComputedStyle(e).backgroundColor") == "rgba(0, 0, 0, 0)"
     assert page.evaluate("document.documentElement.scrollWidth") <= 360
     page.evaluate("SURFACE = 'build'; render()")
     assert page.locator(".pr-rec").count() == 0, "Slips only"
@@ -291,12 +291,12 @@ def test_the_record_line_is_slim_and_never_wraps_at_360(page):
     box = page.locator(".pr-rec-b").bounding_box()
     assert 32 <= box["height"] <= 44, box
     assert page.evaluate("(() => { const b = document.querySelector('.pr-rec-b'); return b.scrollWidth <= b.clientWidth; })()"), "overflows its line"
-    mids = page.evaluate("[...document.querySelectorAll('.pr-rec-r:first-child > .pr-rec-l, .pr-rec-r:first-child > .pr-rq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
+    mids = page.evaluate("[...document.querySelectorAll('.pr-rec-r:first-child > .pr-rec-l, .pr-rec-r:first-child > .pr-oq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
     assert max(mids) - min(mids) < 3, f"all on one line: {mids}"
-    # The first data is Top calls since 2026-10-05; the game cards follow it.
-    top = page.locator(".tpc").bounding_box()["y"] + page.evaluate("window.scrollY")
-    print("Top calls top:", top)
-    assert top <= 212, f"Top calls at {top}px"
+    # The first data is the first kickoff window, its heading on top as Top calls' was, since 2026-10-08.
+    top = page.locator(".sl-win").first.bounding_box()["y"] + page.evaluate("window.scrollY")
+    print("first window top:", top)
+    assert top <= 212, f"the first window at {top}px"
 
 
 def test_the_record_line_opens_its_detail(page):
@@ -305,7 +305,7 @@ def test_the_record_line_opens_its_detail(page):
     assert more.is_hidden()
     btn.click()
     assert btn.get_attribute("aria-expanded") == "true" and more.is_visible()
-    assert page.locator(".pr-rec-s").inner_text() == "weeks 1-4"
+    assert page.locator(".pr-rec-s").inner_text() == words("slips.record.tiers").replace("{n}", "4")
     assert page.locator(".pr-rt b").all_inner_texts() == ["205-165", "305-275", "241-182"]
     assert page.locator(".pr-rt span").all_inner_texts() == ["SLIGHT", "CONFIDENT", "VERY"]
     assert page.locator(".pr-rt small").all_inner_texts() == ["55%", "53%", "57%"]
@@ -321,9 +321,10 @@ def test_the_record_line_opens_its_detail(page):
 
 
 def test_nothing_graded_is_no_strip(page):
+    """Since 2026-10-08 the line is our picks' record, so it stays; with nothing graded it has no detail to open."""
     page.evaluate("for (const t of Object.values(LIVE_PROPS_RECORD.tiers)) { t.w = 0; t.l = 0; } render()")
-    assert page.locator(".pr-rec").count() == 0 and page.locator(".sl-board").count() == 1
+    assert page.locator(".pr-rec-b").is_disabled() and page.locator("#pr-rec-more").count() == 0
+    assert page.locator(".sl-board").count() == 1
     page.evaluate("LIVE_PROPS_RECORD.through_week = 1; LIVE_PROPS_RECORD.tiers.slight.w = 3; SL_REC_OPEN = true; render()")
-    assert page.locator(".pr-rec-s").inner_text() == "week 1"
+    assert page.locator(".pr-rec-s").inner_text() == words("slips.record.tiers").replace("{n}", "1")
     assert page.locator(".pr-rt small").all_inner_texts() == ["100%", "", ""]
-    assert page.locator(".pr-rq b").all_inner_texts() == ["100%"]

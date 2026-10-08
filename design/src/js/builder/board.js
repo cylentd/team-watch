@@ -1,6 +1,6 @@
-/* THE SLIPS BOARD'S READS (2026-10-03, storyboard "Slips research board", picked A + B). David
-   researches here and enters his slips on Underdog, so the board answers "who is getting the work"
-   rather than dealing slips: per kickoff, a card per game, its players by the work in their last game.
+/* THE SLIPS BOARD'S READS (2026-10-03, storyboard "Slips research board", picked A + B; by kickoff window
+   with our best pick per game since 2026-10-08, storyboard "Slips" B + C, ledger #33). A game is one closed
+   row with its best pick; opened, it shows the rest and its players by the work in their last game.
    No rising-work order, chip or colour since 2026-10-06 (METHODOLOGY 12.33: the line already holds a
    trend in work; calls of rising or falling hit 46.0% and 49.8%). Nothing here draws
    (surface/parlay/board.js does); every read is pure over PROPS, LIVE_REASONS and the logs.
@@ -8,8 +8,9 @@
    Shown: every player with a line still to play who is not out and whose line the book has not
    moved far from the model (lineMoved). A WR3 or a backup stays: those were David's wins. */
 const REASONS = (typeof LIVE_REASONS !== "undefined" && LIVE_REASONS) || {};
-let SL_CHIP = {};      // the chip pressed in each game card, keyed by game; "all" until changed
-let SL_FOCUS = null;   // a game to bring into view after the next render (Preview's hand-off)
+let SL_OPEN = {};      // the games opened in place, keyed by game (2026-10-08: a game is one closed row until tapped)
+let SL_SPLIT = {};     // the windows whose Split fold is open, keyed by window
+let SL_FOCUS = null;   // a game to open and bring into view after the next render (Preview's hand-off)
 
 /* The kickoff the board shows: the chosen one, or the first window still to come. */
 function slWin(){
@@ -57,19 +58,6 @@ function slPlayer(slug, rows){
   return {slug, p, rows: slPlayerRows(slug), work: slWork(p)};
 }
 
-/* His most confident line, or null: among his lines the model gave a pick (tier not "none", never a
-   touchdown), the highest chance of its side, ties to the higher tier. {i, side, tier, mkt}. */
-const SL_TIER_RANK = PT_RANK;   // the one order, data/topcalls.js
-function slBestLine(x){
-  let best = null;
-  x.rows.forEach(i => {
-    const p = PROPS[i], m = p.mkt === "TD" ? null : slModel(p);
-    if (!m || !m.tier || m.tier === "none") return;
-    if (!best || m.q > best.q || (m.q === best.q && SL_TIER_RANK[m.tier] > SL_TIER_RANK[best.tier])) best = {i, side: m.side, tier: m.tier, q: m.q, mkt: p.mkt};
-  });
-  return best;
-}
-
 /* Eight softest and eight toughest defences against his position, from LIVE_DEFENSE (rank 1 allows the
    fewest points, so seasonDefRank counts from the easy end): "easy", "tough" or "". */
 const SL_DEF_EDGE = 8;
@@ -97,14 +85,27 @@ function slGames(w){
     .map(g => ({...g, players: [...g.players.entries()].map(([s, rows]) => slPlayer(s, rows)).sort(slOrder)}));
 }
 
-/* The three chips inside a game card: TE, Role guys (a WR2 or deeper, a backup back), and All N,
-   which a game opens on. */
-const SL_CHIPS = ["te", "role", "all"];
-const slChip = g => SL_CHIP[g.game] || "all";
-function slChipPlayers(g, k){
-  if (k === "te") return g.players.filter(x => x.p.pos === "TE");
-  if (k === "role") return g.players.filter(x => (x.p.depth || 1) >= 2 || x.p.flag === "backup");
-  return g.players;
+/* Every non-touchdown line in a game with our call on it (data/ourpicks.js): {i, slug, n, pos, team, mkt,
+   line, call, called}. `called` is Claude having called that exact line; a game none of whose lines is
+   called is one Claude has not reached yet (he calls a game the day before it). */
+function slGameLines(g){
+  const out = [];
+  g.players.forEach(x => x.rows.forEach(i => {
+    const p = PROPS[i];
+    if (p.mkt === "TD") return;
+    const c = slClaude(p);
+    out.push({i, slug: x.slug, n: p.n, pos: p.pos, team: p.team, mkt: p.mkt, line: slLine(p), call: opCall(slModel(p), c), called: !!c});
+  }));
+  return out;
+}
+
+/* The windows a kickoff tab covers: a day's windows, or the one chosen; each with its games, our picks on
+   them, the games that lead first (opOrder). A window with nothing left to play is left out. */
+function slWindows(w){
+  if (!w) return [];
+  const wins = w.wins ? WINDOWS.filter(x => w.wins.includes(x.k)) : [w];
+  return wins.map(x => ({w: x, games: opOrder(slGames(x).map(g => ({...g, op: opGame(slGameLines(g))})))}))
+    .filter(x => x.games.length);
 }
 
 /* Preview's game for these two clubs, or null. */

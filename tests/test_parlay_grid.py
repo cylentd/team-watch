@@ -143,6 +143,7 @@ def test_the_board_is_games_of_players_with_no_line_and_no_chance(mount):
     board, errors = ParlayPage.slips(mount, "day-2026-09-13")
     assert board.game_count() == 2, "Sunday: CIN @ NYJ and SEA @ SF"
     assert board.game_titles() == ["CIN @ NYJ", "SEA @ SF"], "kickoff order"
+    board.open_games()
     rows = board.row_summaries()
     assert rows
     assert board.row_controls() == 0
@@ -158,18 +159,14 @@ def test_out_and_moved_lines_leave_the_board_and_a_backup_stays(mount):
     """Out (Higgins) and a moved line (Gibbs' rushing yards) leave; a questionable starter (Chase
     Brown) and a depth-2 back (Gibbs, on his touchdown line) stay -- David's wins were role players."""
     board, errors = ParlayPage.slips(mount, "morning")
-    board.tap_chip("all")
-    assert "T. Higgins" not in board.row_names() and "C. Brown" in board.row_names()
+    board.open_games()
+    assert "Tee Higgins" not in board.row_names() and "Chase Brown" in board.row_names()
     board.show_window("evening-mon")
-    board.tap_chip("all")
-    assert "J. Gibbs" in board.row_names()
+    board.open_games()
+    assert "Jahmyr Gibbs" in board.row_names()
     assert board.markets_of("jahmyr-gibbs") == ["TD"], "his moved rushing line is not one of his lines"
     assert board.markets_of("amonra-st-brown") == ["TD", "REC"], "a LONG row is no line"
-    board.tap_chip("role")
-    assert board.row_names() == ["J. Gibbs"], "Role guys: a WR2 or deeper, a backup back"
-    board.tap_chip("te")
-    assert board.row_count() == 0 and board.none_notes() == 1
-    assert board.chip_text("all") == "All 2"
+    assert board.row_count() == 2
     assert errors == []
 
 
@@ -179,8 +176,7 @@ def test_no_work_rising_chip_and_a_game_opens_on_all(mount):
     (held out), so the "Work rising" chip, its rising-first order and the green last bar went (2026-10-06). A
     game opens on All, with the chips TE, Role guys and All N, and the bars are all one colour."""
     board, errors = ParlayPage.slips(mount, "evening-mon")
-    assert board.chip_kinds() == ["te", "role", "all"]
-    assert board.pressed_chip() == "all"
+    board.open_games()
     assert board.row_sentences() == 0, "no sentence under the work (2026-10-05)"
     assert board.spark_bars() >= 3
     assert board.rising_bars() == 0, "the last bar is never green"
@@ -220,6 +216,7 @@ def test_the_player_sheet_holds_every_line_with_its_last_four(mount):
     assert board.slip_side(rec) == "lower" and board.slip_size() == 2, "the other side swaps it"
     assert board.tray_count() == "2"
     board.close_sheet()
+    board.open_games()
     assert board.row_on_slip("amonra-st-brown") == 1
     assert errors == []
 
@@ -230,7 +227,7 @@ def test_a_board_row_opens_its_sheet_and_back_closes_it(full):
     board, errors = full((360, 780))
     board.show_slips("evening-sun")
     before = board.href()
-    board.tap_chip("all")
+    board.open_games()
     board.tap_row("george-kittle")
     assert board.sheet_all_line_count() == 2, "Kittle: TD and yards; no log, so no longest-catch row"
     assert board.fits()
@@ -257,6 +254,7 @@ def test_a_saved_slip_survives_a_reload_and_marks_its_players(mount):
     board.reload()
     board.show_slips("evening-mon")
     assert board.slip_size() == 0 and board.saved_count() == 1
+    board.open_games()
     assert board.row_on_slip("amonra-st-brown") == 1
     board.open_tray()
     assert board.saved_rows() == 1
@@ -287,17 +285,17 @@ def test_a_slip_with_longest_reception_has_no_chance_and_copies(mount):
 
 @pytest.mark.req(SECTION, ac="the board fits a phone and spreads on a desktop")
 def test_the_board_fits_a_phone_and_spreads_on_a_desktop(mount):
-    """360px: nothing scrolls sideways and the first player sits on the first screen. 1280px: the
-    day's two games side by side, sharing a top edge."""
+    """360px: nothing scrolls sideways and the first player sits on the first screen. 1280px (since 2026-10-08, a
+    kickoff window is one card of game rows): the day's two games one under the other, sharing a left edge."""
     phone, errors = ParlayPage.slips(mount, "day-2026-09-13", size=(360, 800))
+    phone.open_games()
     assert phone.scroll_width() <= 360
     y = phone.first_row_top()
     assert y < 800, f"first row at {y}px"
     assert errors == []
     desk, errors = ParlayPage.slips(mount, "day-2026-09-13", size=(1280, 900))
     a, b = desk.game_box(0), desk.game_box(1)
-    assert abs(a["y"] - b["y"]) < 1 and b["x"] > a["x"] + a["width"]
-    assert desk.board_columns() >= 2
+    assert abs(a["x"] - b["x"]) < 1 and b["y"] >= a["y"] + a["height"] - 1
     assert errors == []
 
 

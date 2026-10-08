@@ -178,7 +178,7 @@ surface/builder/bets.css
 surface/builder/legsheet.css
 surface/builder/lineitem.css
 surface/builder/playersheet.css
-surface/builder/topcalls.css
+surface/builder/windows.css
 surface/dfs/table.css
 chrome/feed.css
 surface/dfs/lineup.css

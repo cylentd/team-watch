@@ -1864,6 +1864,20 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
+**Since 2026-10-08: Slips by kickoff window, one pick per line** (ledger #33; storyboard "Slips" B's windows
+with C's best call per game; `data/ourpicks.js` Node-tested, `surface/parlay/windows.js`, `css/surface/builder/windows.css`).
+Top calls, the game chips and the open player lists below are superseded. Under the record line, the kickoff tab's
+windows, each a heading (Preview's window name, first kickoff, game count) over one card. A game is one closed row:
+matchup, pick count (or "Picks the day before" when Claude has not called it, "No pick" when nothing agrees), and
+its best pick: face, full name, "Our pick" and the outlined side and line, chance and tier word, a round + for the
+slip. Games whose best pick is Confident or better lead the window. A tap opens the game in place: its other
+picks, implied points, Preview's headline, every player (work bars, "N lines ›"). **Our pick** is a line where
+Claude (`claude_props`) and the model (`props_model` tier) take the same side; a split shows no side and sits in
+the window's Split fold; the line sheet outlines only our pick and says "Split" under Lower on a split. No "C"
+badge and no Claude-only reason line anywhere. The record line is one "Our picks" record (ff-jarvis `agree`
+tally) with "Unproven until scored" (no METHODOLOGY id in reader copy; the test is ff-jarvis 12.84); the tier tiles stay in its detail. Measured 2026-10-08 at 360px on
+live data: Sunday 16 rows, 1,032px (was 226 rows, 18,870px).
+
 **Superseded 2026-10-03: Slips is a research board** (`builder/board.js` reads, `surface/parlay/board.js`
 draws, `css/surface/builder/board.css`; storyboard "Slips research board", picked A + B,
 https://claude.ai/artifact/G1zpdnpWBDroeuwqkrVADX). David researches here and enters his slips on

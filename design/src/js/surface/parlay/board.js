@@ -1,19 +1,12 @@
-/* THE SLIPS BOARD, DRAWN (2026-10-03; the reads are builder/board.js). Per kickoff tab, one card per
-   game: its matchup and kickoff, each side's implied points as one bar, Preview's headline as a link
-   to that game's dossier, then three chips (TE, Role guys, All N) over the game's players. No Work
-   rising chip, green bar or teammate-out chip since 2026-10-06 (METHODOLOGY 12.33 and 12.55: the line
-   and the book already price both).
-   A player is one row in two columns (2026-10-05, storyboard "Slips Board" A): on the left his name,
-   his work in his last three games as bars with every number under them, his snap share, and a chip
-   only when something applies (an easy or tough matchup); on the right the model's
-   most confident line with its tier word, then "N lines". Pictures and numbers, no sentences.
-
-   Material's rule (DESIGN.md "Cards"): the game is the card, the players are rows in it, divided by
-   a hairline; the chips are the card's own buttons and a row is its own tap. */
+/* AN OPENED GAME'S RESEARCH (2026-10-03 as the Slips board; since 2026-10-08 what a game shows once opened in
+   its kickoff window, windows.js). Each side's implied points as one bar, Preview's headline as a link to
+   that game's dossier, then a row per player: his name, his work in his last three games as bars with every
+   number under them, his snap share, a chip only when something applies (an easy or tough matchup), and
+   "N lines ›", which opens his sheet. No pick on these rows: a game's picks sit above them, one per line
+   (data/ourpicks.js). No TE or Role guys chips since 2026-10-08 (storyboard "Slips" B dropped them). */
 const SL_CHEV = `<svg viewBox="0 0 8 12" aria-hidden="true"><path d="M2 1.5 6.5 6 2 10.5"/></svg>`;
 
 const slWorkLabel = k => k === "tgt" ? t("slips.work.tgt") : k === "car" ? t("slips.work.car") : t("slips.work.snap");
-const slChipLabel = (k, n) => k === "te" ? t("slips.chip.te") : k === "role" ? t("slips.chip.role") : t("slips.chip.all", {n});
 const SL_MKT_WORD = () => ({REC: t("matchups.stat.rec"), RUSH: t("matchups.stat.rush"), PASS: t("matchups.stat.pass"), RECS: t("slips.mkt.recs")});
 
 /* Three bars, each with its number under it, tallest his most in the three. The last is bold, never green. */
@@ -39,25 +32,14 @@ function slFlagsHTML(x){
   return flags.length ? `<span class="sl-fl">${flags.join("")}</span>` : "";
 }
 
-/* "Lower rec yds" over its tier word, or nothing when the model has no pick on any of his lines. A lime
-   "C" sits on its corner when Claude picked the same side of that exact line (2026-10-05); a call the other
-   way shows nothing here, the line sheet carries it. */
-function slPickHTML(x){
-  const b = slBestLine(x);
-  if (!b) return "";
-  const side = b.side === "lower" ? t("slips.side.lower") : t("slips.side.higher");
-  const c = slClaude(PROPS[b.i]), badge = slClaudeAgrees(c, b) ? slClaudeBadge(true) : "";
-  return `<span class="sl-pick">${t("slips.pick.label", {side, mkt: SL_MKT_WORD()[b.mkt] || b.mkt})}${badge}</span>${slTierHTML(b.tier, b.q)}`;
-}
-
 function slRowHTML(x, on){
   const p = x.p, n = x.rows.length;
   return `<li><button type="button" class="sl-row" data-testid="parlay-row" data-slplayer="${esc(x.slug)}" aria-haspopup="dialog">
       <span class="sl-l">
-        <span class="sl-who"><b data-testid="parlay-row-name">${esc(nameInitial(p.n))}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on" data-testid="parlay-row-on">${t("slips.onSlip")}</span>` : ""}</span>
+        <span class="sl-who"><b data-testid="parlay-row-name">${esc(p.n)}</b><span class="sl-pos">${esc(p.pos)} · ${esc(p.team)}</span>${on ? `<span class="sl-on" data-testid="parlay-row-on">${t("slips.onSlip")}</span>` : ""}</span>
         ${slUseHTML(x)}${slFlagsHTML(x)}
       </span>
-      <span class="sl-r">${slPickHTML(x)}<span class="sl-go" data-testid="parlay-row-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
+      <span class="sl-r"><span class="sl-go" data-testid="parlay-row-go">${n === 1 ? t("slips.lines.one") : t("slips.lines.many", {n})}${SL_CHEV}</span></span>
     </button></li>`;
 }
 
@@ -69,27 +51,15 @@ function slLineBoxHTML(teams, ln){
       <span><b>${pvNum(ln.imp[1])}</b> ${esc(teams[1])}</span></div>`;
 }
 
-function slGameHTML(g, on){
+/* The research under an opened game: its numbers and headline, then every player. */
+function slGameMoreHTML(g, on){
   const teams = slTeams(g.game), pv = teams.length === 2 ? slPreviewGame(teams) : null, k = pv && pv.take;
-  const chip = slChip(g), shown = slChipPlayers(g, chip);
-  const chips = SL_CHIPS.map(c => `<button type="button" class="chip" data-testid="parlay-chip" data-slchip="${c}" data-slgame="${esc(g.game)}" aria-pressed="${chip === c}">${slChipLabel(c, g.players.length)}</button>`).join("");
-  const rows = shown.length ? shown.map(x => slRowHTML(x, on.has(x.slug))).join("")
-    : `<li class="sl-none" data-testid="parlay-none">${t("slips.chip.none")}</li>`;
-  return `<section class="sl-game" data-testid="parlay-game" data-slgamecard="${esc(g.game)}">
-      <header class="sl-gh">
-        <div class="sl-gt"><h3 data-testid="parlay-game-title">${esc(g.game)}</h3><span>${esc(g.kick || "")}</span></div>
-        ${teams.length === 2 ? slLineBoxHTML(teams, slGameLine(teams, pv)) : ""}
-        ${k ? `<button type="button" class="sl-take" data-slprev="${pvGames().indexOf(pv)}">${esc(k.head)}<span aria-hidden="true">›</span></button>` : ""}
-        <div class="sl-chips" role="group" aria-label="${t("slips.chip.label")}">${chips}</div>
-      </header>
-      <ul class="sl-rows">${rows}</ul>
-    </section>`;
-}
-
-function slBoardHTML(){
-  const games = slGames(slWin()), on = onSlipSlugs();
-  if (!games.length) return `<div class="state-empty sl-empty"><div><b>0</b><span>${t("slips.empty")}</span></div></div>`;
-  return `<div class="sl-board" data-testid="parlay-board">${games.map(g => slGameHTML(g, on)).join("")}</div>`;
+  return `<div class="sl-gm">
+      ${teams.length === 2 ? slLineBoxHTML(teams, slGameLine(teams, pv)) : ""}
+      ${k ? `<button type="button" class="sl-take" data-slprev="${pvGames().indexOf(pv)}">${esc(k.head)}<span aria-hidden="true">›</span></button>` : ""}
+    </div>
+    <h4 class="sl-every">${t("slips.game.every", {n: g.players.length})}</h4>
+    <ul class="sl-rows">${g.players.map(x => slRowHTML(x, on.has(x.slug))).join("")}</ul>`;
 }
 
 /* A game's headline opens its Preview dossier, the way a Recap game does (recap.js wrGo). */
@@ -98,19 +68,4 @@ function slOpenPreview(i){
   navGo("preview");
   pvOpen(i);
   window.scrollTo({top: 0});
-}
-
-function wireSlBoard(v){
-  v.querySelectorAll("[data-slchip]").forEach(b => b.addEventListener("click", () => {
-    SL_CHIP[b.dataset.slgame] = b.dataset.slchip;
-    const y = window.scrollY; render(); window.scrollTo(0, y);
-  }));
-  v.querySelectorAll("[data-slplayer]").forEach(b => b.addEventListener("click", () => playerSheetOpen(b.dataset.slplayer, b)));
-  v.querySelectorAll("[data-slprev]").forEach(b => b.addEventListener("click", () => slOpenPreview(+b.dataset.slprev)));
-  // Preview's "All N players in Slips": its game, brought into view once.
-  if (SL_FOCUS){
-    const card = [...v.querySelectorAll("[data-slgamecard]")].find(el => el.dataset.slgamecard === SL_FOCUS);
-    SL_FOCUS = null;
-    if (card) card.scrollIntoView({block: "start"});
-  }
 }
