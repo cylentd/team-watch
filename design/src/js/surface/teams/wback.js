@@ -29,7 +29,7 @@ function wvNewsHTML(r){
 
 /* One other league in a few words: "Yahoo: rostered", "Yahoo: FA, bench over B. Allen +5.6". */
 function wvOtherText(r, key, lg){
-  const label = esc(waiverMeta()[key].label);
+  const label = esc(waiverMeta(waiverBlock(TEAMS[VIEW]))[key].label);
   if (lg.status === "mine") return t("waiver.other.mine", {league: label});
   if (lg.status === "rostered") return t("waiver.other.rostered", {league: label});
   if (!waiverOpen(lg)) return t("waiver.other.unknown", {league: label});

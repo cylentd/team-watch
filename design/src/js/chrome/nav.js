@@ -68,9 +68,11 @@ const navTabsOf = group => navLeavesFor(group, navFacts(), navWaiverDay());
    league on screen. It is the only count that changes what you would do next, so it is the only
    one worth a badge. A team switch repaints it (teamswitch.js). */
 function navCount(leaf){
-  // A leaguemate's count would be David's claim list, so theirs has none, nor a reader yet to pick.
-  if (leaf !== "waivers" || !WAIVER || notMine(TEAMS[VIEW]) || needsPick() || !isOwner()) return "";
-  return ` <span class="tabcount">${waiverIn(VIEW).filter(([r]) => waiverTier(r, VIEW) !== "stash").length}</span>`;
+  // The count is the list of the team on screen: David's (his browser's alone) or a leaguemate's own packet.
+  // A team with no cards of its own has none, nor a reader yet to pick.
+  const team = TEAMS[VIEW], key = waiverKey(team);
+  if (leaf !== "waivers" || needsPick() || !wvOwn(team)) return "";
+  return ` <span class="tabcount">${waiverIn(key, waiverBlock(team)).filter(([r]) => waiverTier(r, key) !== "stash").length}</span>`;
 }
 
 /* The phone layout (2026-10-05, chrome/phonenav.css): a header bar, one tab row, a bottom tab bar. */

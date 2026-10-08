@@ -10,6 +10,7 @@ two league rows. The first league to list him wins, in the packet's own order. A
 Self-contained like news.py and signals.py: paths and slugify come in as arguments."""
 import json
 
+import sources           # design/sources.py: every read of an ff-jarvis file
 from injury import level
 
 TIERS = ("must", "worth", "watch", "spec", "stash")
@@ -136,8 +137,28 @@ def live_waiver(feed_path, dwr_path, slugify, status=None):
     built a packet. `players` is one row per candidate, grouped by tier in TIERS order. `status` is
     sources.load_status() (Sleeper's latest) and overlays `status_now` / `status_flag` (see `_overlay`)."""
     packet = load_packet(feed_path, dwr_path)
-    if not packet:
+    return _from_packet(packet, slugify, status) if packet else None
+
+
+def live_waiver_teams(dwr_path, slugify, status=None):
+    """LIVE_WAIVER_TEAMS: {date, teams: {team key: a LIVE_WAIVER-shaped block}} for every other team in
+    every registry league (ff-jarvis model.season.waiver_teams, read by sources.load_waiver_teams; ledger
+    #22). The key is design/mates.py's, `<league>-<slug of the name>`, so the page finds the block of the
+    team on screen. Each block is cut by the same row code as David's, and carries no FAAB. None without the
+    file, or with no team in it. `status` overlays Sleeper's fresh Out / IR / Doubtful like David's."""
+    d = sources.load_waiver_teams(dwr_path)
+    if not d or not d.get("teams"):
         return None
+    teams = {}
+    for league, by_team in d["teams"].items():
+        for name, body in by_team.items():
+            packet = {"date": d.get("date"), "week": d.get("week"), "clears": d.get("clears"),
+                      "leagues": {league: body}, "leagues_meta": {league: body.get("leagues_meta") or {}}}
+            teams[f"{league}-{slugify(name)}"] = _from_packet(packet, slugify, status)
+    return {"date": d.get("date"), "teams": teams}
+
+
+def _from_packet(packet, slugify, status=None):
     seen, rows = {}, []
     for p, tier, league in _candidates(packet):
         key = p.get("key") or (p.get("name") or "").lower()
@@ -161,6 +182,9 @@ def report(wv):
     return f"Waiver: {per}, leagues {'/'.join(wv['leagues_meta'])}, clears {wv['clears']}"
 
 
-def slugs(waiver):
-    """Every player the tab draws, for build.py's headshot list."""
-    return [r["slug"] for r in (waiver or {}).get("players") or [] if r["slug"]]
+def slugs(waiver, teams=None):
+    """Every player the tab draws, David's and every other team's (`teams` is LIVE_WAIVER_TEAMS), for
+    build.py's headshot list. David's first in packet order, then the teams' sorted."""
+    mine = [r["slug"] for r in (waiver or {}).get("players") or [] if r["slug"]]
+    theirs = {r["slug"] for b in ((teams or {}).get("teams") or {}).values() for r in b["players"] if r["slug"]}
+    return mine + sorted(theirs - set(mine))

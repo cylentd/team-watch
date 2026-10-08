@@ -18,7 +18,7 @@ import lint_css                 # design/lint_css.py: theme rules; an error fail
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
 from news import load_news      # design/news.py: breaking news, split out to stay in budget
 from signals import live_signals, load_usage, report as signals_report  # My Teams trend and news
-from waiver import live_waiver, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
+from waiver import live_waiver, live_waiver_teams, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
 from wire_watch import live_wire, report as wire_report                          # its Breaking rail
 from pool import live_pool, report as pool_report  # design/pool.py: the Pool page
 from usage import live_usage, load_grid, report as usage_report  # design/usage.py: the Usage grid
@@ -512,10 +512,10 @@ class Build:
         self.stamp = stamp or {}
 
 
-def wanted_slugs(mine, props, dfs, waiver, pool):
+def wanted_slugs(mine, props, dfs, waiver, pool, waiver_teams=None, mates=None):
     """Every slug the page can draw a headshot for, in first-seen order is not needed: render()
     dedupes. `mine` is David's roster blocks, one per league. Split out of render() for its line budget."""
-    wanted = list(SLUGS) + waiver_slugs(waiver) + [p["slug"] for p in (pool or {}).get("players", []) if p["slug"]]
+    wanted = list(SLUGS) + waiver_slugs(waiver, waiver_teams) + [p["slug"] for p in (pool or {}).get("players", []) if p["slug"]]
     for src in mine:
         if src:
             wanted += [p["slug"] for p in src["roster"] if p["slug"]]
@@ -523,7 +523,7 @@ def wanted_slugs(mine, props, dfs, waiver, pool):
         wanted += [p["slug"] for p in props["props"] if p["slug"]]
     if dfs:
         wanted += [p["slug"] for p in dfs["players"] if p["slug"]]
-    return wanted
+    return wanted + mate_slugs(mates)
 
 
 def add_market_stock(blocks, report):
@@ -624,10 +624,10 @@ def render():
     props = live_props(available, roster_index(*mine))
 
     waiver, pool = live_waiver(FEED, DWR, slugify, status=load_status()), live_pool(load_usage(FEED, DWR), slugify)
-    # Usage is deliberately not in wanted_slugs: the grid runs 80 rows a position and draws no
-    # portrait, so inlining one per name would add megabytes for a column that does not exist.
+    waiver_teams = live_waiver_teams(DWR, slugify, status=load_status())   # every other team's Waivers (ledger #22)
+    # Usage is not in wanted_slugs: the grid runs 80 rows a position and draws no portrait (megabytes for nothing).
     usage = live_usage(load_grid(FEED, DWR), slugify)
-    wanted = wanted_slugs([src for _, src in mine], props, liveDfsYahoo, waiver, pool) + mate_slugs(mates)
+    wanted = wanted_slugs([src for _, src in mine], props, liveDfsYahoo, waiver, pool, waiver_teams, mates)
     wanted_set = set(wanted)
 
     # Every head, not only the wanted ones (a connected league's are read at runtime): files, fetched lazily; inlined, 470 KB.
@@ -647,7 +647,7 @@ def render():
         "LIVE_REASONS": live_reasons(load_slip_reasons(), props),
         "LIVE_DFS_YAHOO": liveDfsYahoo,
         "LIVE_PROFILES": load_profiles(),
-        "LIVE_WAIVER": waiver,
+        "LIVE_WAIVER": waiver, "LIVE_WAIVER_TEAMS": waiver_teams,
         "LIVE_WIRE": live_wire(FEED, DWR),
         "LIVE_POOL": pool,
         "LIVE_USAGE": usage,

@@ -69,7 +69,7 @@ document.getElementById("modal").addEventListener("click", e => {
 function wireProfiles(v){
   const open = el => el.dataset.team !== undefined
     ? openProfile(findPlayer(el.dataset.team, +el.dataset.i), el)
-    : openProfile(waiverPlayers()[+el.dataset.wire], el);
+    : openProfile(waiverPlayers(waiverBlock(TEAMS[VIEW]))[+el.dataset.wire], el);   // the card's index is in the team on screen's list
   const ring = e => !!e.target.closest(".head[data-clips]");
   v.querySelectorAll(".row, [data-wire]").forEach(el => {
     el.addEventListener("click", e => { if (!ring(e)) open(el); });

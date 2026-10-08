@@ -1,0 +1,166 @@
+{
+ "kind": "waiver_teams",
+ "date": "2026-09-22",
+ "week": 3,
+ "clears": "2026-09-23T03:00:00-04:00",
+ "teams": {
+  "ayo": {
+   "Don Wick": {
+    "team": "Don Wick",
+    "waiver": {
+     "type": "faab"
+    },
+    "lineup_unknown": false,
+    "adds": [],
+    "stash": [],
+    "drops": [],
+    "wire": [
+     {
+      "key": "emanuel wilson",
+      "name": "Emanuel Wilson",
+      "pos": "RB",
+      "team": "SEA",
+      "availability": "active",
+      "pts": 12.8,
+      "game": {
+       "opponent": "ARI",
+       "home": true
+      },
+      "lane": "open",
+      "tier": "must",
+      "weeks": 2,
+      "injury": null,
+      "injury_note": null,
+      "practice": null,
+      "news_latest": {
+       "headline": "Emanuel Wilson expected to lead Seahawks backfield with Kenneth Walker out",
+       "date": "2026-09-21"
+      },
+      "news_count": 1,
+      "leagues": {
+       "ayo": {
+        "tier": "must",
+        "status": "waiver",
+        "clears": "2026-09-23T03:00:00-04:00",
+        "verdict": {
+         "kind": "start",
+         "over": "Rival Starter",
+         "over_key": "rival starter",
+         "slot": "WR",
+         "margin": 3.1
+        },
+        "need": false,
+        "drop": {
+         "name": "Tee Higgins",
+         "key": "tee higgins",
+         "pos": "WR",
+         "pts": 6.1
+        }
+       }
+      },
+      "summary": {
+       "text": "Wilson took 21 carries and 8 red-zone touches in week 2, up from 2 carries in week 1. He starts over Chase Brown in both leagues.",
+       "src": "llm"
+      }
+     },
+     {
+      "key": "parker washington",
+      "name": "Parker Washington",
+      "pos": "WR",
+      "team": "JAX",
+      "availability": "active",
+      "pts": 10.9,
+      "game": {
+       "opponent": "HOU",
+       "home": false
+      },
+      "lane": "usage",
+      "tier": "watch",
+      "weeks": 2,
+      "injury": "Q",
+      "injury_note": "ankle",
+      "practice": "LP",
+      "news_latest": {
+       "headline": "Parker Washington limited at practice with ankle injury",
+       "date": "2026-09-21"
+      },
+      "news_count": 2,
+      "leagues": {
+       "ayo": {
+        "tier": "watch",
+        "status": "fa",
+        "clears": null,
+        "verdict": {
+         "kind": "bench",
+         "over": "Tee Higgins",
+         "over_key": "tee higgins",
+         "slot": "BE",
+         "margin": 1.2
+        },
+        "need": false,
+        "drop": {
+         "name": "Tee Higgins",
+         "key": "tee higgins",
+         "pos": "WR",
+         "pts": 6.1
+        }
+       }
+      },
+      "summary": {
+       "text": "Parker Washington: 42.9% target share in week 2, WR rank 3. Upgrades your ESPN bench over Tee Higgins by 1.2 points a week.",
+       "src": "rule"
+      }
+     },
+     {
+      "key": "juwan johnson",
+      "name": "Juwan Johnson",
+      "pos": "TE",
+      "team": "NO",
+      "availability": "active",
+      "pts": 7.4,
+      "game": {
+       "opponent": "SEA",
+       "home": false
+      },
+      "lane": "usage",
+      "tier": "spec",
+      "weeks": 2,
+      "injury": null,
+      "injury_note": null,
+      "practice": null,
+      "news_latest": null,
+      "news_count": 0,
+      "leagues": {
+       "ayo": {
+        "tier": "spec",
+        "status": "fa",
+        "clears": null,
+        "verdict": null,
+        "need": true,
+        "drop": {
+         "name": "Tee Higgins",
+         "key": "tee higgins",
+         "pos": "WR",
+         "pts": 6.1
+        }
+       }
+      },
+      "summary": {
+       "text": "Johnson ran on 84% of snaps in week 1 and 53% in week 2 with 11 targets over both. George Kittle is your only ESPN tight end.",
+       "src": "llm"
+      }
+     }
+    ],
+    "leagues_meta": {
+     "label": "AYO",
+     "faab_left": null,
+     "faab_budget": null,
+     "clears": "2026-09-23T03:00:00-04:00",
+     "needs": [
+      "WR"
+     ]
+    }
+   }
+  }
+ }
+}

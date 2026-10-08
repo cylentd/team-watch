@@ -3,7 +3,7 @@
    ("espn-run-it-back") with `mate: true` and draws through the same rows as David's. Anyone may
    pick any team (David, 2026-09-25: rosters are public inside the league, and a pick only changes
    the reader's own screen), and only team names are shown: the page is on a public URL.
-   Waivers stay David's until ff-jarvis builds a packet per team (phase 3). */
+   A team's Waivers cards are its own packet (LIVE_WAIVER_TEAMS, data/waiver.js), never David's. */
 const MATES = (typeof LIVE_MATES !== "undefined" && LIVE_MATES) ? LIVE_MATES.teams : [];
 
 MATES.forEach(m => {

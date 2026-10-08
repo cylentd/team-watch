@@ -357,9 +357,8 @@ def load_sos():
 
 
 def load_claude_props():
-    """Claude's higher or lower call on a prop line, with a one-line why (ff-jarvis claude_props.json,
-    2026-10-05): feed block `claude_props` first, the file second. design/slips.py cuts it into
-    LIVE_CLAUDE_PROPS for the line sheet and the Slips board; None when neither exists."""
+    """Claude's higher or lower call on a prop line, with a why (ff-jarvis claude_props.json, 2026-10-05): feed block
+    first, the file second. design/slips.py cuts it into LIVE_CLAUDE_PROPS for the line sheet and the Slips board."""
     return feed_block(("claude_props",), "calls") or read_first(DWR / "claude_props.json")
 
 
@@ -372,15 +371,19 @@ def load_game_preview():
 def load_preview_record():
     """Claude's graded previews (every take against the final score, the spread and the market's win %),
     feed block `preview_record` first, the file second. design/preview.py cuts it into LIVE_PREVIEW.record;
-    None when neither exists. `weeks` is [] until the first previewed week is final."""
+    `weeks` is [] until the first previewed week is final."""
     return feed_block(("preview_record",), "season") or read_first(DWR / "preview_record.json")
 
 
 def load_trade_offers():
     """Every owner's trade offers as one flat list with a `partner` per offer, per league (model.season.trade_offers
-    v2, 2026-10-06): feed block `trade_offers` first, the file second. design/trade_offers.py checks it and
-    writes it beside the page for the Trade finder to fetch; None when neither exists."""
+    v2, 2026-10-06): feed block first, the file second. design/trade_offers.py writes it beside the page."""
     return feed_block(("trade_offers",), "leagues") or read_first(DWR / "trade_offers.json")
+
+
+def load_waiver_teams(dwr=None):
+    """Every other team's Waivers (ff-jarvis waiver_teams.json; a file, no feed block), cut by design/waiver.py."""
+    return read_first(pathlib.Path(dwr or DWR) / "waiver_teams.json")
 
 
 def load_league():
@@ -484,17 +487,14 @@ def load_preview_archive(season):
 
 
 def load_claude_record():
-    """Claude's own prop calls graded against the model's on the same lines (ff-jarvis claude_props.json,
-    2026-10-05): feed block `claude_props` first, the file second. design/claude_record.py cuts only its
-    `record` into LIVE_CLAUDE_RECORD for the second row of the Slips record strip; None when neither exists."""
+    """Claude's prop calls graded against the model's (ff-jarvis claude_props.json, 2026-10-05): feed block first,
+    the file second. design/claude_record.py cuts its `record` into LIVE_CLAUDE_RECORD (the Slips record strip)."""
     return feed_block(("claude_props",), "calls") or read_first(DWR / "claude_props.json")
 
 
 if __name__ == "__main__":
-    # scripts/land.ps1: `python design/sources.py --fetch` fetches the ff-jarvis checkout, then prints
-    # how far behind it is and where it is; "None" when DWR is not a checkout.
-    import subprocess
-    import sys
+    # scripts/land.ps1: `design/sources.py --fetch` fetches the ff-jarvis checkout, prints how far behind it is ("None": not a checkout).
+    import subprocess, sys  # noqa: E401
     if "--fetch" in sys.argv and (DWR.parent / ".git").exists():
         subprocess.run(["git", "-C", str(DWR.parent), "fetch", "--quiet", "origin", "main"])
     print(ff_jarvis_behind(), DWR.parent)

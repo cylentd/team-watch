@@ -243,9 +243,19 @@ reason beside it; nav leaves with nothing to show are dropped the same way), and
 the last unfollow filters nothing (`betsMineOn`), so no empty list is left that nothing on screen can clear. A
 player with no headshot has no slug on his roster row, so he is never mine (Ranks has the same limit).
 
-Phase 3 (per-team waiver advice) is shelved, 2026-09-26: it would help leaguemates beat David.
-(Built on 2026-09-27 and tabled the same night, unlanded: ff-jarvis branch `waiver-teams`, team-watch
-branch `worktree-waiver-teams`.)
+Phase 3 (per-team waiver advice) was shelved 2026-09-26 (it would help leaguemates beat David), built and
+tabled 2026-09-27, and **built again 2026-10-07 (ledger #22, a request from ff-jarvis)**, on today's League group.
+ff-jarvis `model.season.waiver_teams` runs the waiver packet's steps once per other team in every registry
+league (ESPN, Yahoo, AYO: 33, no Claude call, rule-written summaries, no FAAB) -> `data/waiver_teams.json`.
+`sources.load_waiver_teams` reads it, `design/waiver.py live_waiver_teams` cuts each team with the same row
+code as David's and keys it like `design/mates.py` (`<league>-<slug of the name>`) -> `LIVE_WAIVER_TEAMS`
+(`contract.py` holds each team to LIVE_WAIVER's fields). On the page, `data/waiver.js waiverBlock(team)` picks
+the packet and `wvOwn(team)` says whether the reader gets cards of it: a leaguemate with a block does, in
+any browser (it is that team's advice, no one's secret); David's two teams only in his (`isOwner`). So a reader
+who picks another team in the League group sees that team's own cards, must-claim count and tab count under
+the one team line; the Breaking rail stays the league's (David's status rows and verdicts out); the hero
+never shows FAAB. A team or league with no block shows what it did before: the Most added list for a visitor,
+the rail and a note for David's browser. The cards' profile buttons read the team on screen's list.
 
 **David's waiver advice is his browser's alone (2026-09-27).** `data/owner.js`: a browser that opened
 `#owner-<token>` once (the page ships only its SHA-256; the link is wiped from the address bar) is

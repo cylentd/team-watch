@@ -7,6 +7,7 @@ each row). A block may be None ("source not available"), but a block that is pre
 whole. Null values are fine; absent keys are not.
 """
 import contract_checks   # design/contract_checks.py: the rules that read a spec
+from contract_waiver import LIVE_WAIVER, LIVE_WAIVER_TEAMS, WAIVER_META, WAIVER_ROW  # noqa: F401  names tests/test_waiver.py reads
 import d_starters       # design/d_starters.py: LIVE_D_STARTERS's nested shape check
 import kdst             # design/kdst.py: LIVE_KDST's row shape check
 import leagues
@@ -22,9 +23,6 @@ import sos              # design/sos.py: LIVE_SOS's K shape check
 import usage_movers     # design/usage_movers.py: LIVE_USAGE_MOVERS's nested shape check
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
-# A league's `status` is fa | waiver | rostered | mine | unknown -- no value is enforced here: "unknown"
-# (the scrape could not tell) is a real answer, and the card says so rather than guessing FA (data/waiver.js
-# waiverListed). A league's `lane` is why its screen listed him (usage, role, open, insure, starter, injured), else null.
 # design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj`, `mu`, `mx` and `mxp` may be
 # null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
 # it already in `pts`, `matchup.priced`) are null for every WR.
@@ -33,13 +31,6 @@ RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx"
 # `rank_pts`, `unlined_backup` and `pts_before_unlined` (2026-10-05, ff-jarvis METHODOLOGY 12.86 and 12.87)
 # are optional in the file: ranks.py and projections.py always write them, null on a file from before them,
 # on any non-RB and on a back the books priced fully. Only a back has a number.
-WAIVER_ROW = ["n", "slug", "pos", "team", "opp", "home", "tier", "weeks", "injury", "injury_note",
-              "practice", "news_latest", "news_count", "leagues", "summary"]
-# One league's view of a candidate (waiver.py `_league`). `verdict` and `drop` may be null; when
-# either is an object the card reads every key below. `tier` is that league's own tier (added
-# 2026-09-23); a packet from before it reads null there and the card falls back to the row's
-# top-level `tier`, which ff-jarvis keeps as the best of the per-league ones.
-WAIVER_LEAGUE = ["status", "clears", "need", "tier", "lane", "verdict", "drop"]
 # design/recap.py: a player's day, and a kicker's or a defense's (`slug` null for a defense).
 RECAP_ROW = ["n", "slug", "pos", "team", "game_id", "actual", "proj", "diff", "line",
              "pass_td", "rush_td", "rec_td", "ret_td"]
@@ -61,9 +52,6 @@ LEAGUE_YAHOO_SPEC = {
              ("weeks", ["week", "games", "awards", "head", "dek", "report", "table", "lead", "blip", "streaks"]),
              ("spoons", ["y", "id", "name", "mgr", "final"])] + LEAGUE_SPEC["rows"][2:],
 }
-WAIVER_VERDICT = ["kind", "over", "slot", "margin"]
-WAIVER_DROP = ["name", "pos", "pts"]
-WAIVER_META = ["label", "faab_left", "faab_budget", "clears", "needs"]
 
 CONTRACT = {
     "LIVE_ESPN": {
@@ -147,17 +135,7 @@ CONTRACT = {
     },
     # design/signals.py: one row per player on my rosters, keyed by slug. `series` is watch.json's
     # weekly snap share (None for a missed week); `verdict` is null when watch has no row for him.
-    # design/waiver.py, from ff-jarvis's model.season.waiver_packet: one card row per candidate
-    # (`players`), and `leagues_meta` per league, in the order the cards draw their league rows.
-    # `summary` and `news_latest` may be null; a row's `leagues` map is checked by `waiver_leagues`.
-    "LIVE_WAIVER": {
-        "keys": ["date", "week", "clears", "leagues_meta", "players"],
-        "rows": ("players", WAIVER_ROW),
-        "map": ("leagues_meta", WAIVER_META),
-        "row_objs": [("players", "summary", ["text", "src"])],
-        "row_maps": [("players", "leagues", WAIVER_LEAGUE,
-                      {"verdict": WAIVER_VERDICT, "drop": WAIVER_DROP})],
-    },
+    "LIVE_WAIVER": LIVE_WAIVER, "LIVE_WAIVER_TEAMS": LIVE_WAIVER_TEAMS,   # design/contract_waiver.py
     # design/wire_watch.py, the Breaking rail: {asof, leagues: {key: {events}}}, checked per
     # event by `_wire_events` (the kind decides the keys).
     "LIVE_WIRE": {

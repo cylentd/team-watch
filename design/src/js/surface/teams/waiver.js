@@ -23,8 +23,8 @@ function wvFoldHTML(label, list, key, deal){
     <div class="wvc-list">${list.map(([r, i]) => wvCardHTML(r, i, deal.n++, key)).join("")}</div></details>`;
 }
 
-function wvCardsHTML(key){
-  const all = waiverIn(key);
+function wvCardsHTML(key, blk){
+  const all = waiverIn(key, blk);
   if (!all.length) return `<div class="state-empty wv-empty"><div><b>0</b><span>${t("waiver.empty.noWire")}</span></div></div>`;
   const tier = k => all.filter(([r]) => waiverTier(r, key) === k);
   const spec = tier("spec"), stash = tier("stash"), deal = {n: 0};
@@ -38,18 +38,20 @@ function wvCardsHTML(key){
 /* `motion` is wvMotionTake()'s {deal, since}: whether the cards are dealt, and which rail rows
    are new. The markup is otherwise the same on every render. */
 function waiverHTML(motion){
-  // Anyone but David (data/owner.js) gets the league-wide Most added list, whatever team is on screen.
-  if (!isOwner()) return wvDstLinkHTML() + wvHotHTML();
-  if (!WAIVER) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.empty.noPacket")}</span></div></div>`;
-  const team = TEAMS[VIEW], key = waiverKey(team), mate = notMine(team);
-  if (!waiverMeta()[key]) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.hero.none")}</span></div></div>`;
+  // Anyone but David (data/owner.js) gets the league-wide Most added list, unless the team on screen has
+  // cards of its own (a leaguemate's, ledger #22): those are the team's and no secret.
+  const team = TEAMS[VIEW], own = wvOwn(team), blk = waiverBlock(team);
+  if (!isOwner() && !own) return wvDstLinkHTML() + wvHotHTML();
+  if (!WAIVER && !own) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.empty.noPacket")}</span></div></div>`;
+  const key = waiverKey(team), mate = notMine(team);
+  if (!waiverMeta(blk)[key]) return `<div class="state-empty wv-empty"><div><b>—</b><span>${t("waiver.hero.none")}</span></div></div>`;
   const mode = wvMode(), m = motion || {deal: false, since: Infinity};
-  // A leaguemate gets the league's rail and no cards: every card is advice for David's roster
-  // (its tier, its swap, its drop). Their own arrives with a per-team packet (leaguemates phase 3).
-  // With no cards, the rail leads every day: the "watch" shape, whatever the weekday.
-  const shape = mate ? "watch" : mode;
+  // A leaguemate with a packet of its own gets its cards (tiers, swaps and drops judged against its roster);
+  // the rail is the league's whoever looks, with David's status rows and verdicts out (`mate`). One without
+  // a packet gets the rail alone, which leads every day: the "watch" shape, whatever the weekday.
+  const shape = own ? mode : "watch";
   const rail = wvRailHTML(key, shape, m.since, mate);
-  const cards = mate ? `<p class="wv-mate">${t("waiver.mate.soon")}</p>` : `<div class="wv-cards">${wvCardsHTML(key)}</div>`;
+  const cards = own ? `<div class="wv-cards">${wvCardsHTML(key, blk)}</div>` : `<p class="wv-mate">${t("waiver.mate.soon")}</p>`;
   return `${wvDstLinkHTML()}<div class="wv mode-${shape}${m.deal ? " deal" : ""}">${rail}${cards}</div>`;
 }
 
@@ -64,16 +66,18 @@ const wvDstLinkHTML = () => typeof rkDstBlock === "function" && rkDstBlock()
    wire, when its claims clear, how many must-claims are open there, and what is left to bid. */
 function waiverHeroHTML(team){
   const key = waiverKey(team), mate = notMine(team) || !isOwner();   // David's numbers are his browser's alone
-  const meta = waiverMeta()[key];
+  const own = wvOwn(team), blk = waiverBlock(team);
+  const meta = waiverMeta(blk)[key];
   if (!meta) return `<p class="wvhero empty">${t("waiver.hero.none")}</p>`;
   const when = waiverWhen(meta.clears || (WAIVER && WAIVER.clears));
-  const n = waiverMustIn(key);
-  // A leaguemate's hero keeps the league's facts (the day, when claims clear) and drops David's:
-  // his must-claim count and his FAAB.
+  const n = waiverMustIn(key, blk);
+  // The hero keeps the league's facts (the day, when claims clear). The must-claim count is the team's own
+  // when it has cards (David's, or a leaguemate's packet); FAAB is David's alone, a site shows a budget
+  // to its own manager only.
   const parts = [
     `<span class="wvhero-mode">${wvMode() === "claim" ? t("waiver.hero.claimDay") : t("waiver.hero.wireWatch")}</span>`,
     when ? `<span>${t("waiver.hero.clears", {when})}</span>` : "",
-    mate ? "" : `<span class="${n ? "up" : ""}" title="${t("waiver.tier.mark")}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>`,
+    own ? `<span class="${n ? "up" : ""}" title="${t("waiver.tier.mark")}">${n === 1 ? t("waiver.hero.mustOne") : t("waiver.hero.must", {n})}</span>` : "",
     mate || meta.faab_left === null || meta.faab_left === undefined ? "" : `<span>${t("waiver.hero.faab", {n: meta.faab_left})}</span>`,
   ].filter(Boolean);
   // Each part keeps its words together; a narrow hero breaks between parts, never inside one.
