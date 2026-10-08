@@ -4,6 +4,7 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 
 ## Now
 
+- [ ] **Bets > Slips redesign or polish.** Add headshots; fix the ugly grey bars; Top calls look ugly. Too many players: organise them (by game, kickoff window, position or tier). On Sunday the page is endless scrolling. Top calls don't change from day to day: check whether that's stale data (prop lines refetch at 5:50, 2:30, Sat 8:45pm, Sun 8:45am) or a selection that never moves, before the redesign. Storyboard first, at 360px; code `surface/parlay/`, `topcalls.js`. (2026-10-07)
 - [ ] **Too many tabs; Recap and Live as tabs.** David isn't sold on Recap's and Live's tab bars (Players / Scores / Claude / Accuracy; My league / NFL / TDs), and the site may have too many tabs overall. Count every tab level per view at 360px, then storyboard fewer (pairs with the nav-names item). (2026-10-07)
 - [ ] **Professional polish: chrome stands apart from content.** The bottom tab bar and the tab row are about the same colour as most cards, so they blend in. Give the chrome its own surface (colour, border or shadow tokens), then a site-wide polish pass for the same kind of thing (impeccable). (2026-10-07)
 - [ ] **Tab row jumps on scroll.** On a phone, scrolling up slides the tab row up over the header bar (team name, Ask) and scrolling down brings the header back; it feels jarring. Make the header and tab row move as one, or stay put. Code: `css/chrome/phonenav.css`, `#hdrteam`, `#subnav`. (2026-10-07)
