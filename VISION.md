@@ -8,6 +8,11 @@ Where this page is going. The conductor reads it before sizing work here and app
 - The page answers one question per player: what moved, and what do I do about it.
 - Each weekday has one job: the Digest leads with that day's answer, and research is one tap away.
 - It renders ff-jarvis data and never computes model numbers.
+- Focus, in David's order (2026-10-08); work outside these four is nice to have:
+  1. An amazing home landing page for users.
+  2. Accurate rankings and matchup analysis.
+  3. Simpler parlay research, and getting better at picking hits.
+  4. A better journey for viewing a roster and researching its players and potential trades.
 - Good looks like: nav that maps to Yahoo, ESPN and Sleeper habits (team, matchup, players, league), few tabs, chrome that stands apart from content, no endless scroll.
 
 ## Decisions
@@ -27,6 +32,8 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-08: chose nav draft C (Team · Matchup · Players · League · Search, 28 tabs) as the target, reached through draft B's label-only regroup first (David).
 - 2026-10-08: chose Slips grouped by kickoff window, each window showing the best call per game (David).
 - 2026-10-08: chose the chrome its own darker surface, edge and shadow (David).
+- 2026-10-08: chose one pick per Slips line, model and Claude as one "our pick": "users dont need to understand if claude or model is better" (David).
+- 2026-10-08: chose four focus areas over the Later list (Yahoo sign-in, chain trades, Follow a game): "they're nice to have. I rather focus on the vision" (David).
 
 ## Not doing
 
@@ -34,3 +41,4 @@ Where this page is going. The conductor reads it before sizing work here and app
 - No roster data on public views (Weather names no roster; the page is public).
 - No automated scrape of the Yahoo DFS pool: the contest CSV is imported by hand.
 - No fantasy points in Digest headlines.
+- No private leagues: public leagues only, "too hard to support private ones" (David, 2026-10-08). The ESPN QR fallback is dropped with it.

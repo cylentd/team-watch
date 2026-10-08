@@ -21,7 +21,7 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 - [ ] **Week ranks on the Digest.** Readers come to see where their players rank this week, and the Digest has no Week 5 ranks. Ideas: a booster-pack card that opens the reader's Roster; tier ranks on the Roster itself. Reference: Boris Chen's tiers, the community favourite for being easy to follow (borischen.co/p/05-half-ppr-flex-tier-rankings.html). Storyboard first. (2026-10-07)
 - [ ] **D. Henry in Tier 4 despite a high projection.** Check Ranks' tier cut for RBs this week (`design/ranks.py`, natural breaks; RB rank follows books' implied points since 2026-10-05, METHODOLOGY 12.86-12.87). Find whether the tier, the rank or the shown points is wrong. (2026-10-07)
 - [ ] **Matchups redesign.** The first card's purpose is unclear to David. Redesign the view from a storyboard. (2026-10-07)
-- [ ] **Bold calls' failed-test line.** "Failed test (12.75): 10 of 24 right in-sample, under a coin flip. Reviewed after week 9" reads awkwardly on the page. Rewrite it in plain words or drop it. (2026-10-07)
+- [x] **Bold calls' failed-test line.** Dropped from bold calls, landed 8be8e62d (2026-10-08): they are takes, not tested claims. "Failed test (12.75): 10 of 24 right in-sample, under a coin flip. Reviewed after week 9" reads awkwardly on the page. Rewrite it in plain words or drop it. (2026-10-07)
 - [ ] **Stats > Highlights.** Cards are too big and the lines aren't interesting enough. Shrink the cards and raise the bar for what counts as a highlight, or cut the view. (2026-10-07)
 - [ ] **Back button assessment.** Back in some places lands somewhere unexpected; the breadcrumb is probably broken. Walk every view, tab, drill-in and overlay at 360px, press Back after each, and log each wrong landing as from / expected / got. History code: `js/chrome/layers.js`, `js/chrome/nav.js`, `js/surface/recap/state.js`, `js/surface/profile/gridlink.js`, `js/data/owner.js`. Done when each wrong landing is fixed and pinned by a test like `test_a_hash_opens_its_view`. (2026-10-06)
 - [ ] **Team logo assessment.** Find where a team logo makes a view easier to read; League > Teams is the first candidate. Open question: fantasy team logos (Yahoo/ESPN avatars), NFL club logos, or both. Rank the views yes/no, storyboard the yes ones (STYLE.md), check what ff-jarvis already fetches before adding a source. (2026-10-06)
@@ -42,12 +42,14 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 
 ## Waiting
 
-- [ ] **Yahoo sign-in.** Blocked on Yahoo approving app `UuR5CedM` (last checked 2026-09-24). Spec: unit 2 in `~/.claude/plans/team-watch-next.md`.
-- [ ] **ROS value.** ff-jarvis 12.97 passed its backtest on branch `ros-value`, unlanded; Ranks > Rest of season is storyboarded (2026-10-06).
-- [ ] **Chain trades.** Storyboard started 2026-10-05.
-- [ ] **Follow a game, part 2.** Part 1 landed 2026-09-28.
-- [ ] **Third league.** Menu drill-in landed; the league-ID data work is open.
+Nice to have, behind the four VISION focus areas (David, 2026-10-08).
 
-## Parked
+- [ ] **Yahoo sign-in.** Blocked on Yahoo approving David's API key, app `UuR5CedM` (still waiting 2026-10-08). Spec: unit 2 in `~/.claude/plans/team-watch-next.md`.
+- [x] **ROS value.** Landed 2026-10-06: Ranks > Rest of season, `LIVE_ROS` from ff-jarvis `ros_value.json` (METHODOLOGY 12.97).
+- [ ] **Chain trades.** Storyboard started 2026-10-05; plan requested 2026-10-08.
+- [ ] **Follow a game, part 2.** Part 1 landed 2026-09-28; David does not recall what part 2 was (2026-10-08), so it needs a one-line definition or it is dropped.
+- [x] **Third league.** Done: AYO is the third league (David, 2026-10-08).
 
-- [ ] **ESPN QR fallback.** Only when a friend cannot use the league-manager setting or the phone bookmark.
+## Dropped
+
+- **ESPN QR fallback.** Public leagues only (VISION "Not doing", 2026-10-08).
