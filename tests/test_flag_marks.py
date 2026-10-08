@@ -23,8 +23,8 @@ MARKS = {
     "ranks.row.mxMark": "F13", "startsit.board.mark": "F14", "startsit.def.mark": "F15", "digest.foot.muMark": "F16",
     "teams.brief.muMark": "F17", "preview.travel.mark": "F19", "weather.cond.coldMark": "F20",
     "teams.card.wxMark": "F22", "teams.brief.wxMark": "F22", "startsit.out.mark": "F23", "startsit.wx.mark": "F24",
-    "matchups.takes.markStart": "F25", "waiver.lane.usageMark": "F27", "dfs.tag.handcuffMark": "F28",
-    "matchups.takes.markSmash": "U1", "matchups.takes.markSit": "U2", "preview.conf.mark": "U4",
+    "waiver.lane.usageMark": "F27", "dfs.tag.handcuffMark": "F28",
+    "matchups.takes.markSmash": "U1", "preview.conf.mark": "U4",
     "preview.call.mark": "U5", "slips.claude.mark": "U6", "parlay.tag.roleMark": "U8", "waiver.tier.mark": "U9",
     "waiver.lane.starterMark": "U10", "waiver.lane.roleMark": "U11", "waiver.lane.injuredMark": "U12",
     "waiver.swap.mark": "U13", "waiver.rail.pathMark": "U14", "teams.brief.wireMark": "U15",
@@ -33,6 +33,9 @@ MARKS = {
     "trades.lead.dueMark": "U23",
     "digest.card.usage.mark": "Digest usage movers, 12.105", "digest.card.defenses.foot": "Digest defenses card, 12.97",
 }
+
+# The START and SIT bold calls (F25, U2) had a mark; they have none now. SMASH is not a bold call and keeps its own.
+BOLD_CALL_MARKS = ["matchups.takes.markStart", "matchups.takes.markSit"]
 
 # Keys the removals left behind: gone from the copy, so a reader can never see them.
 REMOVED = [
@@ -55,6 +58,13 @@ def test_a_mark_says_untested_or_the_failed_test_with_its_entry(key):
     assert "\n" not in text and len(text) < 220, f"{MARKS[key]} {key}: a mark is one short line"
 
 
+@pytest.mark.parametrize("key", BOLD_CALL_MARKS)
+def test_a_bold_call_carries_no_test_status_label(key):
+    """David, 2026-10-08: a bold call is a take (narratives, matchups, news, usage), not a tested model claim. Saying the
+    test does not back it does not help and everyone knows. Bold calls are exempt; every other mark keeps its label."""
+    assert key not in COPY, f"{key} would put a test-status label on a bold call"
+
+
 @pytest.mark.parametrize("key", REMOVED)
 def test_a_removed_flags_copy_is_gone(key):
     assert key not in COPY, f"{key} is copy for a flag the cleanup removed (an orphan the build should refuse)"
@@ -64,7 +74,6 @@ def test_the_result_words_come_from_the_inventory_not_from_a_guess():
     """The numbers a mark quotes are the inventory's. A spot check of the ones a reader is most likely to test."""
     assert "49.6% against 62.9%" in COPY["slips.tier.mark"]
     assert "-0.74" in COPY["weather.cond.coldMark"] and "t -2.93" in COPY["weather.cond.coldMark"]
-    assert "10 of 24" in COPY["matchups.takes.markStart"] and "26 of 31" in COPY["matchups.takes.markSit"]
     assert "52 of 69" in COPY["matchups.takes.markSmash"]
     assert "t 0.73" in COPY["parlay.tag.cbTitle"] and "0 of 8" in COPY["parlay.tag.cbTitle"]
     assert "no edge past the line" in COPY["preview.travel.mark"]

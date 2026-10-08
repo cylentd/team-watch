@@ -140,7 +140,7 @@ def test_game_card_pills_carry_their_models_marks(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
     marks = {r["pill"]: r["mark"] for r in dg.rows("game")}
-    assert marks == {"SMASH": COPY["matchups.takes.markSmash"], "START": COPY["matchups.takes.markStart"]}
+    assert marks == {"SMASH": COPY["matchups.takes.markSmash"], "START": None}, "a bold START is a take: no test-status label"
     assert errors == []
 
 
@@ -249,10 +249,10 @@ def test_bold_card_is_the_two_widest_starts_then_the_two_widest_sits(mount):
     dg, errors = cards(mount)
     assert dg.title("bold") == words("digest.card.bold.title")
     assert [(r["name"], r["pill"], r["mark"], r["meta"]) for r in dg.rows("bold")] == [
-        ("R. Stevenson", "START", COPY["matchups.takes.markStart"], "NE · RB · Our rank 15 · his season 36"),
-        ("T. Higgins", "START", COPY["matchups.takes.markStart"], "CIN · WR · Our rank 16 · his season 41"),
-        ("D. Moore", "SIT", COPY["matchups.takes.markSit"], "CHI · WR · Our rank 33 · his season 12"),
-        ("E. Engram", "SIT", COPY["matchups.takes.markSit"], "DEN · TE · Our rank 20 · his season 8")]
+        ("R. Stevenson", "START", None, "NE · RB · Our rank 15 · his season 36"),
+        ("T. Higgins", "START", None, "CIN · WR · Our rank 16 · his season 41"),
+        ("D. Moore", "SIT", None, "CHI · WR · Our rank 33 · his season 12"),
+        ("E. Engram", "SIT", None, "DEN · TE · Our rank 20 · his season 8")]
     assert errors == []
 
 

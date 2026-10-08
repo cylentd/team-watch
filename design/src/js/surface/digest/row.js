@@ -2,7 +2,7 @@
    2026-10-06, storyboard "Digest by Day"; STYLE.md "Answer first, research one tap away". Every card's
    row: a 34px face (a team tile for a defense or a game), the name over one meta line, the answer at
    the right. No position tag: the meta line says what matters. The answer is a pick word in a pill
-   (SMASH, START, SIT where a model makes the call; Q, D, OUT and IR, the official status) or a number with
+   (SMASH, START, SIT where a model makes the call; START and SIT are bold calls, takes, with no mark; Q, D, OUT and IR, the official status) or a number with
    its change. A row with research opens it in place under itself, one open at a time across the
    Digest; a row without opens the player's profile.
 
@@ -22,8 +22,8 @@ let DG_ROW_OPEN = null;   // the open row's key, kept across repaints
 
 const DG_PILL = {
   SMASH: ["smash", () => t("digest.card.pill.smash"), () => t("matchups.takes.markSmash")],
-  START: ["start", () => t("digest.card.pill.start"), () => t("matchups.takes.markStart")],
-  SIT: ["sit", () => t("digest.card.pill.sit"), () => t("matchups.takes.markSit")],
+  START: ["start", () => t("digest.card.pill.start"), () => ""],     // a bold call is a take: no test-status label
+  SIT: ["sit", () => t("digest.card.pill.sit"), () => ""],
   Q: ["q", () => t("digest.card.pill.q"), () => ""],
   OUT: ["out", () => t("digest.card.pill.out"), () => ""],
   D: ["d", () => t("digest.card.pill.d"), () => ""],

@@ -23,7 +23,7 @@ function muTakeHTML(r){
       <span class="xf-head mu-hd">${avatarHTML({n: r.name, slug: r.slug})}</span>
       <span class="mu-nm"><b>${esc(nameInitial(r.name))}</b><span>${muGame(r)}</span></span>${muRankHTML(r)}</button>
     <div class="mu-b" id="${id}"${on ? "" : " inert"}><div class="mu-in"><div class="mu-pad">${chips}
-      <p class="mu-src"><span>${r.call === "SIT" ? t("matchups.takes.markSit") : t("matchups.takes.markStart")}</span><button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>
+      <p class="mu-src"><button type="button" class="mu-go" data-muslug="${esc(r.slug)}">${t("matchups.row.profile")}${MU_ARROW}</button></p>
     </div></div></div>
   </div>`;
 }

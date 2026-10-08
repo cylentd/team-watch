@@ -47,7 +47,7 @@
   font-size:var(--t-1);font-weight:500;line-height:1.25;padding:4px 8px;border-radius:12px;
   border:1px solid rgb(var(--up-rgb) / .45);color:var(--up);
 }
-.mu-src{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+.mu-src{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:0;font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
 .mu-go{
   appearance:none;border:0;background:none;font:inherit;cursor:pointer;flex:none;
   display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 0 0 12px;

@@ -36,9 +36,9 @@ function dgTnCard(g, now){
       : `<p class="dg-tn-on"><b>${game}</b> ${t("digest.tn.playing")}</p>`}</section>`;
   }
   const tag = r => `<em class="${r.status === "Doubtful" ? "q" : "dn"}">${r.status === "IR" ? t("digest.tag.ir") : r.status === "Doubtful" ? t("digest.tag.d") : t("digest.tag.out")}</em>`;
-  // A START or SIT carries the test it has had (12.75), in its tooltip.
+  // A START or SIT is a bold call, a take: no test-status label.
   const call = r => r.call === "BEST" ? `<em>${(r.pts || 0).toFixed(1)}</em>`
-    : `<em title="${r.call === "START" ? t("matchups.takes.markStart") : t("matchups.takes.markSit")}">${r.call === "START" ? t("digest.tn.start") : t("digest.tn.sit")}</em>`;
+    : `<em>${r.call === "START" ? t("digest.tn.start") : t("digest.tn.sit")}</em>`;
   const lists = dgResList(t("digest.tn.out.h"), g.out, tag) + dgResList(t("digest.tn.calls.h"), g.tcalls, call)
     + dgResList(t("digest.tn.proj.h"), g.projected, r => `<em>${r.pts.toFixed(1)}</em>`);
   const story = dgTnStory(g);
