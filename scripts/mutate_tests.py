@@ -6,7 +6,10 @@ The testing skill's mutate.py calls this through `.testing.json` `mutate.select_
 impact.json instead of a hand-kept map. Tests per file: the ones naming it (data/<x>.js, or `import <x>` for
 design/<x>.py), plus impact.py's pick for it minus the always-run core, minus the whole-repo checks (META).
 Node- and Python-layer files are preferred over browser ones (HEAVY), unless only a heavy one names the file.
+Both the HEAVY test and the naming test read a file's code only: comments and the module docstring are dropped (strings too, for HEAVY) (2026-10-08;
+a docstring saying "no browser" hid a light file, and one naming a module counted as a test of it).
 """
+import ast
 import pathlib
 import re
 import sys
@@ -21,6 +24,23 @@ META = {"test_assemble", "test_budgets", "test_build", "test_honest_tests", "tes
         "test_js_syntax", "test_layer_ratchet", "test_lint", "test_mutate_tests", "test_page_leak", "test_render",
         "test_scope", "test_style_rules", "test_sources_behind"}
 HEAVY = re.compile(r"\b(browser|mount|page_file|built|open_view|sync_playwright)\b")
+
+
+def code_of(text, blank_strings=False):
+    """The file's code without comments or its module docstring; blank_strings also empties every string.
+
+    A function's first string stays unless blank_strings: a fixture's bare "data/x.js" line is a name, not prose."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return text
+    if ast.get_docstring(tree, clean=False) is not None:
+        tree.body.pop(0)
+    if blank_strings:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                node.value = ""
+    return ast.unparse(tree)
 
 
 def tests_for(path, root=ROOT):
@@ -40,11 +60,12 @@ def tests_for(path, root=ROOT):
             continue
         rel = "tests/" + f.name
         texts[rel] = f.read_text(encoding="utf-8")
-        if named.search(texts[rel]):
+        if named.search(code_of(texts[rel])):
             picked.add(rel)
             naming.add(rel)
     picked = sorted(f for f in picked if (root / f).is_file())
-    light = [f for f in picked if not HEAVY.search(texts.get(f) or (root / f).read_text(encoding="utf-8"))]
+    light = [f for f in picked
+             if not HEAVY.search(code_of(texts.get(f) or (root / f).read_text(encoding="utf-8"), blank_strings=True))]
     # A heavy file that names the source stays when no light one does (2026-10-06: avatars.py's own tests sat
     # beside one `built` test, and the light files left never called it, so every mutant survived).
     if not naming & set(light):
