@@ -14,19 +14,23 @@ as his are. A plain "break where the drop is large" rule was tried on week 3 and
 Self-contained like the other cuts: the raw block, slugify and the out-list come in as arguments.
 """
 from projections import kick_iso, order_key, slate, unavailable
+from week_ranks import load_week_ranks   # noqa: F401  (build.py loads the file through here)
 
 # How deep each list goes, and how many tiers it is split into.
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
 FLEX = ("RB", "WR", "TE")
+SCORING_WORD = {"half": "half-PPR"}   # week_ranks says "half"; the heading says the scoring the way the projections do
+FALLBACK_WORDS = "Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order)"
 
 
 def report(ranks):
-    """build.py's one-line summary of LIVE_RANKS."""
+    """build.py's one-line summary of LIVE_RANKS, naming where its order came from."""
     if not ranks:
         return "Ranks: none, so no Ranks view"
     lists = {pos: [r for r in ranks["rows"] if r["pos"] == pos] for pos in DEPTH if pos != "FLEX"}
     lists["FLEX"] = ranks["flex"]
-    return "Ranks: " + " · ".join(f"{pos} {len(rs)} in {max((r['tier'] for r in rs), default=0)} tiers" for pos, rs in lists.items())
+    head = "Ranks: week_ranks" if ranks.get("from") == "week_ranks" else FALLBACK_WORDS
+    return head + " · " + " · ".join(f"{pos} {len(rs)} in {max((r['tier'] for r in rs), default=0)} tiers" for pos, rs in lists.items())
 
 
 def natural_breaks(xs, k):
@@ -96,8 +100,18 @@ def _matchup(p, key="pts"):
     return round(v, 1) if isinstance(v, (int, float)) and p.get("pos") != "WR" else None
 
 
-def live_ranks(raw, slugify, status=None, schedule=None):
-    """LIVE_RANKS: {scoring, week, off, rows, flex}, or None when ff-jarvis has not written the file.
+def live_ranks(raw, slugify, status=None, schedule=None, week_ranks=None):
+    """LIVE_RANKS: {scoring, week, off, from, rows, flex}. With ff-jarvis's week_ranks (design/week_ranks.py) the lists
+    are theirs (`from` "week_ranks", ledger #23, 2026-10-08); without the file it is the old cut from the projections
+    (`from` "projections", None when ff-jarvis has not written those either), kept as the fallback."""
+    players = (raw or {}).get("players") or []
+    if week_ranks:
+        return _from_lists(week_ranks, players, slugify)
+    return _from_projections(raw, slugify, status, schedule)
+
+
+def _from_projections(raw, slugify, status=None, schedule=None):
+    """The old cut: {scoring, week, off, from, rows, flex}, or None when ff-jarvis has not written the file.
     Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil,
     rank_pts, unlined_backup, pts_before_unlined, rank, tier}, best first (`floor` and `ceil`:
     ff-jarvis's 10th and 90th percentile outcome, null without a band, never computed here).
@@ -124,14 +138,7 @@ def live_ranks(raw, slugify, status=None, schedule=None):
             continue
         prev = rows.get(slug)
         if prev is None or p["pts"] > prev["pts"]:
-            rows[slug] = {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
-                          "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
-                          "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
-                          "pts": round(p["pts"], 2), "floor": p.get("floor"), "ceil": p.get("ceil"),
-                          "rank_pts": p.get("rank_pts") if p.get("pos") == "RB" else None,
-                          "unlined_backup": (p.get("unlined_backup") or None) if p.get("pos") == "RB" else None,
-                          "pts_before_unlined": p.get("pts_before_unlined") if p.get("pos") == "RB" else None,
-                          "rank": None, "tier": None}
+            rows[slug] = _row(p, slug)
             keys[slug] = order_key(p)
     off = sorted({rows[s]["team"] for s in done if s in rows})
     live = [r for r in rows.values() if r["slug"] not in done]
@@ -150,5 +157,43 @@ def live_ranks(raw, slugify, status=None, schedule=None):
     for rs in lists.values():
         for r in rs:
             r["rank"] = place[r["slug"]]
-    return {"scoring": raw.get("scoring"), "week": week, "off": off,
+    return {"scoring": raw.get("scoring"), "week": week, "off": off, "from": "projections",
+            "rows": [r for pos in DEPTH if pos != "FLEX" for r in lists[pos]], "flex": lists["FLEX"]}
+
+
+def _row(p, slug):
+    """One list row from a projections player (a dict with nothing in it when ff-jarvis's projections do not hold him)."""
+    return {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
+            "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
+            "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
+            "pts": round(p["pts"], 2) if p.get("pts") is not None else None, "floor": p.get("floor"), "ceil": p.get("ceil"),
+            "rank_pts": p.get("rank_pts") if p.get("pos") == "RB" else None,
+            "unlined_backup": (p.get("unlined_backup") or None) if p.get("pos") == "RB" else None,
+            "pts_before_unlined": p.get("pts_before_unlined") if p.get("pos") == "RB" else None,
+            "rank": None, "tier": None}
+
+
+def _from_lists(doc, players, slugify):
+    """LIVE_RANKS from ff-jarvis's week_ranks lists: their order, rank and tier, their `pts`, their game. What only the
+    projections hold (home, injury tag, the points' makeup, the matchup, the band) is read off his projections row by
+    slug, null when he has none. The producer's `val` and `src` stay behind, and so do the books' back fields: the
+    list already holds the books' order, and a reader sees one rank."""
+    wk = doc["weekly"]
+    held = {}
+    for p in players:
+        slug = slugify(p.get("name") or "")
+        if slug and p.get("pts") is not None and (slug not in held or p["pts"] > held[slug]["pts"]):
+            held[slug] = p
+    place, lists = {}, {}
+    for pos in DEPTH:   # QB RB WR TE first, FLEX last: a FLEX row's rank is his place at his own position
+        lists[pos] = []
+        for r in wk["lists"][pos]:
+            slug = slugify(r["name"])
+            row = {**_row(held.get(slug, {}), slug), "n": r["name"], "pos": r["pos"], "team": r["team"], "opp": r["opp"],
+                   "kick": r["kickoff"], "pts": round(r["pts"], 2), "rank_pts": None, "unlined_backup": None,
+                   "pts_before_unlined": None, "rank": r["rank"] if pos != "FLEX" else place.get(slug), "tier": r["tier"]}
+            if pos != "FLEX":
+                place[slug] = r["rank"]
+            lists[pos].append(row)
+    return {"scoring": SCORING_WORD.get(wk["scoring"], wk["scoring"]), "week": wk["week"], "off": sorted(wk["off"]), "from": "week_ranks",
             "rows": [r for pos in DEPTH if pos != "FLEX" for r in lists[pos]], "flex": lists["FLEX"]}

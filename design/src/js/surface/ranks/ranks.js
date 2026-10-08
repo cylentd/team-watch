@@ -8,8 +8,10 @@
    row says it.
 
    Data: LIVE_RANKS (design/ranks.py), one week only; a team whose next game is a later week is
-   named in the heading instead of ranked on a number for a game outside it. Tiers are natural
-   breaks in the points, each drawn as its own panel, so the list needs no rule between tiers.
+   named in the heading instead of ranked on a number for a game outside it. Order, rank and tier are
+   ff-jarvis's week_ranks lists (since 2026-10-08; `from` "week_ranks"), each tier drawn as its own panel,
+   so the list needs no rule between tiers. With no such file (`from` "projections") the build cuts them
+   itself, as before, and the back list keeps its "No line" tag and its note on the books' order.
 ------------------------------------------------------------------ */
 const RK_POSITIONS = statsPosList("ranks");   // QB RB WR TE FLEX; D/ST and K are the league's (dst.js)
 let RK_POS = "RB";
@@ -114,7 +116,8 @@ function rkChipsHTML(pos, extra, base = RK_POSITIONS){
    it shows on screen: why a back can sit above one with more points (the list follows the books), and what a
    "No line" tag means. */
 function rkRbNotes(pos, list){
-  if (pos !== "RB") return "";
+  // Only on the old cut (no week_ranks file): ff-jarvis's lists already hold the books' order and the reader sees one rank (2026-10-08).
+  if (pos !== "RB" || LIVE_RANKS.from !== "projections") return "";
   const order = rbReordered(list) ? " " + t("ranks.rb.note") : "";
   const row = list.find(r => rbNoLine(r));
   return order + (row ? ` ${rbNoLineHTML(row, "rk-noline")} ${rbNoLine(row).tip}` : "");

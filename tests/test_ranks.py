@@ -251,24 +251,39 @@ TIP = words("ranks.noline.tip")
 
 
 @pytest.mark.render
-@pytest.mark.req("Ranks", ac="the back list follows the books and says why once; FLEX does not")
-def test_the_back_list_follows_the_books_and_says_why_once_and_flex_does_not(mount):
-    """The fixture: Hall 15.0 points (books 16.6) above Brown 16.2 (books 15.4); Miller is an unlined backup
-    (3.1 points, tagged). The number shown is points. FLEX orders by points: no reorder, no note."""
+@pytest.mark.req("Ranks", ac="the back list is ff-jarvis's list and says nothing about whose number it is")
+def test_the_back_list_is_the_lists_order_and_says_nothing_about_whose_number_it_is(mount):
+    """The fixture's week_ranks list: Hall 15.0 points above Brown 16.2, Miller third (ledger #23, 2026-10-08). The
+    number shown is points. Readers see one rank: no note on the books' order, no "No line" tag (David: users
+    do not need to know whose number it is)."""
     page, errors = mount("ranks")
     ranks = RanksPage(page)
     rows = ranks.rows()
     assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
+    assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2"], "tiers are the file's: Hall and Brown, then Miller"
+    sub = ranks.sub()
+    assert NOTE not in sub and words("ranks.noline.word") not in sub
+    assert [r["noline"] for r in rows] == [None, None, None]
+    ranks.pick("FLEX")
+    assert [r["slug"] for r in ranks.rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
+    assert ranks.fits()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Ranks", ac="with no week_ranks file the back list keeps its books note and No line tag")
+def test_with_no_week_ranks_file_the_back_list_keeps_its_books_note_and_no_line_tag(mount):
+    """The fallback (a build whose ff-jarvis has not written week_ranks): the rows come from the projections and
+    carry the books' fields, so the page says why Hall (15.0) sits above Brown (16.2), once, and tags the unlined backup."""
+    page, errors = mount("ranks")
+    ranks = RanksPage(page)
+    page.evaluate("""() => { LIVE_RANKS.from = "projections";
+      LIVE_RANKS.rows.find(r => r.slug === "kendre-miller").unlined_backup = true; render(); }""")
     sub = ranks.sub()
     assert NOTE in sub and sub.count(NOTE) == 1 and words("ranks.noline.word") + " " + TIP in sub
-    assert [r["noline"] for r in rows if r["noline"]] == [{"text": words("ranks.noline.word"), "title": TIP}]
-    assert next(r for r in rows if r["slug"] == "kendre-miller")["noline"] is not None
+    assert [r["noline"] for r in ranks.rows() if r["noline"]] == [{"text": words("ranks.noline.word"), "title": TIP}]
     ranks.pick("FLEX")
     assert ranks.sub().count(NOTE) == 0
-    assert [r["slug"] for r in ranks.rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
-    ranks.pick("QB")
-    assert ranks.sub().count("No line") == 0
-    assert ranks.fits()
     assert errors == []
 
 

@@ -4,6 +4,7 @@ slug and cut to the `wanted` set, same reason pedigree.py and gamelog.py give.
 
 Self-contained like the other profile-data cuts: the raw block and slugify come in as arguments.
 """
+import week_ranks as week_ranks_module   # design/week_ranks.py: the roster card's rank reads ff-jarvis's lists
 
 
 def report(proj):
@@ -119,7 +120,7 @@ def position_ranks(players, slugify, skip=()):
     return out
 
 
-def live_projections(raw, slugify, wanted, status=None, schedule=None):
+def live_projections(raw, slugify, wanted, status=None, schedule=None, week_ranks=None):
     """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src, rank, of, out, done, wx, floor, ceil,
     stage, rank_pts, unlined_backup, pts_before_unlined}}, meta:
     {scoring, through}} or None when ff-jarvis has not written the file. Two players on the same
@@ -129,6 +130,8 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None):
     will not score. A player whose projected game is a later week (`slate`) keeps his row the same
     way with `done` set to "played" or "bye": his card says so rather than next week's number.
 
+    `week_ranks` (design/week_ranks.py) is ff-jarvis's list file; given, `rank` and `of` come from its lists.
+
     `meta` carries the producer's own header so the modal can say whose projection it is showing
     and on what scoring, rather than printing a number with no owner."""
     players = (raw or {}).get("players") or []
@@ -136,7 +139,10 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None):
         return None
     gone = unavailable(status, slugify)
     _, done = slate(players, slugify, schedule)
-    ranks = position_ranks(players, slugify, set(gone) | set(done))
+    # With ff-jarvis's week_ranks the card's rank is the Ranks page's (ledger #23): the same list, so they never
+    # disagree. A player past a list's depth then has none; the old rank over every projected player stays the fallback.
+    ranks = (week_ranks_module.position_ranks(week_ranks, slugify) if week_ranks
+             else position_ranks(players, slugify, set(gone) | set(done)))
     out = {}
     for p in players:
         slug = slugify(p.get("name") or "")

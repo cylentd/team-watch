@@ -193,7 +193,7 @@ CONTRACT = {
     # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and
     # `off` lists the teams whose next game is a later week (a Thursday game already played, a bye).
     "LIVE_RANKS": {
-        "keys": ["scoring", "week", "off", "rows", "flex"],
+        "keys": ["scoring", "week", "off", "from", "rows", "flex"],   # `from`: "week_ranks" | "projections" (the fallback)
         "rows": [("rows", RANK_ROW), ("flex", RANK_ROW)],
     },
     # design/signed.py: page players who finished top 3 at their position in the last completed

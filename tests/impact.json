@@ -1,6 +1,7 @@
 {
   "core": [
     "tests/test_assemble.py",
+    "tests/test_week_ranks_units.py",
     "tests/test_flag_marks.py",
     "tests/test_budgets.py",
     "tests/test_build.py",
@@ -104,9 +105,9 @@
       "render": ["schedule"]
     },
     "ranks": {
-      "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py",
+      "paths": ["design/src/js/surface/ranks/", "design/src/css/surface/ranks/", "design/ranks.py", "design/week_ranks.py",
                 "design/src/js/data/dst.js", "design/dst.py", "design/src/js/data/ros.js", "design/ros.py"],
-      "tests": ["tests/test_ranks.py", "tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_ros_fp.py", "tests/test_js_ros.py", "tests/test_ros_view.py"],
+      "tests": ["tests/test_ranks.py", "tests/test_week_ranks.py","tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_ros_fp.py", "tests/test_js_ros.py", "tests/test_ros_view.py"],
       "render": ["ranks"]
     },
     "rbrules": {
