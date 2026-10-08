@@ -8,11 +8,13 @@ Where this page is going. The conductor reads it before sizing work here and app
 - The page answers one question per player: what moved, and what do I do about it.
 - Each weekday has one job: the Digest leads with that day's answer, and research is one tap away.
 - It renders ff-jarvis data and never computes model numbers.
-- Focus, in David's order (2026-10-08); work outside these four is nice to have:
+- Focus, in David's order (2026-10-08); work outside these five is nice to have:
   1. An amazing home landing page for users.
   2. Accurate rankings and matchup analysis.
   3. Simpler parlay research, and getting better at picking hits.
   4. A better journey for viewing a roster and researching its players and potential trades.
+  5. Previewing games and following them live.
+  All five are on the site already; the work is improving, redesigning and polishing them, not building them anew (David).
 - Good looks like: nav that maps to Yahoo, ESPN and Sleeper habits (team, matchup, players, league), few tabs, chrome that stands apart from content, no endless scroll.
 
 ## Decisions
