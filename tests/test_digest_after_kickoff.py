@@ -141,17 +141,13 @@ def test_the_banner_opens_its_player_after_swapping_between_the_packets_lead_and
 @pytest.mark.render
 @pytest.mark.req("Digest", ac="Monday night is one card")
 def test_monday_night_is_one_card(mount):
-    """Monday 6 AM Pacific, PHI @ CHI tonight and all the week has left: the card says who is out and
-    who steps in, with no word of what the books moved (12.46 failed its backtest; the "Moved" list and the
-    "books moved CHI's pass catchers" line went 2026-10-06). The ticker it once stood above went 2026-10-06."""
+    """Monday 6 AM Pacific, PHI @ CHI tonight and all the week has left. Before kickoff the game is the Tonight
+    card (cards/game.js) and nothing else: the card of out players, calls and projected points left Home on
+    2026-10-08 (Home draft B: "one Tonight card", its projected points gone). The ticker went 2026-10-06."""
     page, errors = mount("digest", size=PHONE)
     dg = DigestLivePage(page)
     dg.set_clock("2026-09-28T13:00:00Z")
-    story = dg.tn_story()
-    assert story == "Caleb Williams is out (hamstring). Case Keenum is CHI's projected QB."
-    assert "books" not in story and "combined" not in story and "flat" not in story
-    assert dg.tn_list_heads() == ["Out", words("digest.tn.calls.h"), words("digest.tn.proj.h")], "no Moved list"
-    assert "move" not in dg.tn_foot()
+    assert dg.tn_block_count() == 0, "no second block for tonight's game before kickoff"
     assert dg.retired_rows() == 0
     # After kickoff the card is the game's one block (mnf.js), a tap away from its sheet.
     dg.start_monday_game()

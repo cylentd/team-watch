@@ -27,7 +27,8 @@ function dgCardSmash(ctx){
   const top = DG_POS.map(pos => smash.filter(r => r.pos === pos).sort((a, b) => a.rank - b.rank)[0]).filter(Boolean);
   if (!top.length) return "";
   const rest = smash.length - top.length;
+  const rec = dgRecordFoot(ctx, "smash");
   const more = rest > 0 ? `<button type="button" class="dg-sm-more" data-testid="digest-smash-more" data-dggo="matchups">${t("digest.card.smash.more", {n: rest})}${DG_ARROW}</button>` : "";
   return dgCardHTML({id: "smash", title: `<span title="${esc(t("matchups.takes.markSmash"))}">${t("digest.card.smash.title")}</span>`,
-    body: top.map(r => dgSmashRowHTML(ctx, r)).join(""), foot: [more, dgRecordFoot(ctx, "smash")].filter(Boolean).join(" ")});
+    body: top.map(r => dgSmashRowHTML(ctx, r)).join(""), foot: [more, rec].filter(Boolean).join(" "), footTip: rec ? DG_RECORD_TIP() : ""});
 }

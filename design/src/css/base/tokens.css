@@ -243,3 +243,5 @@
   --dur-flip:.55s;      /* a waiver card turning over */
   --dur-stamp:.4s;      /* the Must-claim stamp slam; the Worth mark reuses it, quieter */
   --dur-flash:1.8s;     /* a Breaking row new since the last visit, lit once */
+  --dur-flap:.8s;       /* one split-flap tile of Home's hero turning over as the page lands */
+  --flap-step:75ms;     /* the gap between two tiles of the flip, so it runs left to right like a scoreboard */

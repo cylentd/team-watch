@@ -1077,6 +1077,37 @@ Storyboard: https://claude.ai/artifact/GZzBAiovV45XPYSCzu7Tzr (option B, David's
   above the edge). The side-by-side tried on 2026-09-26 stretched it to the list's full height.
 - **A bar is half the page at most**: each list keeps the phone's row, so bars stay comparable.
 
+## Home (2026-10-08, ledger #52, storyboard home draft B)
+
+Home is the fantasy week for every reader, nothing personal (VISION.md 2026-10-08). It is its own bottom tab and
+holds one view, today's Digest (leaf `digest`, hash `#digest`), so it draws no tab row.
+
+| Phone bar | Home · Team · Matchup · Players · League (Search sits in the header beside Ask) |
+|---|---|
+| Matchup's row | Live, Start/Sit, Preview, Results, Highlights, then Bets' Slips, All lines, DFS (leaf ids and hashes unchanged); the row scrolls as one row, like Players' |
+| Default page | Home with no hash; Waivers on a Tuesday, as before |
+
+- **The day's job card leads** (DG_PLAN, "Digest by day" below), then the night game on Wednesday and Sunday, then the
+  week tier sheet, then the rest of the day's cards, five at most.
+- **Tonight** (`cards/game.js`, Thursday and Monday): one card for the day's game. Kickoff and sky, Vegas beside
+  Claude per bet, the two best starts in the game, and a foot counting the rest with a link to Start/Sit. The
+  projected-points card (`tonight.js`) and the separate Claude vs Vegas card left Home.
+- **Week tiers** (`cards/tiers.js`, `data/tiers.js`): chips QB RB WR TE FLEX, one line of names per tier, Boris Chen
+  style, from LIVE_RANKS' own tiers. Whole tiers until a 12-team league's starters are in (`DG_TIER_DEPTH`). RB
+  opens, WR on a Sunday; a tap on a chip holds for the visit. A name opens his profile; an amber Q or D follows a
+  hurt name. Ranks › opens Players > Ranks on the same position.
+- **Injury watch** (Thursday): the 3 questionable players ranked highest by Ranks' projection (`dgWatchRows`), each
+  with Ranks' own position rank. Practice marks show only once a row has one.
+- **Footers** are one plain line. A test code or METHODOLOGY id sits in the foot's tooltip, never in its text.
+- **Hero** (`digest/hero.css`, `data/hero.js`; David 2026-10-08, "bring back the hero ... the scoreboard flip"): the
+  banner grows into a hero. The job tag, the day's game as a row of split-flap tiles, the headline at 34px (fluid to
+  80px on a desktop) and never cut, and behind it the ghost wall: the lead's reason, the home side or the week in
+  huge outlined letters. Every tile flips over in turn once as the page lands (`--dur-flap`, `--flap-step`); a
+  pointer flips the ghost again; reduced motion gets the end state. At most a third of the screen (227px of 800 at
+  360px on Thursday, 203px on Sunday).
+- **Desktop:** the cards flow in balanced columns (CSS columns), so no column leaves a hole.
+- **Right now** takes Weather's place from the first kickoff (`DG_TAKES_PLACE`).
+
 ## Digest by day (This week, 2026-10-06)
 
 Each Pacific weekday is one job. David, 2026-10-06: the Digest should hold "something that people actually care

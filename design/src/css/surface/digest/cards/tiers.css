@@ -1,0 +1,29 @@
+/* DIGEST CARD: the week's tiers (surface/digest/cards/tiers.js; 2026-10-08, Home draft B). Past the shared card in
+   digest/card.css: five equal position chips (the pressed one lime, the Ranks rule), then one row per tier, its
+   label in a fixed mono column and its names as one wrapped line, a dot between names. A Q or D after a name is
+   amber, the status colour everywhere else on the page. */
+
+.dg-tr-chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:4px 0 10px}
+.dg-tr-chip{
+  appearance:none;min-height:40px;padding:0 4px;border:1px solid var(--line-2);border-radius:999px;background:none;cursor:pointer;
+  font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;color:var(--ink-2);
+  transition:transform var(--dur-spring) var(--spring);
+}
+.dg-tr-chip:active{transform:scale(var(--press))}
+.dg-tr-chip[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+.dg-tr-chip:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (hover:hover){ .dg-tr-chip:not([aria-pressed="true"]):hover{color:var(--ink);border-color:var(--ink-3)} }
+
+.dg-tr{margin:0}
+.dg-tr-row{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.dg-tr-row dt{padding-top:2px;font:600 var(--t-1)/1.4 var(--mono);color:var(--ink-3);white-space:nowrap}
+.dg-tr-row dd{margin:0;font-size:var(--t-2);line-height:1.5}
+.dg-tr-n{
+  appearance:none;display:inline;padding:0;border:0;background:none;cursor:pointer;
+  font:inherit;font-weight:600;color:var(--ink);white-space:nowrap;
+}
+/* The dot rides after a name, inside its nowrap box, so a wrapped line ends on a dot and never starts with one. */
+.dg-tr-n:not(:last-child)::after{content:"·";padding:0 6px;font-weight:400;color:var(--ink-3)}
+.dg-tr-n:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+@media (hover:hover){ .dg-tr-n:hover{color:var(--lime)} }
+.dg-tr-q{margin-left:3px;font:700 var(--t-1)/1 var(--mono);color:var(--amber)}

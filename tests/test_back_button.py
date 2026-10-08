@@ -50,13 +50,13 @@ def test_back_from_the_first_tap_returns_to_the_digest_the_page_opened_on(start)
 def test_leaving_a_view_with_its_layer_open_leaves_one_step_back_not_two(start, view, opens, away):
     """Preview's dossier (and Compare two) is a history entry. Tapping another view while it is up used to leave
     that entry behind the new one: Back came back to the view with nothing open, and a second Back did nothing."""
-    history, _ = start("#digest")
+    history, _ = start("#live")   # Matchup's row; Today is Home, with no row, since 2026-10-08
     history.tap_pill(view)
     getattr(history, opens)()
     history.tap_pill(away)
     history.back_to(view)
     assert history.entry() == {"hash": f"#{view}", "surface": view, "layers": [], "entry_layer": None}
-    history.back_to("digest")
+    history.back_to("live")
 
 
 @pytest.mark.req(REQ, ac="a link out of the profile leaves no dead history entry")
@@ -65,12 +65,14 @@ def test_a_profile_link_opened_from_search_returns_to_the_view_the_reader_left(s
     """Search over Slips, a result's profile over the sheet, then the profile's link to a view. The sheet and the
     profile both close, and Back from the view lands on Slips, then Ranks: no step is spent on the sheet's entry."""
     history, _ = start("#ranks")
-    history.tap_group("bets")
+    history.tap_group("week")   # Slips sits under Matchup since Home draft B (2026-10-08)
+    history.tap_pill("parlay")
     history.open_search_result("a")
     getattr(history, follow)()
     history.page.wait_for_function("v => SURFACE === v && LAYERS.length === 0", arg=view)
     history.back_to("parlay")
     assert history.entry()["entry_layer"] is None
+    history.back_to("live")
     history.back_to("ranks")
 
 

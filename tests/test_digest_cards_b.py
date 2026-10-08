@@ -28,7 +28,8 @@ DEFENSE = json.loads((ROOT / "fixtures" / "data" / "defense_form.json").read_tex
 PHONE = (360, 800)
 THU, MON = "2026-09-17T19:00:00Z", "2026-09-14T19:00:00Z"
 TNF_KICK, MNF_KICK = "2026-09-18T00:15:00Z", "2026-09-15T00:15:00Z"
-RECORD = COPY["digest.foot.mu"].format(wk=5, smash="7-3", start="2-2", sit="4-1") + " " + COPY["digest.foot.muMark"]
+# The foot is one plain line; what the calls have been through is its tooltip (Home draft B, 2026-10-08).
+RECORD = COPY["digest.foot.mu"].format(wk=5, smash="7-3", start="2-2", sit="4-1")
 
 
 def cards(mount, size=PHONE):
@@ -41,26 +42,27 @@ def nth(n):
     return f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')}"
 
 
-# ------------------------------------------------------------------ Claude vs Vegas (Thursday)
+# ------------------------------------------------------------------ Tonight (Thursday, Monday; Home draft B, 2026-10-08)
+# One card for the day's game: Claude vs Vegas and Start in this game folded into it (ledger #52).
 
 @pytest.mark.req("Preview", ac="a game's answer is one row per bet, Vegas beside Claude")
-def test_vegas_card_is_one_row_per_bet_with_vegas_beside_claude(mount):
+def test_tonight_card_is_one_row_per_bet_with_vegas_beside_claude(mount):
     dg, errors = cards(mount)
     dg.at(THU)
-    assert dg.title("vegas") == words("digest.card.vegas.title")
     assert dg.table_head() == ["Bet", "Vegas", "Claude"]
     assert [(b["bet"], b["vegas"], b["claude"]) for b in dg.bets()] == [
         ("Winner", "PIT 56%", "PIT wins 58% chance"), ("Spread", "PIT by 2.5", "No pick"), ("Total", "38.5", "No pick")]
-    assert dg.more("vegas")["leaf"] == "preview"
+    assert dg.more("tonight")["leaf"] is None and dg.more("tonight")["text"] == words("nav.tab.preview"), "it opens Preview on the game"
     assert dg.fits()
     assert errors == []
 
 
-@pytest.mark.req("Preview", ac="a game's answer is one row per bet, Vegas beside Claude")
-def test_vegas_card_names_the_game_it_is_about(mount):
+@pytest.mark.req("Home", ac="Thursday's game is one Tonight card")
+def test_tonight_card_names_the_game_it_is_about(mount):
     dg, errors = cards(mount)
     dg.at(THU)
-    assert dg.game_line().startswith("PIT @ CLE")
+    assert dg.title("tonight") == words("digest.card.tonight.title").format(game="PIT @ CLE")
+    assert [c for c in ("vegas", "game") if dg.has_card(c)] == [], "no second block for the same game"
     assert errors == []
 
 
@@ -94,7 +96,7 @@ def test_vegas_card_is_absent_without_a_game_today(mount):
     dg, errors = cards(mount)
     dg.plant_no_preview_games()
     dg.at(THU)
-    assert not dg.has_card("vegas")
+    assert not dg.has_card("tonight")
     assert errors == []
 
 
@@ -103,35 +105,35 @@ def test_vegas_card_is_absent_when_the_game_has_neither_a_line_nor_a_take(mount)
     dg, errors = cards(mount)
     dg.plant_bare_game()
     dg.at(THU)
-    assert not dg.has_card("vegas")
+    assert not dg.has_card("tonight")
     assert errors == []
 
 
-# ------------------------------------------------------------------ Start in this game (Thursday), Start tonight (Monday)
-
 def test_game_card_leads_with_smash_then_bold_starts_and_answers_with_the_pill_and_rank(mount):
+    """Two starts, SMASH first; the rest are counted in the foot, which links Start/Sit (storyboard B)."""
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
-    assert dg.title("game") == words("digest.card.game.title")
-    assert [(r["name"], r["pill"], r["answer"], r["meta"]) for r in dg.rows("game")] == [
-        ("J. Burrow", "SMASH", "SMASH QB3", "CIN @ PIT"), ("C. Brown", "SMASH", "SMASH RB5", "CIN @ PIT"),
-        ("J. Chase", "SMASH", "SMASH WR5", "CIN @ PIT"), ("T. Higgins", "START", "START WR16", "CIN @ PIT")]
-    assert dg.more("game") == {"leaf": "matchups", "text": "Start/Sit"}
+    assert dg.title("tonight") == words("digest.card.tonight.title").format(game="CIN @ PIT")
+    assert [(r["name"], r["pill"], r["answer"], r["meta"]) for r in dg.rows("tonight")] == [
+        ("J. Burrow", "SMASH", "SMASH", "CIN · QB1"), ("C. Brown", "SMASH", "SMASH", "CIN · RB2")]   # Ranks' own rank, not Start/Sit's (QB3, RB5)
+    assert dg.foot("tonight").startswith(words("digest.card.tonight.more").format(n=2))
+    assert dg.foot_go("tonight") == {"leaf": "matchups", "text": words("nav.tab.matchups")}
     assert errors == []
 
 
 def test_game_card_is_start_tonight_on_monday(mount):
     dg, errors = cards(mount)
     dg.plant_game(MON, "CIN", "PIT", MNF_KICK)
-    assert dg.title("game") == words("digest.card.game.tonight")
-    assert dg.rows("game")[0]["name"] == "J. Burrow"
+    assert dg.title("tonight") == words("digest.card.tonight.title").format(game="CIN @ PIT")
+    assert dg.rows("tonight")[0]["name"] == "J. Burrow"
     assert errors == []
 
 
-def test_game_card_foot_is_the_start_sit_record_with_its_marks(mount):
+@pytest.mark.req("Home", ac="footers are one plain line")
+def test_game_card_foot_is_one_plain_line(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
-    assert dg.foot("game") == RECORD
+    assert "12." not in dg.foot("tonight") and "Failed test" not in dg.foot("tonight")
     assert errors == []
 
 
@@ -139,18 +141,18 @@ def test_game_card_foot_is_the_start_sit_record_with_its_marks(mount):
 def test_game_card_pills_carry_their_models_marks(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
-    marks = {r["pill"]: r["mark"] for r in dg.rows("game")}
-    assert marks == {"SMASH": COPY["matchups.takes.markSmash"], "START": None}, "a bold START is a take: no test-status label"
+    smash = {r["pill"]: r["mark"] for r in dg.rows("tonight")}
+    dg.plant_game(THU, "HOU", "TEN", TNF_KICK)
+    start = {r["pill"]: r["mark"] for r in dg.rows("tonight")}
+    assert {**smash, **start} == {"SMASH": COPY["matchups.takes.markSmash"], "START": None}, "a bold START is a take: no test-status label"
     assert errors == []
 
 
 def test_game_card_research_is_our_rank_the_season_average_the_line_and_the_td_price(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
-    burrow, higgins = dg.rows("game")[0], dg.rows("game")[3]
-    assert burrow["research"] == [["Our rank", "QB3"], [words("digest.card.game.avg"), "QB5"], ["Line", "262.5 pass yds"], ["TD price", "+120"]]
-    assert higgins["research"] == [["Our rank", "WR16"], [words("digest.card.game.avg"), "WR41"],
-                                   ["Why", "PIT D vs WRs: 3rd softest"], ["Why", "Team total 27.5, 3rd of 32"]]
+    burrow = dg.rows("tonight")[0]
+    assert burrow["research"] == [["Our rank", "QB1"], [words("digest.card.game.avg"), "QB5"], ["Line", "262.5 pass yds"], ["TD price", "+120"]]
     assert errors == []
 
 
@@ -159,11 +161,11 @@ def test_game_card_row_opens_on_tap_and_one_open_at_a_time(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
     assert dg.open_rows() == []
-    dg.tap("game", 0)
-    assert dg.open_rows() == ["game:J. Burrow"]
-    dg.tap("game", 3)
-    assert dg.open_rows() == ["game:T. Higgins"]
-    dg.tap("game", 3)
+    dg.tap("tonight", 0)
+    assert dg.open_rows() == ["tonight:J. Burrow"]
+    dg.tap("tonight", 1)
+    assert dg.open_rows() == ["tonight:C. Brown"]
+    dg.tap("tonight", 1)
     assert dg.open_rows() == []
     assert errors == []
 
@@ -171,9 +173,9 @@ def test_game_card_row_opens_on_tap_and_one_open_at_a_time(mount):
 def test_game_card_shows_only_players_of_the_game_still_to_kick_off(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "HOU", "TEN", TNF_KICK)
-    assert [r["name"] for r in dg.rows("game")] == ["C. Stroud"]      # the one bold START in HOU @ TEN, no SMASH there
-    dg.plant_game("2026-09-18T01:00:00Z", "HOU", "TEN", TNF_KICK)      # kickoff has passed: the call is moot
-    assert not dg.has_card("game")
+    assert [r["name"] for r in dg.rows("tonight")] == ["C. Stroud"]      # the one bold START in HOU @ TEN, no SMASH there
+    dg.plant_game("2026-09-18T01:00:00Z", "HOU", "TEN", TNF_KICK)      # kickoff has passed: the card goes
+    assert not dg.has_card("tonight")
     assert errors == []
 
 
@@ -181,12 +183,12 @@ def test_game_card_shows_only_players_of_the_game_still_to_kick_off(mount):
 def test_game_card_is_absent_when_no_call_is_in_the_game(mount):
     dg, errors = cards(mount)
     dg.plant_game(THU, "MIA", "NYG", TNF_KICK)
-    assert not dg.has_card("game")
+    assert not dg.has_card("tonight")
     assert errors == []
 
 
 @pytest.mark.req("Digest", ac="a card with no data draws nothing")
-@pytest.mark.parametrize("name", ["Vegas", "Game", "Smash", "Bold"])
+@pytest.mark.parametrize("name", ["Tonight", "Tiers", "Smash", "Bold"])
 def test_a_card_with_every_block_missing_draws_nothing(mount, name):
     dg, errors = cards(mount)
     assert dg.card_html_without_data(name) == ""
@@ -214,6 +216,7 @@ def test_smash_title_carries_the_smash_mark(mount):
 def test_smash_foot_counts_the_rest_links_to_matchups_and_carries_the_record(mount):
     dg, errors = cards(mount)
     assert dg.foot("smash") == "+6 more " + RECORD
+    assert dg.foot_tip("smash") == COPY["digest.foot.muMark"]
     assert dg.foot_more("smash") == {"leaf": "matchups", "text": "+6 more"}
     dg.tap_foot_more("smash")
     assert dg.view_leaf() == "#matchups"
@@ -293,7 +296,8 @@ def test_calls_card_is_the_three_strongest_lines_with_the_chance_and_its_word(mo
 @pytest.mark.req("Parlay and DFS", ac="the tiers carry their failed test")
 def test_calls_foot_is_the_top_tiers_record_and_the_slips_mark(mount):
     dg, errors = cards(mount)
-    assert dg.foot("calls") == "Very confident, through week 4: 241–182, 57%. " + COPY["slips.tier.mark"]
+    assert dg.foot("calls") == COPY["digest.card.calls.foot"].format(tier=words("slips.tier.very"), pct=57, wk=4)
+    assert dg.foot_tip("calls") == COPY["slips.tier.mark"]
     assert errors == []
 
 

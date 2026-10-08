@@ -2,13 +2,16 @@
    2026-10-06, Digest by day (lead.js dgLeadHTML): one 128px band on a phone, where the lead panel was
    236px. The day's label in lime, a two-line headline, a two-line fact, and at the right the 96px face
    on the band's floor or the game's two codes. Washed in its status colour as the old lead was: red out,
-   amber questionable, sky weather, lime a call, his club's colour for a top score. Fixed height, so a
-   longer headline never pushes the cards down: both lines clamp. */
+   amber questionable, sky weather, lime a call, his club's colour for a top score.
+   2026-10-08 (Home draft B): the headline is never cut. The band is 128px at least and grows by a line for a
+   headline that needs three; the fact still clamps at two. The game's two codes take 24px less than a face, so
+   Thursday's take fits two lines. */
 .dg-bn{
-  position:relative;overflow:hidden;height:128px;margin:12px 12px 0;padding:12px 108px 12px 14px;
+  position:relative;overflow:hidden;min-height:128px;margin:12px 12px 0;padding:12px 108px 12px 14px;
   display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--panel-2);
 }
 .dg-bn:not(.has-side){padding-right:14px}
+.dg-bn.has-vs{padding-right:84px}
 .dg-bn.out{background:linear-gradient(180deg,rgb(var(--down-rgb) / .14),transparent 80%),var(--panel-2)}
 .dg-bn.q{background:linear-gradient(180deg,rgb(var(--amber-rgb) / .12),transparent 80%),var(--panel-2)}
 .dg-bn.sky{background:linear-gradient(180deg,rgb(var(--sky-rgb) / .12),transparent 80%),var(--panel-2)}
@@ -19,7 +22,6 @@
 .dg-bn-h{
   margin:0;font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.12;letter-spacing:-.01em;
   color:var(--ink);text-wrap:balance;overflow-wrap:anywhere;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
 }
 .dg-bn-fact{
   font-size:var(--t-1);line-height:1.35;color:var(--ink-2);text-wrap:pretty;

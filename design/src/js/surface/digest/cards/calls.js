@@ -6,12 +6,12 @@
    returns "" without a line to call. */
 const DG_CALLS_N = 3;
 
-/* The foot: the top call's tier word, its graded record through the week the grader reached, then the mark. */
+/* The foot: the top call's tier word and how often it hit through the week the grader reached, one plain line
+   ("Very confident hit 57% through week 4"; 2026-10-08, Home draft B). The mark is its tooltip. */
 function dgCallsFoot(tier){
   const r = typeof LIVE_PROPS_RECORD !== "undefined" ? LIVE_PROPS_RECORD : null, c = r && r.tiers && r.tiers[tier];
   const pct = c ? slHitPct(c) : null;
-  const rec = pct === null ? "" : t("digest.card.calls.foot", {tier: slTierWord(tier), wk: r.through_week, w: c.w, l: c.l, pct}) + " ";
-  return rec + t("slips.tier.mark");
+  return pct === null ? "" : t("digest.card.calls.foot", {tier: slTierWord(tier), wk: r.through_week, pct});
 }
 
 function dgCallsRowHTML(c){
@@ -29,5 +29,5 @@ function dgCardCalls(ctx){
   const calls = topCalls(PROPS, {now: ctx.now, book: PARLAY_BOOK, limit: DG_CALLS_N});
   if (!calls.length) return "";
   return dgCardHTML({id: "calls", title: t("digest.card.calls.title"), more: {leaf: "parlay"},
-    body: calls.map(dgCallsRowHTML).join(""), foot: dgCallsFoot(calls[0].tier)});
+    body: calls.map(dgCallsRowHTML).join(""), foot: dgCallsFoot(calls[0].tier), footTip: t("slips.tier.mark")});
 }

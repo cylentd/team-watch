@@ -44,22 +44,22 @@ def test_league_opens_roster_after_the_reader_left_it_on_teams(home):
 def test_this_week_opens_the_digest_after_the_reader_left_it_on_news(home):
     home.evaluate("navGo('news')")
     tap_group(home, "league")
-    tap_group(home, "week")
+    tap_group(home, "home")   # Today is Home, its own tab (Home draft B, 2026-10-08)
     assert leaf(home) == "digest"
 
 
 @pytest.mark.req("Navigation: one League group, Stats", ac="a group click opens the group's first view")
 def test_the_open_group_taps_back_to_its_first_view(home):
-    home.evaluate("navGo('live')")
+    home.evaluate("navGo('preview')")
     tap_group(home, "week")
-    assert leaf(home) == "digest"
+    assert leaf(home) == "live"   # Matchup's first view since Today moved to Home (2026-10-08)
 
 
 @pytest.mark.req("Navigation: one League group, Stats", ac="a group click opens the group's first view")
-@pytest.mark.parametrize("group,deep,first", [("scouting", "usage", "news"), ("bets", "dfs", "parlay")])
+@pytest.mark.parametrize("group,deep,first", [("scouting", "usage", "news"), ("week", "dfs", "live")])
 def test_stats_and_bets_open_their_first_view_too(home, group, deep, first):
     home.evaluate("leaf => navGo(leaf)", deep)
-    tap_group(home, "week")
+    tap_group(home, "home")
     tap_group(home, group)
     assert leaf(home) == first
 

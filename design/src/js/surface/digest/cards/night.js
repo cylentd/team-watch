@@ -14,9 +14,7 @@ function dgCardNight(ctx){
   const open = `<button type="button" class="dg-nt" data-testid="digest-night-open" data-dgpv="${pick.i}">
       <span class="dg-nt-game" data-testid="digest-night-game">${t("digest.card.vegas.game", {game: dgGame(g), kick: esc(kickFmt(g.kickoff))})}</span>
       ${head ? `<span class="dg-nt-head" data-testid="digest-night-head"${g.take ? ` title="${t("preview.call.mark")}"` : ""}>${esc(head)}</span>` : ""}</button>`;
-  const bets = rows.length ? `<table class="dg-vg" data-testid="digest-vs-bets"><thead><tr><th>${t("digest.card.vegas.bet")}</th><th>${t("digest.card.vegas.vegas")}</th><th>${t("digest.card.vegas.claude")}</th></tr></thead>
-    <tbody>${rows.map(r => dgVegasRowHTML(r, !!g.take)).join("")}</tbody></table>` : "";
-  return dgCardHTML({id: "night", title, more: {leaf: "preview", game: pick.i}, body: open + bets});
+  return dgCardHTML({id: "night", title, more: {leaf: "preview", game: pick.i}, body: open + dgVegasTableHTML(g)});
 }
 
 /* Preview on game `i` (its index in LIVE_PREVIEW.games, the one the dossier opens on): the view, then the dossier. */

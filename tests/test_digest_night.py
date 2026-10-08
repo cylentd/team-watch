@@ -75,7 +75,7 @@ def test_wednesday_with_every_card_drawing_stays_at_five(mount):
     dg, errors = night(mount)
     dg.plant_stub_cards()
     dg.plant_night(WED, *THU_NIGHT)
-    assert dg.card_ids() == ["usage", "night", "gains", "defenses", "adds"]
+    assert dg.card_ids() == ["usage", "night", "tiers", "gains", "defenses"]
     assert errors == []
 
 

@@ -6,13 +6,16 @@
 /* Team · Matchup · Players · League · Bets since 2026-10-08 (David, storyboard nav draft B, ledger #32): the
    sections Yahoo, ESPN and Sleeper readers already know. A renamed group keeps its id (`week` reads Matchup,
    `scouting` Players), so nothing keyed on it moves; `team` is new, split from League. Highlights waits at the
-   end of Matchup, beside Today, until step 2 folds it into Today as a card. */
+   end of Matchup, beside Today, until step 2 folds it into Today as a card.
+   Home · Team · Matchup · Players · League since 2026-10-08 (David, storyboard home draft B, ledger #52): Home is
+   its own group of one view, today's Digest (leaf `digest`), so it draws no tab row; Bets' three views moved under
+   Matchup with their leaf ids and hashes, and the `bets` group is gone. */
 const NAV = [
+  ["home",     ["digest"]],
   ["team",     ["roster", "waivers", "trades"]],
-  ["week",     ["digest", "live", "matchups", "preview", "weekrecap", "highlights", "weather"]],
+  ["week",     ["live", "matchups", "preview", "weekrecap", "highlights", "parlay", "build", "dfs", "weather"]],
   ["scouting", ["news", "ranks", "board", "movers", "usage", "schedule"]],
   ["league",   ["recap", "teams", "records"]],
-  ["bets",     ["parlay", "build", "dfs"]],
 ];
 
 /* The most leaves a sub-row holds on a 360 px phone. The row is 332 px (360 less the page's 14 px a side);
@@ -23,8 +26,9 @@ const NAV = [
 const NAV_SUBROW_MAX = 6;
 
 /* Groups whose words take the tighter 8px gap on a desktop (navrow.css .dense): Players names its views by
-   what they hold. League held six leaves until 2026-10-08 and was dense too; it holds three now. */
-const NAV_DENSE = ["scouting"];
+   what they hold. League held six leaves until 2026-10-08 and was dense too; it holds three now. Matchup is dense
+   since it took Bets' three views (2026-10-08): eight words in one row. */
+const NAV_DENSE = ["week", "scouting"];
 
 /* Weather left the sub-row on 2026-10-05 to make room for Recap. It stays in NAV, so #weather,
    navGo("weather") and navGroupOf still work; the Digest's Weather row and every Preview dossier link
@@ -46,7 +50,7 @@ const navLeafOf = name => {
   return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
 };
 
-// A name no group holds belongs to Matchup, the default view's group (it was NAV[0] while This week led the bar).
+// A name no group holds belongs to the default view's group: Home since 2026-10-08 (Matchup before; NAV[0] while This week led the bar).
 const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV.find(([, tabs]) => tabs.includes("digest")))[0];
 
 /* The leaves a group shows, given what the league on screen has. `facts` is plain booleans:
@@ -100,9 +104,9 @@ const navCaptionHTML = leaf => {
 };
 
 const navGroupLabel = (group, short) => (short ? {
-  team: t("nav.group.team.short"), week: t("nav.group.week.short"), scouting: t("nav.group.scouting.short"),
-  league: t("nav.group.league.short"), bets: t("nav.group.bets.short"),
+  home: t("nav.group.home.short"), team: t("nav.group.team.short"), week: t("nav.group.week.short"),
+  scouting: t("nav.group.scouting.short"), league: t("nav.group.league.short"),
 } : {
-  team: t("nav.group.team.full"), week: t("nav.group.week.full"), scouting: t("nav.group.scouting.full"),
-  league: t("nav.group.league.full"), bets: t("nav.group.bets.full"),
+  home: t("nav.group.home.full"), team: t("nav.group.team.full"), week: t("nav.group.week.full"),
+  scouting: t("nav.group.scouting.full"), league: t("nav.group.league.full"),
 })[group] || group;

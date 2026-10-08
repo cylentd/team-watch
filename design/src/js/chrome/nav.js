@@ -1,10 +1,10 @@
-/* One icon per group (2026-10-08, storyboard nav draft B): a jersey, two sides facing, a person, the trophy, a
-   banknote (2026-09-25: the slider knobs Bets wore read as settings). */
+/* One icon per group (2026-10-08, storyboard nav draft B): a house, a jersey, two sides facing, a person, the
+   trophy. Bets' banknote went with its group (2026-10-08, home draft B). */
 const NAV_ICON = {
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7v9.5h-5.5v-6h-6v6H3.5z"/></svg>`,
   team: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3.5 3.5 6.5l2 4 2.5-1V20.5h8V9.5l2.5 1 2-4-5-3a3.5 3.5 0 0 1-7 0z"/></svg>`,
   week: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="7" height="12" rx="1.5"/><rect x="14" y="6" width="7" height="12" rx="1.5"/></svg>`,
   scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>`,
-  bets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>`,
   league: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5a2.5 2.5 0 0 0 2.8 3.4M17 5.5h2.5a2.5 2.5 0 0 1-2.8 3.4"/><path d="M12 13v3.5M8.5 20h7M9.5 16.5h5"/></svg>`,
 };
 /* Four groups, each holding the views that answer one question: the table is data/navmap.js (NAV, its

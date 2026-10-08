@@ -15,7 +15,11 @@
   display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 0 0 12px;color:var(--lime);white-space:nowrap;
 }
 .dg-card-more:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
-.dg-card-f{margin:0;padding:6px 0 8px;border-top:1px solid var(--line);font-size:var(--t-1);line-height:1.45;color:var(--ink-3)}
+.dg-card-f{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:36px;
+  margin:0;padding:6px 0 8px;border-top:1px solid var(--line);font-size:var(--t-1);line-height:1.45;color:var(--ink-3);
+}
+.dg-card-f .dg-card-more{min-height:0;padding:0}
 
 /* A row */
 .dg-r{border-top:1px solid var(--line)}

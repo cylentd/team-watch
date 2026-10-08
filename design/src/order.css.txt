@@ -103,6 +103,8 @@ surface/matchups/board.css
 #      on specificity.
 surface/digest/lead.css
 surface/digest/banner.css
+# pin: digest/hero.css after banner.css -- the hero restyles the banner's band, headline and game codes.
+surface/digest/hero.css
 surface/digest/ticker.css
 surface/digest/bodies.css
 surface/digest/tonight.css
@@ -121,6 +123,7 @@ surface/digest/cards/status.css
 surface/digest/cards/vegas.css
 surface/digest/cards/night.css
 surface/digest/cards/game.css
+surface/digest/cards/tiers.css
 surface/digest/cards/smash.css
 surface/digest/cards/bold.css
 surface/digest/cards/calls.css

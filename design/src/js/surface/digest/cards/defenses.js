@@ -79,5 +79,5 @@ function dgCardDefenses(ctx){
   if (k) rows.push(dgDefenseRow(ctx, "K", k, []));
   if (!rows.length) return "";
   return dgCardHTML({id: "defenses", title: t("digest.card.defenses.title"), more: {leaf: "schedule"}, body: rows.join(""),
-    foot: t("digest.card.defenses.foot")});
+    foot: t("digest.card.defenses.per"), footTip: t("digest.card.defenses.foot")});
 }

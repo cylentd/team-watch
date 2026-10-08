@@ -85,12 +85,12 @@ def LIVE_PLANT(states=None):
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"digest": "week", "roster": "team", "waivers": "team",   # Team split from League on 2026-10-08 (nav regroup)
+GROUP = {"digest": "home", "roster": "team", "waivers": "team",   # Team split from League on 2026-10-08 (nav regroup)
          "recap": "league", "records": "league", "trades": "team", "teams": "league",
          "highlights": "week", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "scouting", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
          "schedule": "scouting",
-         "parlay": "bets", "build": "bets", "dfs": "bets"}
+         "parlay": "week", "build": "week", "dfs": "week"}   # Home took Today and Matchup took Bets' views on 2026-10-08 (Home draft B)
 # Weather left the This week sub-row on 2026-10-05 (nav.js NAV_HIDDEN): it is reached by hash or navGo, not a tap.
 # Schedule (Stats) was hidden the same way on 2026-10-05 and came back to the sub-row on 2026-10-06 (six tabs).
 HIDDEN = {"weather"}
@@ -857,8 +857,8 @@ def tab(key):
     ("recap", "league", tab("nav.tab.recap")),
     ("myrecap", "league", tab("nav.tab.recap")),     # Yahoo's My recap and ESPN's League are Recap now; their hashes still land
     ("league", "league", tab("nav.tab.recap")),
-    ("parlay", "bets", tab("nav.tab.parlay")),        # the leaf is still `parlay`, so its bookmarks land
-    ("build", "bets", tab("nav.tab.build")),   # Build until 2026-10-05; the leaf kept its name
+    ("parlay", "week", tab("nav.tab.parlay")),        # the leaf is still `parlay`, so its bookmarks land
+    ("build", "week", tab("nav.tab.build")),   # Build until 2026-10-05; the leaf kept its name
     ("records", "league", tab("nav.tab.records")),   # League became a group of its own on 2026-09-28
     ("trades", "team", tab("nav.tab.trades")),
     ("teams", "league", tab("nav.tab.teams")),       # League > Teams, the League board (2026-10-05)
@@ -1139,7 +1139,7 @@ TUESDAY = 'Date.now = () => Date.parse("2026-09-22T12:00:00Z");'   # a Tuesday i
 @pytest.mark.parametrize("day,hash,surface,first", [
     ("tue", "", "waivers", tab("nav.tab.waivers")),     # claims day: Waivers opens and leads its group
     ("tue", "#roster", "roster", tab("nav.tab.waivers")),   # a hash still wins
-    ("sat", "", "digest", tab("nav.tab.digest")),       # any other day: the Digest, first of This week (Digest, Weather)
+    ("sat", "", "digest", None),       # any other day: the Digest, Home, a group of one with no tab row (2026-10-08)
 ])
 def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     """The day is read from Date.now(), so pinning it is the whole injection. SEED pins a
@@ -1148,7 +1148,7 @@ def test_tuesday_opens_waivers(browser, page_file, day, hash, surface, first):
     try:
         assert page.evaluate("SURFACE") == surface
         subs = page.locator("#subnav .mode-sub")
-        assert subs.first.inner_text().strip().upper().startswith(first)
+        assert [s.strip().upper()[:len(first or '')] for s in subs.all_inner_texts()][:1] == ([first] if first else [])
         # No sideways scroll on a phone, whichever view opened.
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert errors == []

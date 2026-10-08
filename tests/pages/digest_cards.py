@@ -55,6 +55,11 @@ class DigestCardsPage(DigestDayPage):
         foot = self.card(card_id).get_by_test_id("digest-card-foot")
         return foot.text_content() if foot.count() else None
 
+    def card_foot_tip(self, card_id):
+        """The foot's tooltip, where a test code or METHODOLOGY id lives (Home draft B), or None."""
+        foot = self.card(card_id).get_by_test_id("digest-card-foot")
+        return foot.get_attribute("title") if foot.count() else None
+
     def title_fits(self, card_id):
         """The card's title is one line: no taller than its own line-height."""
         return self.card(card_id).get_by_test_id("digest-card-title").evaluate(

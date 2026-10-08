@@ -33,17 +33,13 @@ function dgLeadAfter(d, c){
   return c.news.length ? {rule: "news", index: 0} : null;
 }
 
-/* Tonight's card (2026-09-28, storyboard JSPwg21i9YaTSzhYqAEnQZ) shows from 18 hours before its
-   kickoff until 4 hours after. While it shows, its teams' rows live in the card, not the lists.
-   Starters stay: a change after a team's game is next week's news, not this slot's preview. */
+/* Tonight's game (2026-09-28, storyboard JSPwg21i9YaTSzhYqAEnQZ) is held from 18 hours before its kickoff until
+   4 hours after. Since 2026-10-08 (Home draft B) its rows stay in the lists: the card of its own players left Home,
+   so Injury watch and the rest rank them with everyone else until kickoff, when dgCut drops them. */
 const DG_TN_BEFORE = 18 * 3600e3, DG_TN_AFTER = 4 * 3600e3;
 function dgTonightCut(c, now){
   const tn = (c.tonight || []).filter(g => { const k = Date.parse(g.ko); return now >= k - DG_TN_BEFORE && now < k + DG_TN_AFTER; });
-  if (!tn.length) return {...c, tn: [], tnLast: false};
-  const teams = new Set(tn.flatMap(g => [g.away, g.home]));
-  const off = r => !teams.has(r.team), offGame = g => !teams.has(g.home) && !teams.has(g.away);
-  return {...c, tn, tnLast: !!c.tonight_last, hurt: c.hurt.filter(off),
-          best: c.best.filter(off), top5: c.top5.filter(off), wx: c.wx.filter(offGame), near: c.near && offGame(c.near) ? c.near : null};
+  return {...c, tn, tnLast: tn.length ? !!c.tonight_last : false};
 }
 
 /* Cut once per half minute, not once per row: every row asks dgD() several times a render. */

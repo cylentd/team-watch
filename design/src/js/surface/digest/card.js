@@ -7,7 +7,7 @@
      function dgCard<Name>(ctx) -> HTML, or "" when it has nothing to show (the day then skips it)
 
    ctx (dgCardCtx), every block null when the page lacks it:
-     day       the plan's key, "tue" ... "mon": a card on two days reads it (dgCardGame's title, dgCardStatus's Q-only Thursday)
+     day       the plan's key, "tue" ... "mon": a card on two days reads it (dgCardStatus's Injury watch on Thursday)
      plan, now the day plan and the clock (ms) the page drew at
      recordBy  the card that drew Start/Sit's record this render (dgRecordFoot): the record is not repeated on a second card
      d         LIVE_DIGEST as cut for the clock (dgD: adds, hurt, starters, tn, ...)
@@ -18,14 +18,18 @@
    `digest.card.<name>.*`; a pick word or flag with no tested model carries its mark (tests/test_flag_marks.py).
    Card style: one subject, --panel fill, 1px --line border, 16px radius, rows divided by --line (DESIGN.md "Cards"). */
 
-/* `more` is the view that holds the whole list: {leaf, label} (the label defaults to the nav's own). */
-function dgCardHTML({id, title, more, body, foot}){
+/* `more` is the view that holds the whole list: {leaf, label} (the label defaults to the nav's own).
+   The foot is one plain line (2026-10-08, Home draft B): `foot` its words, `footTip` what a model behind them has been
+   through (a test code, a METHODOLOGY id: the tooltip, never the line), `footGo` {leaf, label} a link at its end. */
+function dgCardHTML({id, title, more, body, foot, footTip, footGo}){
   // `more.game`: a game's index, so the link opens Preview on that game (dgPreviewOpen) instead of the view's own page.
   const to = more && more.game != null ? `data-dgpv="${more.game}"` : more ? `data-dggo="${esc(more.leaf)}"` : "";
   const go = more ? `<button type="button" class="dg-card-more" data-testid="digest-card-more" ${to}>${more.label || navLabel(more.leaf)}${DG_ARROW}</button>` : "";
+  const fgo = footGo ? `<button type="button" class="dg-card-more" data-testid="digest-card-foot-go" data-dggo="${esc(footGo.leaf)}">${footGo.label || navLabel(footGo.leaf)}${DG_ARROW}</button>` : "";
+  const tip = footTip ? ` title="${esc(footTip)}"` : "";
   return `<section class="dg-card" data-testid="digest-card" data-dgcard="${esc(id)}" aria-labelledby="dg-c-${esc(id)}">
     <header class="dg-card-h"><h3 class="dg-card-t" id="dg-c-${esc(id)}" data-testid="digest-card-title">${title}</h3>${go}</header>
-    ${body}${foot ? `<p class="dg-card-f" data-testid="digest-card-foot">${foot}</p>` : ""}</section>`;
+    ${body}${foot || fgo ? `<p class="dg-card-f" data-testid="digest-card-foot"${tip}><span>${foot || ""}</span>${fgo}</p>` : ""}</section>`;
 }
 
 const dgLive = {
@@ -48,19 +52,20 @@ function dgCardDraw(id, ctx){
   if (id === "need") return ctx.d && !dgNeedEmpty(ctx.d) ? dgNeedHTML(ctx.d) : "";
   if (id === "now") return ctx.d ? dgNowHTML() : "";
   const card = {adds: dgCardAdds, gains: dgCardGains, usage: dgCardUsage, defenses: dgCardDefenses, status: dgCardStatus,
-    vegas: dgCardVegas, night: dgCardNight, game: dgCardGame, smash: dgCardSmash, bold: dgCardBold, calls: dgCardCalls, weather: dgCardWeather}[id];
+    night: dgCardNight, tonight: dgCardTonight, tiers: dgCardTiers, smash: dgCardSmash, bold: dgCardBold, calls: dgCardCalls,
+    weather: dgCardWeather}[id];
   return card ? card(ctx) || "" : "";
 }
 
-/* Start/Sit's record, for the foot of a card of its calls (SMASH, Bold calls, Start in this game; the cards ask
-   dgRecordFoot below): the numbers the view prints, then what each call has been through. */
+/* Start/Sit's record, for the foot of a card of its calls (SMASH, Bold calls; the cards ask dgRecordFoot below): the
+   numbers the view prints. What each call has been through is the foot's tooltip (DG_RECORD_TIP). */
 function dgCardRecord(ss3){
   const r = ss3 && ss3.record;
   if (!r) return "";
-  const rec = ss3Graded(r) ? t("digest.foot.mu", {wk: r.since_week, smash: ss3Wl(r.smash), start: ss3Wl(r.start), sit: ss3Wl(r.sit)})
+  return ss3Graded(r) ? t("digest.foot.mu", {wk: r.since_week, smash: ss3Wl(r.smash), start: ss3Wl(r.start), sit: ss3Wl(r.sit)})
     : t("digest.foot.muNone", {wk: r.since_week});
-  return `${rec} ${t("digest.foot.muMark")}`;
 }
+const DG_RECORD_TIP = () => t("digest.foot.muMark");
 
 /* The record for the card `id`, or "": it is said once a day, on the first of those cards that draws (the plan
    draws them in order, and a card that returns early never asks), so SMASH and Bold calls do not repeat it. The

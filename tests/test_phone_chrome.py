@@ -58,7 +58,7 @@ def test_the_chrome_meets_the_content_with_an_edge_unlike_a_cards_border(mount, 
     assert errors == []
 
 
-GROUPS = ("team", "week", "scouting", "league", "bets")    # data/navmap.js NAV, in the bar's order
+GROUPS = ("home", "team", "week", "scouting", "league")    # data/navmap.js NAV, in the bar's order (Home draft B, 2026-10-08)
 
 
 @pytest.mark.render

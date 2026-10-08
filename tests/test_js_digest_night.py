@@ -21,7 +21,7 @@ GAMES = [
     {"away": "CIN", "home": "DEN", "kickoff": SNF, "slot": "sunnight"},
     {"away": "DAL", "home": "NYG", "kickoff": "2026-10-06T00:15:00Z", "slot": "mon"},
 ]
-ALL = ["usage", "night", "gains", "defenses", "adds", "calls"]
+ALL = ["usage", "night", "tiers", "gains", "defenses", "adds", "calls"]     # the tier sheet since 2026-10-08 (Home draft B)
 
 
 def ms(iso):
@@ -72,9 +72,9 @@ def test_sunday_does_not_preview_next_weeks_night_game(plan):
 
 @pytest.mark.req("Digest", ac="the night card sits second: after usage movers on Wednesday, after Need to know on Sunday")
 @pytest.mark.parametrize("day,order", [
-    ("wed", ALL), ("sun", ["need", "night", "now", "weather", "calls"]),
-    ("thu", ["vegas", "game", "status", "calls"]), ("mon", ["game", "gains", "calls"]), ("tue", ["adds", "gains", "usage"]),
-    ("fri", ["status", "gains", "smash", "weather"]), ("sat", ["smash", "bold", "calls", "weather"])])
+    ("wed", ALL), ("sun", ["need", "night", "tiers", "now", "weather", "calls"]),
+    ("thu", ["tonight", "tiers", "status", "calls"]), ("mon", ["tonight", "tiers", "gains", "calls"]), ("tue", ["adds", "tiers", "gains", "usage"]),
+    ("fri", ["status", "tiers", "gains", "smash", "weather"]), ("sat", ["smash", "tiers", "bold", "calls", "weather"])])
 def test_the_night_card_is_second_on_wednesday_and_sunday_and_no_other_day_changes(plan, day, order):
     assert plan("ms => dgCardOrder(dgDayPlan(ms))", ms(NOON[day])) == order
 
@@ -82,13 +82,13 @@ def test_the_night_card_is_second_on_wednesday_and_sunday_and_no_other_day_chang
 @pytest.mark.req("Digest", ac="five cards at most")
 def test_wednesday_keeps_five_cards_and_drops_the_last(plan):
     got = plan("ms => { const p = dgDayPlan(ms), d = {}; dgCardOrder(p).forEach(id => { d[id] = '<' + id + '>'; }); return dgCardList(p, d); }", ms(NOON["wed"]))
-    assert got == ["usage", "night", "gains", "defenses", "adds"]
+    assert got == ["usage", "night", "tiers", "gains", "defenses"]
 
 
 @pytest.mark.req("Digest", ac="five cards at most")
 def test_sunday_with_every_card_drawn_is_five(plan):
     got = plan("ms => { const p = dgDayPlan(ms), d = {}; dgCardOrder(p).forEach(id => { d[id] = '<' + id + '>'; }); return dgCardList(p, d); }", ms(NOON["sun"]))
-    assert got == ["need", "night", "now", "weather", "calls"]
+    assert got == ["need", "night", "tiers", "now", "calls"], "Right now takes Weather's place (Home draft B)"
 
 
 @pytest.mark.req("Digest", ac="a card with nothing to show is skipped")

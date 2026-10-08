@@ -21,9 +21,10 @@ def nav(node_js):
 
 def test_the_bottom_bar_is_team_matchup_players_league_bets(nav):
     """Nav regroup, step 1 (David 2026-10-08, ledger #32): the Yahoo, ESPN and Sleeper sections. Group ids keep
-    their old spelling where a group was renamed (`week` reads Matchup, `scouting` Players); `team` is new."""
-    assert nav("NAV.map(([g]) => g)") == ["team", "week", "scouting", "league", "bets"]
-    assert [nav("navGroupLabel", g, False) for g in ("team", "week", "scouting", "league", "bets")] == ["Team", "Matchup", "Players", "League", "Bets"]
+    their old spelling where a group was renamed (`week` reads Matchup, `scouting` Players); `team` is new.
+    Home draft B (David 2026-10-08, ledger #52): Home leads, Bets moved under Matchup."""
+    assert nav("NAV.map(([g]) => g)") == ["home", "team", "week", "scouting", "league"]
+    assert [nav("navGroupLabel", g, False) for g in ("home", "team", "week", "scouting", "league")] == ["Home", "Team", "Matchup", "Players", "League"]
 
 
 def test_team_holds_your_teams_views_and_league_holds_the_leagues(nav):
@@ -36,7 +37,9 @@ def test_no_sub_row_holds_more_than_six_leaves(nav):
     """Six fit in the 332 px row of a 360 px phone (316 px for This week's), seven took 383 px (measured in the
     browser, 2026-10-05; the figures are in data/navmap.js). Stats holds six since Schedule came back (2026-10-06)."""
     assert nav("NAV_SUBROW_MAX") == 6
-    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [3, 6, 6, 3, 3]
+    # Matchup holds eight since Bets moved under it (Home draft B, 2026-10-08): it scrolls as one row, like Players'.
+    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [1, 3, 8, 6, 3]
+    assert nav("NAV_DENSE").count("week") == 1
 
 
 def test_every_leaf_is_in_one_group_only(nav):
@@ -85,7 +88,7 @@ def test_the_matchups_tab_is_labelled_start_sit_and_the_old_names_still_land(nav
 
 
 @pytest.mark.parametrize("leaf,group", [("roster", "team"), ("waivers", "team"), ("teams", "league"), ("trades", "team"),
-                                        ("recap", "league"), ("records", "league"), ("weekrecap", "week"), ("digest", "week")])
+                                        ("recap", "league"), ("records", "league"), ("weekrecap", "week"), ("digest", "home")])
 def test_a_leaf_finds_its_group(nav, leaf, group):
     assert nav("navGroupOf", leaf) == group
 
@@ -118,7 +121,7 @@ def test_tuesday_puts_waivers_first(nav):
 
 def test_other_groups_are_not_filtered(nav):
     assert nav("navLeavesFor", "scouting", ESPN, False) == ["news", "ranks", "board", "movers", "usage", "schedule"]
-    assert nav("navLeavesFor", "week", ESPN, False)[:2] == ["digest", "live"]
+    assert nav("navLeavesFor", "week", ESPN, False)[:2] == ["live", "matchups"]
 
 
 @pytest.mark.parametrize("leaf,tabs,want", [
@@ -207,14 +210,15 @@ def test_matchup_reads_today_live_start_sit_preview_results(nav):
     """Storyboard B (2026-10-08): the Digest reads Today and the week's Recap reads Results, so League keeps the
     only Recap. Leaf ids and hashes stay."""
     row = nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k))")
-    assert row[:5] == ["digest", "live", "matchups", "preview", "weekrecap"]
-    assert [nav("navLabel", k) for k in row[:5]] == ["Today", "Live", "Start/Sit", "Preview", "Results"]
+    # Today left for Home, its own tab (Home draft B, 2026-10-08).
+    assert row[:4] == ["live", "matchups", "preview", "weekrecap"]
+    assert [nav("navLabel", k) for k in row[:4]] == ["Live", "Start/Sit", "Preview", "Results"]
 
 
 def test_highlights_waits_beside_today_until_it_folds_into_it(nav):
     """Storyboard B makes Highlights a card on Today; folding is step 2 (draft C), so in step 1 it is Matchup's last
-    view, and News leads Players (its Yahoo and ESPN home)."""
-    assert nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k)).at(-1)") == "highlights"
+    view before Bets' three (Home draft B), and News leads Players (its Yahoo and ESPN home)."""
+    assert nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k)).slice(-4)") == ["highlights", "parlay", "build", "dfs"]
     assert nav("NAV.find(([g]) => g === 'scouting')[1][0]") == "news"
 
 

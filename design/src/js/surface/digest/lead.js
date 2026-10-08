@@ -188,9 +188,15 @@ const dgGhostChars = s => (s.match(/&[^;\s]+;|\s|./gu) || [])
 
 /* The band's right edge: Weather's mark, the game's two codes ("TB at DAL"), or his 96px face
    (heads/<slug>.webp); nothing when he has no head file, never a broken image. */
+/* Split-flap tiles (Home's hero, 2026-10-08): one tile per character, each knowing its place (--i), so they flip
+   in turn as the page lands, a scoreboard turning over (digest/hero.css). `from` offsets the count, so a second
+   word keeps flipping after the first. */
+const dgFlapHTML = (s, from = 0) => dgFlapCells(s).map(x => x.gap ? " " : `<i style="--i:${x.i + from}">${x.c}</i>`).join("");
+
 function dgBnSide(L){
   if (L.glyph) return `<span class="dg-bn-glyph" aria-hidden="true">${L.glyph}</span>`;
-  if (L.vs) return `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${esc(L.vs[0])}</b><small>${t("digest.day.at")}</small><b>${esc(L.vs[1])}</b></span>`;
+  if (L.vs) return `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${dgFlapHTML(esc(L.vs[0]))}</b><small>${t("digest.day.at")}</small><b>${
+    dgFlapHTML(esc(L.vs[1]), String(L.vs[0]).length)}</b></span>`;
   const src = L.slug && typeof HEADS !== "undefined" ? HEADS[L.slug] : "";
   return src ? `<img class="dg-bn-face" data-testid="digest-lead-face" src="${src}" alt="" decoding="async" onerror="this.remove()">` : "";
 }
@@ -206,8 +212,11 @@ function dgLeadHTML(){
   const side = dgBnSide(L);
   // An untested call (Saturday's SMASH, Thursday's pick) says so on hover, as every flag does (tests/test_flag_marks.py).
   const mark = s => s ? ` title="${esc(s)}"` : "";
-  return `<article class="dg-bn ${L.tone}${side ? " has-side" : ""}${go ? " opens" : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${L.team ? " " + teamColourStyle(L.team) : ""}>
-    ${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
+  // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
+  const ghost = dgHeroGhost(L, schedWeek());
+  const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
+  return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+    ${wall}${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
       <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>
       <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
     ${side}

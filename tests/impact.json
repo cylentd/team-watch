@@ -31,8 +31,8 @@
       "render": []
     },
     "digest": {
-      "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/src/js/data/dayplan.js", "design/digest.py", "design/usage_movers.py"],
-      "tests": ["tests/test_digest.py", "tests/test_usage_movers_block.py", "tests/test_digest_after_kickoff.py", "tests/test_digest_day.py", "tests/test_digest_cards_a.py", "tests/test_digest_cards_b.py", "tests/test_js_digest.py", "tests/test_js_digest_night.py", "tests/test_digest_night.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py", "tests/test_js_leadsplit.py"],
+      "paths": ["design/src/js/surface/digest/", "design/src/css/surface/digest/", "design/src/js/data/digest.js", "design/src/js/data/dayplan.js", "design/src/js/data/tiers.js", "design/src/js/data/hero.js", "design/digest.py", "design/usage_movers.py"],
+      "tests": ["tests/test_js_home.py", "tests/test_digest.py", "tests/test_usage_movers_block.py", "tests/test_digest_after_kickoff.py", "tests/test_digest_day.py", "tests/test_digest_cards_a.py", "tests/test_digest_cards_b.py", "tests/test_js_digest.py", "tests/test_js_digest_night.py", "tests/test_digest_night.py", "tests/test_digest_live.py", "tests/test_digest_story.py", "tests/test_left_hurt.py", "tests/test_js_leadsplit.py"],
       "render": ["digest"]
     },
     "weather": {

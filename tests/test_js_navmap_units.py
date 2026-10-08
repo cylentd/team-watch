@@ -8,15 +8,15 @@ def nav(node_js):
     return node_js("data/navmap.js")
 
 
-@pytest.mark.parametrize("leaf,group", [("roster", "team"), ("news", "scouting"), ("digest", "week"), ("dfs", "bets")])
+@pytest.mark.parametrize("leaf,group", [("roster", "team"), ("news", "scouting"), ("digest", "home"), ("dfs", "week")])
 def test_a_known_leaf_names_its_own_group(nav, leaf, group):
     assert nav("navGroupOf", leaf) == group
 
 
 @pytest.mark.parametrize("name", ["nonsense", ""])
 def test_a_name_no_group_holds_belongs_to_matchup(nav, name):
-    """Matchup holds the default view (Today, leaf `digest`); its id is still `week`."""
-    assert nav("navGroupOf", name) == "week"
+    """The default view's group holds it: Home (Today, leaf `digest`) since Home draft B, 2026-10-08; Matchup before."""
+    assert nav("navGroupOf", name) == "home"
 
 
 def test_a_league_leaf_in_the_row_stays(nav):

@@ -60,7 +60,8 @@ def test_highlights_sits_in_matchup_beside_today(node_js):
     """David, 2026-10-04: the Digest lost its Highlights section and Stats kept them, first. Since the nav regroup
     (2026-10-08, storyboard draft B) Highlights waits in Matchup, beside Today, until step 2 folds it in as a card."""
     nav = node_js("data/navmap.js")
-    assert nav("navGroupOf", "highlights") == nav("navGroupOf", "digest") == "week"
+    assert nav("navGroupOf", "highlights") == "week"
+    assert nav("navGroupOf", "digest") == "home", "Today is Home, its own tab (Home draft B, 2026-10-08)"
 
 
 # ------------------------------------------------------------------ the day plan (2026-10-06, Digest by day)
@@ -73,10 +74,12 @@ NOON = {"sun": "2026-10-04T19:00:00Z", "mon": "2026-10-05T19:00:00Z", "tue": "20
         "sat": "2026-10-10T19:00:00Z"}
 # David, 2026-10-07: a day of two cards was too thin ("the digest should have more relevant stuff"). Each day
 # keeps its job first, then the cards that have data that day, five at most.
-PLAN = {"tue": ("adds", ["adds", "gains", "usage"]), "wed": ("usage", ["usage", "gains", "defenses", "adds", "calls"]),
-        "thu": ("tnf", ["vegas", "game", "status", "calls"]), "fri": ("status", ["status", "gains", "smash", "weather"]),
-        "sat": ("smash", ["smash", "bold", "calls", "weather"]), "sun": ("kickoff", ["need", "now", "weather", "calls"]),
-        "mon": ("tonight", ["game", "gains", "calls"])}
+# David, 2026-10-08 (Home draft B, ledger #52): the week tier sheet follows the day's job; Thursday's and Monday's
+# game is one Tonight card.
+PLAN = {"tue": ("adds", ["adds", "tiers", "gains", "usage"]), "wed": ("usage", ["usage", "tiers", "gains", "defenses", "adds", "calls"]),
+        "thu": ("tnf", ["tonight", "tiers", "status", "calls"]), "fri": ("status", ["status", "tiers", "gains", "smash", "weather"]),
+        "sat": ("smash", ["smash", "tiers", "bold", "calls", "weather"]), "sun": ("kickoff", ["need", "tiers", "now", "weather", "calls"]),
+        "mon": ("tonight", ["tonight", "tiers", "gains", "calls"])}
 
 
 @pytest.fixture
@@ -144,8 +147,9 @@ def test_a_card_of_start_sit_calls_ends_in_its_record_and_marks(node_js):
     then the marks (12.61, 12.73, 12.75; tests/test_flag_marks.py F16). Nothing graded yet says when it starts."""
     card = node_js("data/startsit.js", "surface/digest/card.js")
     foot = card("dgCardRecord", {"record": REC})
-    assert foot.startswith("Record since week 5: SMASH 7-3, START 2-2, SIT 4-1.")
-    assert "Failed test (12.61, 12.73)" in foot and "Failed test (12.75)" in foot and "Untested" in foot
+    assert foot == "Record since week 5: SMASH 7-3, START 2-2, SIT 4-1.", "one plain line (Home draft B, 2026-10-08)"
+    tip = card("DG_RECORD_TIP()")
+    assert "Failed test (12.61, 12.73)" in tip and "Failed test (12.75)" in tip and "Untested" in tip, "the marks are the foot's tooltip"
     empty = {**REC, "weeks": [], **{k: {"hit": 0, "miss": 0, "void": 0} for k in ("smash", "start", "sit")}}
     assert card("dgCardRecord", {"record": empty}).startswith("Record starts with week 5.")
     assert card("dgCardRecord", None) == ""

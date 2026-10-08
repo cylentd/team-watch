@@ -37,12 +37,13 @@ function digestHTML(){
   const mnf = dgMnfHTML();
   // The body's classes name which game-day parts it holds: tonight's card (or the last game's, mnf.js),
   // and Need to know left out once games are on and nothing in it is left to say.
-  const cls = [d.tn.length || mnf ? "has-tn" : "", dgNeedEmpty(d) ? "no-need" : ""].filter(Boolean).join(" ");
+  const tns = dgTonightHTML(d, mnf);
+  const cls = [tns ? "has-tn" : "", dgNeedEmpty(d) ? "no-need" : ""].filter(Boolean).join(" ");
   const cards = dgCardsHTML(d, plan, now);
   DG_LAST = {lead, now: dgNowHTML(), mnf};
   DG_DRAWN = dgPhaseKey();
   return `<div class="dg" data-testid="digest-root">${lead}
-    <section class="dg-main${cls ? " " + cls : ""}" data-testid="digest-ticker" aria-label="${t("digest.ticker.label")}">${dgTonightHTML(d, mnf)}${cards}</section>${strip}</div>`;
+    <section class="dg-main${cls ? " " + cls : ""}" data-testid="digest-ticker" aria-label="${t("digest.ticker.label")}">${tns}${cards}</section>${strip}</div>`;
 }
 
 function wireDigest(v){
@@ -61,13 +62,16 @@ function wireDigest(v){
   // A live scorer, the touchdown count and the last game's link: one listener, so the parts a poll
   // repaints in place need no wiring (now.js).
   root?.addEventListener("click", dgLiveClick);
-  const d = dgD();
-  v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => {
-    const slug = el.dataset.dgslug;
-    const p = d && [...d.hurt, ...d.starters, ...d.best, ...d.adds].find(x => x.slug === slug);
-    if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
-    // A player need not be in any list above: search's index knows everyone on the page.
-    const e = searchIndex().find(x => x.slug === slug);
-    if (e) openProfile(searchPlayer(e), el);
-  }));
+  v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => dgOpenSlug(el)));
+  wireDigestTiers(root);
+}
+
+/* A player's name or face: his profile, from the packet's own row or, for anyone else, search's index. */
+function dgOpenSlug(el){
+  const slug = el.dataset.dgslug, d = dgD();
+  const p = d && [...d.hurt, ...d.starters, ...d.best, ...d.adds].find(x => x.slug === slug);
+  if (p) return openProfile({n: p.n, pos: p.pos, team: p.team, slug: p.slug}, el);
+  // A player need not be in any list above: search's index knows everyone on the page.
+  const e = searchIndex().find(x => x.slug === slug);
+  if (e) openProfile(searchPlayer(e), el);
 }

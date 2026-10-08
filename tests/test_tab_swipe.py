@@ -12,13 +12,13 @@ pytestmark = pytest.mark.render
 LEFT, RIGHT = -120, 120   # a swipe left asks for the tab to the right
 
 
-WEEK = ["digest", "live", "matchups", "preview", "weekrecap", "highlights"]   # Matchup's row (data/navmap.js)
+WEEK = ["live", "matchups", "preview", "weekrecap", "highlights", "parlay", "build", "dfs"]   # Matchup's row (data/navmap.js); Today is Home since 2026-10-08
 
 
 @pytest.fixture
 def week(mount):
     """Matchup's row on a phone, on Start/Sit: a plain pill with a plain pill on its right."""
-    page, errors = mount("digest")
+    page, errors = mount("preview")
     row = TabSwipe(page)
     assert row.pills() == WEEK
     row.open("matchups")
@@ -36,9 +36,9 @@ def test_a_swipe_on_the_view_opens_the_tab_beside_the_open_one(week):
 
 @pytest.mark.req("Swipe between tabs", ac="the row's ends stop the swipe")
 def test_a_swipe_past_the_first_tab_stays_put(week):
-    week.open("digest")
+    week.open("live")
     week.swipe(RIGHT)
-    assert week.pressed_pill() == "digest"
+    assert week.pressed_pill() == "live"
 
 
 def test_a_nudge_is_not_a_swipe(week):
@@ -159,7 +159,7 @@ def test_a_swipe_walks_an_opened_pills_own_tabs_before_the_next_view(mount):
     row.swipe(LEFT)
     assert row.pressed_seg() == "games"
     row.swipe(RIGHT)
-    row.swipe(RIGHT)                                    # off its first tab: the pill before Live
-    pills = row.pills()
-    assert row.pressed_pill() == pills[pills.index("live") - 1]
+    row.swipe(RIGHT)                                    # off its first tab: Live leads Matchup's row since Home draft B
+    assert row.pills()[0] == "live"
+    assert (row.pressed_pill(), row.pressed_seg()) == ("live", "league"), "the row's end stops the swipe"
     assert errors == []

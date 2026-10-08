@@ -166,7 +166,7 @@ def test_a_finished_weeks_need_to_know_waits_on_next_weeks_report(mount):
     dg.set_clock("2026-09-20T12:00:00Z", nobody_out=True, packet_week=True)
     assert dg.need_none() == words("digest.need.none")
     dg.set_clock("2026-09-22T12:00:00Z", nobody_out=True, packet_week=True)
-    dg.plant_empty("adds", "gains", "usage")
+    dg.plant_empty("adds", "tiers", "gains", "usage")
     assert dg.need_none() == "Week 4's injury report is still in the trainer's room."
     assert dg.retired_wait_card() == 0
     assert errors == []

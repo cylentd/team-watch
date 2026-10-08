@@ -2,10 +2,13 @@
    2026-10-06, Digest by day. A desktop fills its width with more of the same (DESIGN.md "Say it in a
    shape"): the banner across the page, then the day's cards side by side, each at least 360px, and the
    game blocks across the whole row. Superseded: the wall of every topic as an open panel on a
-   12-column grid of named bands (2026-09-26 to 2026-10-06). */
+   12-column grid of named bands (2026-09-26 to 2026-10-06).
+   2026-10-08 (Home draft B): the cards flow down balanced columns, at least 360px each, not grid rows, so a short
+   card never leaves a hole under it beside a tall one (the grid left ~700px under Claude vs Vegas). */
 @media (min-width:960px){
-  .dg-main{grid-template-columns:repeat(auto-fill,minmax(360px,1fr));align-items:start;gap:16px;padding:16px 0 0}
-  .dg-main > .dg-tns{grid-column:1 / -1}
+  .dg-main{display:block;columns:3 360px;column-gap:16px;padding:16px 0 0}
+  .dg-main > *{break-inside:avoid;margin:0 0 16px}
+  .dg-main > .dg-tns{column-span:all}
   .dg-tns{grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
   .dg-strip{padding:20px 0 32px}
 }

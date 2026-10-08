@@ -76,7 +76,13 @@ class DigestDayPage(DigestPage):
         return self.page.get_by_test_id("digest-lead-go").get_attribute("aria-label")
 
     def banner_vs(self):
-        return self._bn.get_by_test_id("digest-lead-vs").inner_text().split()
+        """The game's board as words: away, "at", home (each code is a row of split-flap tiles since 2026-10-08)."""
+        return self._bn.get_by_test_id("digest-lead-vs").evaluate("el => [...el.children].map(c => c.textContent)")
+
+    def hero_fits(self):
+        """Home's hero (2026-10-08): at least the old 128px band, and no taller than a third of the screen, so the
+        first card starts on the first screen."""
+        return self._bn.evaluate("el => { const h = el.getBoundingClientRect().height; return h >= 128 && h <= innerHeight / 3; }")
 
     def banner_marks(self):
         """The tooltips on the headline and the fact line (an untested call says so), or None."""

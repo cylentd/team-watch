@@ -50,5 +50,5 @@ function dgCardUsage(ctx){
   const to = b.to_week;
   const range = Number.isInteger(to) ? t("digest.card.usage.foot", {from: to - 2, to}) : t("digest.card.usage.footNoWeeks");
   return dgCardHTML({id: "usage", title: t("digest.card.usage.title"), more: {leaf: "usage"},
-    body: rows.map(dgUsageRow).join(""), foot: `${range} ${t("digest.card.usage.mark")}`});
+    body: rows.map(dgUsageRow).join(""), foot: range, footTip: t("digest.card.usage.mark")});
 }

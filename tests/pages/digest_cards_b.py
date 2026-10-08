@@ -77,6 +77,16 @@ class DigestCardsPage(DigestDayPage):
         foot = self._card(cid).get_by_test_id("digest-card-foot")
         return foot.evaluate(NORM) if foot.count() else None
 
+    def foot_tip(self, cid):
+        """The foot's tooltip: what the model behind its numbers has been through, or None."""
+        foot = self._card(cid).get_by_test_id("digest-card-foot")
+        return foot.get_attribute("title") if foot.count() else None
+
+    def foot_go(self, cid):
+        """The link at the foot's end: {leaf, text}, or None."""
+        go = self._card(cid).get_by_test_id("digest-card-foot-go")
+        return {"leaf": go.get_attribute("data-dggo"), "text": go.inner_text().strip()} if go.count() else None
+
     def rows(self, cid):
         """Per row: name, meta, answer as printed, pill word and mark, tile code, the change's direction, research pairs."""
         return self._card(cid).get_by_test_id("digest-r").evaluate_all(ROWS)
@@ -87,13 +97,13 @@ class DigestCardsPage(DigestDayPage):
 
     def bets(self):
         """Claude vs Vegas: one entry per bet, Vegas beside Claude with the marks on Claude's side."""
-        return self._card("vegas").get_by_test_id("digest-vs-bet").evaluate_all(BETS)
+        return self._card("tonight").get_by_test_id("digest-vs-bet").evaluate_all(BETS)
 
     def game_line(self):
-        return self._card("vegas").get_by_test_id("digest-vs-game").inner_text().strip()
+        return self._card("tonight").get_by_test_id("digest-tonight-sky").inner_text().strip()
 
     def table_head(self):
-        return self._card("vegas").locator("thead th").all_text_contents()
+        return self._card("tonight").locator("thead th").all_text_contents()
 
     # ---- taps ----
 

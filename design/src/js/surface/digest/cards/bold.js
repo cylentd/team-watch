@@ -20,6 +20,7 @@ function dgCardBold(ctx){
   const widest = call => takes.filter(r => r.call === call).sort((a, b) => b.margin_spots - a.margin_spots).slice(0, DG_BOLD_EACH);
   const rows = [...widest("START"), ...widest("SIT")];
   if (!rows.length) return "";
+  const rec = dgRecordFoot(ctx, "bold");
   return dgCardHTML({id: "bold", title: t("digest.card.bold.title"), more: {leaf: "matchups"},
-    body: rows.map(dgBoldRowHTML).join(""), foot: dgRecordFoot(ctx, "bold")});
+    body: rows.map(dgBoldRowHTML).join(""), foot: rec, footTip: rec ? DG_RECORD_TIP() : ""});
 }

@@ -1,0 +1,72 @@
+/* ============================== HOME: THE HERO ==============================
+   2026-10-08 (David: "bring back the hero ... the first thing people see"; lead.js dgLeadHTML). The day's banner
+   grows into a hero: the job tag, the day's game as a split-flap board, the headline big and never cut, and
+   behind it the ghost wall, the lead's reason in huge outlined letters. Every tile flips over in turn once, as
+   the page lands, a scoreboard turning to today; a pointer over the band flips the ghost again. Reduced motion
+   gets the end state at once. Under a screen at 360px, so the first card starts on the first screen. */
+
+.dg-bn.hero{min-height:188px;padding:16px 16px 18px;isolation:isolate}
+.dg-bn.hero .dg-bn-txt{gap:8px}
+.dg-bn.hero .dg-bn-h{font-size:var(--t-6);line-height:1.04;letter-spacing:-.025em}
+.dg-bn.hero .dg-bn-fact{font-size:var(--t-2)}
+
+/* The game's board: on a phone its own row under the job tag, so the headline below keeps the full width. */
+.dg-bn.hero.has-vs{padding-right:16px}
+.dg-bn.hero.has-vs .dg-bn-h{margin-top:46px}
+.dg-bn.hero .dg-bn-vs{
+  top:40px;left:16px;right:auto;transform:none;display:flex;align-items:center;gap:8px;perspective:600px;z-index:1;
+}
+.dg-bn.hero .dg-bn-vs b{display:flex;gap:3px}
+.dg-bn.hero .dg-bn-vs small{font:600 var(--t-1)/1 var(--mono);text-transform:uppercase}
+.dg-bn.hero .dg-bn-vs i{
+  display:inline-grid;place-items:center;width:24px;height:32px;border-radius:4px;font:800 var(--t-4)/1 var(--mono);font-style:normal;
+  background:linear-gradient(var(--panel-3) 0 48%,var(--line) 48% 52%,var(--panel-3) 52%);color:var(--ink);
+  transform-origin:50% 50%;animation:dg-flap var(--dur-flap) var(--ease) both;animation-delay:calc(var(--i) * var(--flap-step));
+}
+
+/* The ghost wall. */
+.dg-bn-ghost{
+  position:absolute;right:-4px;bottom:-14px;z-index:0;perspective:900px;
+  font-family:var(--disp);font-size:var(--t-ghost-sm);font-weight:800;line-height:.8;letter-spacing:-.05em;
+  white-space:nowrap;pointer-events:none;user-select:none;color:transparent;
+  -webkit-text-stroke:1.5px rgb(var(--ink-rgb) / .14);
+}
+.dg-bn-ghost i{
+  display:inline-block;font-style:normal;transform-origin:50% 55%;
+  animation:dg-flap var(--dur-flap) var(--ease) both;animation-delay:calc(var(--i) * var(--flap-step) * 2);
+  transition:transform var(--dur-flap) var(--ease) calc(var(--i) * var(--flap-step)),color var(--dur-flap) var(--ease);
+}
+.dg-bn.go .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--lime-rgb) / .28)}
+.dg-bn.out .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--down-rgb) / .3)}
+.dg-bn.q .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
+.dg-bn.sky .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}
+.dg-bn.team .dg-bn-ghost{-webkit-text-stroke:2px color-mix(in srgb,var(--team) 55%,var(--ink));opacity:.55}
+/* A face sits on the band's floor in front of the wall. */
+.dg-bn.hero .dg-bn-face{z-index:1}
+@media (hover:hover){
+  .dg-bn.hero:hover .dg-bn-ghost i{transform:rotateX(360deg);color:rgb(var(--ink-rgb) / .06)}
+}
+
+@keyframes dg-flap{
+  0%{transform:rotateX(-90deg);opacity:0}
+  55%{transform:rotateX(14deg);opacity:1}
+  80%{transform:rotateX(-5deg)}
+  100%{transform:none;opacity:1}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dg-bn.hero .dg-bn-vs i,.dg-bn-ghost i{animation:none;transition:none}
+  .dg-bn.hero:hover .dg-bn-ghost i{transform:none}
+}
+
+@media (min-width:960px){
+  .dg-bn.hero{min-height:260px;padding:32px 40px}
+  .dg-bn.hero .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
+  .dg-bn.hero .dg-bn-fact{font-size:var(--t-4)}
+  .dg-bn.hero.has-vs{padding-right:300px}
+  .dg-bn.hero.has-vs .dg-bn-h{margin-top:0}
+  .dg-bn.hero .dg-bn-vs{top:50%;left:auto;right:40px;transform:translateY(-50%)}
+  .dg-bn.hero .dg-bn-vs i{width:40px;height:54px;font-size:var(--t-6)}
+  .dg-bn-ghost{font-size:var(--t-ghost);right:0;bottom:-40px}
+  .dg-bn.hero.has-vs .dg-bn-ghost{right:auto;left:46%}
+}

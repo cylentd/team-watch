@@ -41,7 +41,7 @@ def test_the_banner_is_128px_at_360_every_day(mount, key):
     dg, errors = day(mount)
     dg.at(NOON[key])
     got = dg.banner()
-    assert (got["day"], got["h"], got["day_attr"]) == (LABEL[key], 128, key)
+    assert (got["day"], got["day_attr"]) == (LABEL[key], key) and dg.hero_fits(), "the hero: a third of the screen at most (2026-10-08)"
     assert dg.fits()
     assert dg.retired_rows() == 0
     assert errors == []
@@ -84,7 +84,7 @@ def test_wednesdays_banner_without_usage_movers_is_the_softest_defense(mount):
     assert dg.headline() == "The NY Jets defense gives up the most points to QBs"
     assert dg.lead_fact() == "21.4 a game, the most of 28 teams."
     assert dg.banner_marks()["head"] == COPY["digest.card.defenses.foot"]
-    assert dg.banner()["h"] == 128 and dg.fits()
+    assert dg.hero_fits() and dg.fits()
     assert errors == []
 
 
@@ -96,7 +96,7 @@ def test_thursdays_banner_is_the_games_take(mount):
     assert dg.lead_fact().endswith("Claude: DAL 28–21")
     assert dg.banner()["side"] == "vs" and dg.banner_vs() == ["TB", "at", "DAL"]
     assert dg.banner_marks()["fact"] == words("preview.call.mark")
-    assert dg.banner()["h"] == 128
+    assert dg.hero_fits()
     assert errors == []
 
 
@@ -136,10 +136,10 @@ def test_sunday_is_the_first_kickoff_and_monday_tonights_game(mount):
 def test_a_day_whose_cards_are_empty_shows_need_to_know(mount):
     dg, errors = day(mount)
     dg.at("2026-09-15T19:00:00Z")                      # a Tuesday: Top adds, Out and who gains, Usage movers
-    assert dg.card_ids() == ["adds", "gains", "usage"] and dg.need_count() == 0, "the fixtures feed all three cards"
-    dg.plant_empty("adds", "gains", "usage")
+    assert dg.card_ids() == ["adds", "tiers", "gains", "usage"] and dg.need_count() == 0, "the fixtures feed all four cards"
+    dg.plant_empty("adds", "tiers", "gains", "usage")
     assert dg.card_ids() == [] and dg.need_count() == 1
-    assert dg.banner()["h"] == 128
+    assert dg.hero_fits()
     assert errors == []
 
 
@@ -147,7 +147,7 @@ def test_a_day_whose_cards_are_empty_shows_need_to_know(mount):
 def test_a_rows_research_opens_in_place_one_at_a_time(mount):
     dg, errors = day(mount)
     dg.at("2026-09-15T19:00:00Z")
-    dg.plant_empty("gains", "usage")                   # Tuesday's other cards: the rows below are the planted card's alone
+    dg.plant_empty("tiers", "gains", "usage")                   # Tuesday's other cards: the rows below are the planted card's alone
     dg.plant_card()
     assert dg.card_ids() == ["adds"] and dg.need_count() == 0, "a card that drew takes Need to know's place"
     assert dg.card_title() == words("digest.card.adds.title") and dg.card_more() == {"leaf": "waivers", "text": "Waivers"}
@@ -208,5 +208,5 @@ def test_a_wide_screen_fits(mount):
     dg, errors = day(mount, size=(1400, 900))
     dg.at("2026-09-15T19:00:00Z")
     dg.plant_card()
-    assert dg.fits() and dg.banner()["h"] == 128
+    assert dg.fits() and dg.hero_fits()
     assert errors == []

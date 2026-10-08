@@ -1,7 +1,8 @@
 /* DIGEST CARD: Game status (Friday) and Injury watch (Thursday). The packet's hurt list (LIVE_DIGEST.hurt) as one
-   row each: the status at the right, Wednesday to Friday's practice marks between, the injury, the news line and the
-   man next in the research. Friday shows every row as ranked; Thursday only the Questionable, because the Out are
-   already decided and the Q are the ones still to watch. Facts only: the status is the league's word, not a call.
+   row each: the status at the right, Wednesday to Friday's practice marks between (once any row has one), the
+   injury, the news line and the man next in the research. Friday shows every row as ranked; Thursday the top
+   Questionable, because the Out are already decided and the Q are the ones still to watch. Facts only: the status
+   is the league's word, not a call.
    Interface: card.js. The status words below are shared with the gains and adds cards. */
 
 /* The DG_PILL key (row.js) for a status; one it has no pill for shows as the data writes it. */
@@ -32,28 +33,35 @@ function dgPracticeHTML(practice){
   return `<span class="dg-st-prac" data-testid="digest-st-practice">${chips.join("")}</span>`;
 }
 
-function dgStatusRow(r, d){
+/* `marks`: whether any row on the card has a practice mark; with none, no row draws its three empty chips. `rank`:
+   Ranks' own position rank ("TE2"), added to the meta line when Ranks has him (Injury watch). */
+function dgStatusRow(r, d, marks, rank){
   const gain = ((d && d.gains) || []).find(g => g.out && g.out.slug === r.slug);
   const next = gain && gain.next ? dgShort(gain.next.name) : "";
   const news = ((d && d.news) || []).find(n => (n.slugs || []).includes(r.slug));
   const v = {team: esc(r.team), injury: esc(dgInjury(r.injury)), next: esc(next)};
-  const meta = !r.injury ? t("digest.card.status.metaTeam", v) : next ? t("digest.card.status.metaNext", v) : t("digest.card.status.meta", v);
+  const base = !r.injury ? t("digest.card.status.metaTeam", v) : next ? t("digest.card.status.metaNext", v) : t("digest.card.status.meta", v);
+  const meta = rank ? t("digest.card.status.metaRank", {meta: base, rank: esc(rank)}) : base;
   const research = [r.injury ? [t("digest.card.status.injury"), r.injury] : null,
     news ? [t("digest.card.status.news"), news.headline] : null,
     next ? [t("digest.card.status.next"), next] : null].filter(Boolean);
-  return dgStatusRowHTML(r.status, "status", {slug: r.slug, n: dgShort(r.n), meta, mid: dgPracticeHTML(r.practice), research});
+  return dgStatusRowHTML(r.status, "status", {slug: r.slug, n: dgShort(r.n), meta, mid: marks ? dgPracticeHTML(r.practice) : "", research});
 }
 
 /* A row whose answer is the status pill (row.js styles Q, D, OUT and IR; the gains card's rows for a starter
    with no backup use this too). */
 const dgStatusRowHTML = (status, card, r) => dgRowHTML(card, {...r, answer: {pill: dgStatusPill(status)}});
 
+/* Friday: every hurt row as ranked. Thursday, Injury watch (2026-10-08, Home draft B): the top questionable players
+   league-wide by Ranks' projection (dgWatchRows), each with Ranks' rank, and a foot counting the rest. The practice
+   legend left with show-not-tell: DNP, LTD and FULL say themselves. */
 function dgCardStatus(ctx){
   const d = ctx.d, thu = ctx.day === "thu";
-  const rows = ((d && d.hurt) || []).filter(r => !thu || r.status === "Questionable");
+  const watch = thu ? dgWatchRows(d, ctx.ranks) : null;
+  const rows = watch ? watch.rows : (d && d.hurt) || [];
   if (!rows.length) return "";
-  // The legend explains the marks, so it is drawn only when some row has one.
-  const marked = rows.some(r => (r.practice || []).some(p => p && p.mark));
+  const marks = rows.some(r => (r.practice || []).some(p => p && p.mark));
+  const body = rows.map(r => dgStatusRow(r, d, marks, thu ? dgRankOf(r, ctx.ranks) : "")).join("");
   return dgCardHTML({id: "status", title: thu ? t("digest.card.status.titleThu") : t("digest.card.status.title"), more: {leaf: "news"},
-    body: rows.map(r => dgStatusRow(r, d)).join(""), foot: marked ? t("digest.card.status.foot") : ""});
+    body, foot: watch && watch.of > rows.length ? t("digest.card.status.footWatch", {n: rows.length, of: watch.of}) : ""});
 }

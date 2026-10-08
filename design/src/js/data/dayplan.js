@@ -8,15 +8,19 @@
    in order ("need", "now" are Need to know and Right now); `strip`: nav leaves. Pacific, not the reader's
    clock: the league's week turns on Pacific time, and a Tuesday is waiver day everywhere.
    2026-10-07 (David: two cards was too thin): the day's job first, then the cards with data that day, five at most;
-   a strip chip that a card now links (its "more") left the strip. */
+   a strip chip that a card now links (its "more") left the strip.
+   2026-10-08 (Home draft B, ledger #52): the week tier sheet ("tiers") follows the day's job card every day; Thursday's
+   and Monday's game is one Tonight card ("tonight": Vegas beside Claude and the game's starts), superseding Claude vs
+   Vegas plus Start in this game; Sunday's Right now takes Weather's place (DG_TAKES_PLACE). Ranks left the strips,
+   since the tier sheet links it. */
 const DG_PLAN = {
-  2: {key: "tue", banner: "adds",    cards: ["adds", "gains", "usage"],                     strip: ["weekrecap", "schedule", "weather", "news"]},
-  3: {key: "wed", banner: "usage",   cards: ["usage", "gains", "defenses", "adds", "calls"], strip: ["preview", "matchups", "weekrecap", "news"]},
-  4: {key: "thu", banner: "tnf",     cards: ["vegas", "game", "status", "calls"],           strip: ["usage", "schedule", "waivers", "news"]},
-  5: {key: "fri", banner: "status",  cards: ["status", "gains", "smash", "weather"],        strip: ["preview", "parlay", "news"]},
-  6: {key: "sat", banner: "smash",   cards: ["smash", "bold", "calls", "weather"],          strip: ["preview", "news"]},
-  0: {key: "sun", banner: "kickoff", cards: ["need", "now", "weather", "calls"],            strip: ["live", "news"]},
-  1: {key: "mon", banner: "tonight", cards: ["game", "gains", "calls"],                     strip: ["weekrecap", "waivers"]},
+  2: {key: "tue", banner: "adds",    cards: ["adds", "tiers", "gains", "usage"],                     strip: ["weekrecap", "schedule", "weather", "news"]},
+  3: {key: "wed", banner: "usage",   cards: ["usage", "tiers", "gains", "defenses", "adds", "calls"], strip: ["preview", "matchups", "weekrecap", "news"]},
+  4: {key: "thu", banner: "tnf",     cards: ["tonight", "tiers", "status", "calls"],                strip: ["usage", "schedule", "news"]},
+  5: {key: "fri", banner: "status",  cards: ["status", "tiers", "gains", "smash", "weather"],       strip: ["preview", "parlay", "news"]},
+  6: {key: "sat", banner: "smash",   cards: ["smash", "tiers", "bold", "calls", "weather"],         strip: ["preview", "news"]},
+  0: {key: "sun", banner: "kickoff", cards: ["need", "tiers", "now", "weather", "calls"],           strip: ["live", "usage", "news"]},
+  1: {key: "mon", banner: "tonight", cards: ["tonight", "tiers", "gains", "calls"],                 strip: ["weekrecap", "waivers"]},
 };
 
 /* A moment as the league's clock reads it: the weekday (0 Sunday) and the date, Pacific. */
@@ -55,8 +59,15 @@ function dgPickNight(preview, key, ms){
 /* The plan's card ids with the night card second on the days that have one. */
 const dgCardOrder = plan => DG_NIGHT_SLOT[plan.key] ? [plan.cards[0], "night", ...plan.cards.slice(1)] : plan.cards;
 
+/* A card that, when it draws, takes another's place (2026-10-08, Home draft B): from the first kickoff Right now
+   stands where Weather was, so the day keeps its last card. */
+const DG_TAKES_PLACE = {now: "weather"};
+
 /* The cards to draw from what each drew: the plan's, empty ones skipped, five at most, Need to know when none. */
-const dgCardList = (plan, drawn) => dgDayCards({cards: dgCardOrder(plan)}, drawn).slice(0, DG_MAX_CARDS);
+function dgCardList(plan, drawn){
+  const gone = Object.entries(DG_TAKES_PLACE).filter(([id]) => drawn[id]).map(([, was]) => was);
+  return dgDayCards({cards: dgCardOrder(plan).filter(id => !gone.includes(id))}, drawn).slice(0, DG_MAX_CARDS);
+}
 
 /* The strip's views: Recap only while its week is fresh (dgRecap), as the Recap row was. */
 const dgStripLeaves = (plan, facts) => plan.strip.filter(leaf => leaf !== "weekrecap" || facts.recap);
@@ -70,12 +81,30 @@ const dgPickAdd = d => (d && d.adds && d.adds[0]) || null;
    page's own list (LIVE_RANKS, `ranks`): his row if he has one, else the points the list puts at his position and
    rank, because a player who is Out has no row (the ranking leaves him out). With no points for anyone, the lowest
    rank number across positions; with no rank either, the packet's first. */
-function dgPickStatus(d, ranks){
-  const hurt = (d && d.hurt) || [], rows = (ranks && ranks.rows) || [];
+/* The hurt rows ranked the same way, best first: the ones with points by their points, then the rest by rank. */
+function dgHurtRanked(hurt, ranks){
+  const rows = (ranks && ranks.rows) || [];
   const pts = r => { const at = rows.find(x => x.slug === r.slug) || rows.find(x => r.rank != null && x.pos === r.pos && x.rank === r.rank); return at ? at.pts : null; };
-  const scored = hurt.map(r => ({r, p: pts(r)})).filter(x => x.p != null).sort((a, b) => b.p - a.p);
-  if (scored.length) return scored[0].r;
-  return hurt.slice().sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity))[0] || null;
+  const all = (hurt || []).map(r => ({r, p: pts(r)}));
+  const scored = all.filter(x => x.p != null).sort((a, b) => b.p - a.p);
+  const rest = all.filter(x => x.p == null).sort((a, b) => (a.r.rank ?? Infinity) - (b.r.rank ?? Infinity));
+  return [...scored, ...rest].map(x => x.r);
+}
+const dgPickStatus = (d, ranks) => dgHurtRanked(d && d.hurt, ranks)[0] || null;
+
+/* Thursday's Injury watch (2026-10-08, Home draft B): the questionable players ranked highest league-wide, the
+   storyboard's three of twelve, and how many are questionable in all. The Out are decided; the Q are the watch. */
+const DG_WATCH_N = 3;
+function dgWatchRows(d, ranks){
+  const q = ((d && d.hurt) || []).filter(r => r.status === "Questionable");
+  return {rows: dgHurtRanked(q, ranks).slice(0, DG_WATCH_N), of: q.length};
+}
+
+/* "WR2": his rank in Ranks' own list, the one rank Home shows (the storyboard found a back RB17 on one card and RB22
+   in Ranks); "" when Ranks has no row for him. */
+function dgRankOf(r, ranks){
+  const at = ((ranks && ranks.rows) || []).find(x => x.slug === r.slug);
+  return at && at.rank != null ? `${at.pos}${at.rank}` : "";
 }
 
 /* LIVE_USAGE_MOVERS (ff-jarvis's top five role changes) may not exist yet. The banner is built from his numbers, so

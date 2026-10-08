@@ -32,7 +32,7 @@ def day(mount, key):
 @pytest.mark.req("Digest", ac="Tuesday's Top adds: five rows, the number behind each add at the right, Waivers one tap away")
 def test_top_adds_are_five_rows_with_the_number_that_earned_each(mount):
     dg, errors = day(mount, "tue")
-    assert dg.card_ids() == ["adds", "gains", "usage"]
+    assert dg.card_ids() == ["adds", "tiers", "gains", "usage"]
     assert dg.card_head("adds") == {"title": words("digest.card.adds.title"), "more": "waivers"}
     rows = dg.card_rows("adds")
     assert [(r["name"], r["answer"], r["dir"]) for r in rows] == [
@@ -91,14 +91,14 @@ def test_mondays_gains_card_is_about_tonight(mount):
 def test_usage_movers_show_the_share_the_line_and_the_untested_mark(mount):
     dg, errors = day(mount, "wed")
     # Top calls is in Wednesday's plan but the fixture's lines all kicked off in September, so it draws nothing here.
-    assert dg.card_ids() == ["usage", "gains", "defenses", "adds"]
+    assert dg.card_ids() == ["usage", "tiers", "gains", "defenses", "adds"]
     assert dg.card_head("usage") == {"title": words("digest.card.usage.title"), "more": "usage"}
     rows = dg.card_rows("usage")
     assert [(r["name"], r["answer"], r["dir"], r["spark"], r["right"]) for r in rows] == [
         ("B. Robinson", "78% snaps +23 pts", "up", True, True), ("H. Fannin", "28% targets +17 pts", "up", True, True)]
     assert rows[0]["meta"] == "Bijan Robinson played 78.0% of Atlanta's snaps in week 4, up from 55.0% in week 3."
     foot = dg.card_foot("usage")
-    assert "weeks 2–4" in foot and SAYS.search(foot), foot
+    assert "weeks 2–4" in foot and not SAYS.search(foot) and SAYS.search(dg.card_foot_tip("usage")), foot
     dg.open_row("usage", 1)
     text = dg.research("usage", 1)
     assert words("digest.card.usage.tgtShare") in text and "11% · 12% · 28%" in text and "David Njoku" in text and "24% → 12%" in text
@@ -117,7 +117,8 @@ def test_defenses_name_the_one_allowing_the_most_to_each_position(mount):
     assert [r["meta"].split(" · ")[0] for r in rows] == ["vs QBs", "vs RBs", "vs WRs", "vs TEs", "vs Ks"]
     assert all(r["right"] and r["opens"] for r in rows[:4]), "a skill position's row opens its research"
     assert not rows[4]["opens"], "the kicker row has no per-position numbers to open"
-    assert dg.card_foot("defenses").endswith("Failed test (12.97): did not predict points.")
+    assert dg.card_foot("defenses") == words("digest.card.defenses.per")
+    assert dg.card_foot_tip("defenses").endswith("Failed test (12.97): did not predict points.")
     dg.open_row("defenses", 0)
     text = dg.research("defenses", 0)
     assert "To WRs" in text and "31.2 a game" in text and "To TEs" in text and "most" in text
@@ -135,19 +136,17 @@ def test_game_status_shows_the_status_and_three_practice_marks(mount):
     assert (out["name"], out["pill"], out["marks"]) == ("N. Collins", "OUT", ["", "", ""])
     assert ir["pill"] == "IR" and rows[2]["pill"] == "Q"
     assert first["meta"] == "LA · Hip → D. Robinson" and rows[2]["meta"] == "PIT · Undisclosed", "the injury as the source wrote it"
-    foot = dg.card_foot("status")
-    assert foot == COPY["digest.card.status.foot"] and "FULL full" not in foot, "one word per mark"
+    assert dg.card_foot("status") is None, "no legend: DNP, LTD and FULL say themselves (show not tell, 2026-10-08)"
     dg.plant_news_for("puka-nacua", "Puka Nacua (hip) doubtful to play Sunday")
     dg.open_row("status", 0)
     text = dg.research("status", 0)
     assert "Hip" in text and "Puka Nacua (hip) doubtful to play Sunday" in text and "D. Robinson" in text
     dg.plant_practice_missing()
     assert all(r["marks"] == [] and r["mid"] == "" for r in dg.card_rows("status")), "no practice log, no marks"
-    assert dg.card_foot("status") is None, "no marks drawn, so no legend for them"
     dg.plant("LIVE_DIGEST.hurt.forEach(h => { h.practice = [{day: 'Wed', mark: null}, {day: 'Thu', mark: null}, {day: 'Fri', mark: null}]; })")
-    assert dg.card_foot("status") is None, "a log with no report on any day draws only empty chips"
+    assert all(r["marks"] == [] for r in dg.card_rows("status")), "a log with no report on any day draws no empty chips"
     dg.plant("LIVE_DIGEST.hurt[0].practice = [{day: 'Wed', mark: 'DNP'}, {day: 'Thu', mark: null}, {day: 'Fri', mark: null}]")
-    assert dg.card_foot("status") == COPY["digest.card.status.foot"]
+    assert dg.card_rows("status")[0]["marks"] == ["DNP", "", ""], "one report on the card and every row keeps its three days"
     assert dg.fits() and errors == []
 
 
@@ -157,8 +156,9 @@ def test_thursdays_status_card_is_the_injury_watch_of_questionable_players(mount
     assert "status" in dg.card_ids()
     assert dg.card_head("status")["title"] == words("digest.card.status.titleThu")
     rows = dg.card_rows("status")
-    assert len(rows) == 7 and {r["answer"] for r in rows} == {"Q"}
+    assert len(rows) == 3 and {r["answer"] for r in rows} == {"Q"}, "the top three questionable (Home draft B)"
     assert "P. Nacua" not in [r["name"] for r in rows]
+    assert dg.card_foot("status") == words("digest.card.status.footWatch").format(n=3, of=7)
     assert errors == []
 
 
