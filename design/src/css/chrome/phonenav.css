@@ -1,13 +1,14 @@
 /* ============================== THE PHONE'S CHROME ==============================
    2026-10-05 (game-day flow wave 2, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP,
    David: 1B "Groups to a bottom tab bar" and a header bar "like Yahoo and Sleeper"). Top to bottom:
-     a header bar   the reader's team as the team switch, Ask on the right; never moves. It slid away on
+     a header bar   the reader's team as the team switch, Search and Ask on the right; never moves. It slid away on
                     a scroll down and back on a scroll up until 2026-10-07 (js/chrome/hidebar.js, gone):
                     the tab row moved on its own to follow it and the two parted mid-slide (TODO
                     "Tab row jumps on scroll"); with both still, nothing at the top moves under the reader
      one tab row    the group's views as pills; the open one opens in place into its view's own tabs
                     (data/tabrow.js), so that view draws no bar of its own here (.view-tabs)
-     the bottom bar Week, League, Stats, Bets, Search: an icon over a word, the group open in lime
+     the bottom bar Team, Matchup, Players, League, Bets: an icon over a word, the group open in lime
+                    (2026-10-08; Week, League, Stats, Bets, Search until then)
    History: the groups sat on the bottom edge until 2026-09-24, then at the top, because Parlay's and
    DFS's switchers docked above the bar made the bottom 114px of every screen controls. Those
    switchers live at the top of their views now, so the bar came back where one thumb reaches it.
@@ -46,8 +47,16 @@
      header's is the one on a phone, and the line keeps the league and record. Live's score head shows the
      plain name on a phone (live.css). */
   .lgchip .teamswitch{display:none}
-  .navrow .chatfab{flex:none;height:44px;margin-left:auto}
+  .navrow .chatfab{flex:none;height:44px;margin-left:0}
   .chatfab .ix{display:inline-flex}
+  /* Search beside Ask since 2026-10-08 (Bets took the bottom bar's fifth slot, storyboard nav draft B): an icon
+     over a word, drawn as Ask is (surface/chat/chat.css), so the two read as one pair of tools. */
+  .navrow .navsearch{flex:none;width:48px;height:44px;min-width:0;margin-left:auto;padding:0;border:0;border-radius:0;
+    background:none;flex-direction:column;justify-content:center;align-items:center;gap:1px;color:var(--ink-2)}
+  .navrow .navsearch .ix{display:inline-flex;width:18px;height:18px}
+  .navrow .navsearch .ix svg{width:100%;height:100%}
+  .navrow .navsearch .full,.navrow .navkbd{display:none}
+  .navrow .navsearch .abbr{display:block;font-family:var(--disp);font-size:var(--t-1);font-weight:700;line-height:1;letter-spacing:.02em}
 
   /* ---- the tab row: pills, scrolled sideways, the pressed one kept in view (nav.js) ---- */
   .subnav{position:sticky;top:var(--hdr-top);z-index:38}

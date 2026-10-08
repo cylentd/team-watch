@@ -1,10 +1,9 @@
-/* One icon per group, not per view. The `scouting` group has read "Stats" since 2026-10-05 ("Players"
-   from 2026-09-25; the id stays, so nothing keyed on it moves). It keeps the old Pool chart mark: the
-   scatter is the Board's Movers mode since 2026-09-25. Bets is a banknote (2026-09-25): the three slider
-   knobs it used to wear read as settings. The Teams group's two-people mark left with the group (2026-10-05). */
+/* One icon per group (2026-10-08, storyboard nav draft B): a jersey, two sides facing, a person, the trophy, a
+   banknote (2026-09-25: the slider knobs Bets wore read as settings). */
 const NAV_ICON = {
-  week: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M7.5 14h4" opacity=".55"/></svg>`,
-  scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>`,
+  team: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3.5 3.5 6.5l2 4 2.5-1V20.5h8V9.5l2.5 1 2-4-5-3a3.5 3.5 0 0 1-7 0z"/></svg>`,
+  week: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="7" height="12" rx="1.5"/><rect x="14" y="6" width="7" height="12" rx="1.5"/></svg>`,
+  scouting: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>`,
   bets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>`,
   league: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5a2.5 2.5 0 0 0 2.8 3.4M17 5.5h2.5a2.5 2.5 0 0 1-2.8 3.4"/><path d="M12 13v3.5M8.5 20h7M9.5 16.5h5"/></svg>`,
 };
@@ -14,6 +13,8 @@ const NAV_ICON = {
    Waivers were already a pair hidden inside the hero. Grouping says which is which.
    Each leaf's label is its own key (navLabel), so a rename here never silently changes a heading elsewhere.
    History of the table, newest first (bookmarks outlive labels, so every leaf id and hash below stayed):
+   2026-10-08 Team . Matchup . Players . League . Bets (David, storyboard nav draft B, ledger #32): labels and
+     grouping only, the leaves are in data/navmap.js. Search moved from the bar to the header, beside Ask.
    2026-10-05 Teams and League merged into one League group (David; decided in plan U8). "League" was a
      group and a leaf under Teams, "Teams" a group and a leaf under League, and the league was picked in
      two places, the team switch and the Madden Curse / AYO chips. Now Week . League . Stats . Bets, and
@@ -212,8 +213,8 @@ function buildNav(){
   n.querySelectorAll(".navitem").forEach(b => b.addEventListener("click", () => {
     const g = b.dataset.s;
     if (navGroupOf(SURFACE) !== g) morphLogo();
-    // A group click opens the group's first view, every time and on every day (2026-10-07, David: League ->
-    // Roster, This week -> Digest, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there
+    // A group click opens the group's first view, every time and on every day (2026-10-07, David: Team ->
+    // Roster, Matchup -> Today, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there
     // until then. The first leaf in the normal order (waiverDay false), so a Tuesday's Waivers-first row
     // does not lead; navLeavesFor still drops a leaf the league lacks. The hash still restores a leaf.
     navGo(navLeavesFor(g, navFacts(), false)[0]);

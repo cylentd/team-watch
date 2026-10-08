@@ -6,7 +6,8 @@ view (tests/component.py), read through tests/pages/phonechrome.py."""
 import pytest
 
 from component import mount  # noqa: F401  (the fixture)
-from pages.phonechrome import ChromeSurface, PhoneChrome
+from pages.phonechrome import ChromeSurface, PhoneBar, PhoneChrome
+from wording import words
 
 PHONE = (360, 740)
 DESKTOP = (1280, 800)
@@ -54,4 +55,19 @@ def test_the_chrome_meets_the_content_with_an_edge_unlike_a_cards_border(mount, 
     paint = ChromeSurface(page).paint(CARD_ROW)
     assert paint[part]["edge"] is not None, f"the {part} draws no edge where it meets the content"
     assert paint[part]["edge"] != paint["card"]["edge"], f"the {part}'s edge is a card's border"
+    assert errors == []
+
+
+GROUPS = ("team", "week", "scouting", "league", "bets")    # data/navmap.js NAV, in the bar's order
+
+
+@pytest.mark.render
+@pytest.mark.req("Phone layout", ac="the bottom bar is Team, Matchup, Players, League, Bets; Search sits beside Ask")
+def test_the_bottom_bar_holds_the_five_sections_and_search_moves_up_beside_ask(mount):
+    """Storyboard nav draft B (David 2026-10-08, ledger #32): Bets keeps the fifth slot, so Search moves to the
+    header bar, left of Ask, still one tap from every view."""
+    page, errors = mount("ranks", size=PHONE)
+    bar = PhoneBar(page)
+    assert bar.words() == [words(f"nav.group.{g}.short") for g in GROUPS]
+    assert bar.search_place() == {"in_header": True, "in_bar": False, "beside_ask": True, "on_screen": True}
     assert errors == []

@@ -12,7 +12,7 @@
 <!-- One bar since 2026-09-25: brand, the four groups, then the tools. The brand row above it was
      a third bar of chrome before any data on a desktop, and spoke a different language from the
      phone's row of words. On a phone (2026-10-05, chrome/phonenav.css) this bar is the header: the
-     team switch and Ask, with the groups and search moved to the bottom tab bar; the brand, the Discord
+     team switch, Search and Ask, with the groups moved to the bottom tab bar; the brand, the Discord
      link and the week pill hide there, and Discord lives in the team switch's menu. -->
 <header class="navbar" data-testid="chrome-header">
   <div class="wrap navrow">
@@ -23,18 +23,19 @@
     <!-- A phone's header bar (2026-10-05, chrome/phonenav.css): the reader's team as the team switch
          on the left, Ask on the right. Painted by nav.js paintHdrTeam on a phone only; empty on a desktop. -->
     <div class="hdrteam" id="hdrteam"></div>
-    <!-- The groups and search. On a desktop this wrapper is display:contents, so they sit in the bar's
-         row as before; on a phone it is the bottom tab bar, where one thumb reaches it (2026-10-05). -->
+    <!-- The groups. On a desktop this wrapper is display:contents, so they sit in the bar's row as
+         before; on a phone it is the bottom tab bar, where one thumb reaches it (2026-10-05). -->
     <nav class="tabbar" id="tabbar" data-testid="chrome-tabbar" aria-label="{{copy:nav.bar.label}}">
     <div class="nav" id="nav"></div>
-    <!-- Search is not a view, so it is not in NAV: no hash, no aria-current. On a phone it takes
-         the bottom bar's fifth slot (phonenav.css); on a desktop it is a field that opens the tools. -->
+    </nav>
+    <!-- Search is not a view, so it is not in NAV: no hash, no aria-current. On a desktop it is a field
+         after the groups that opens the tools; on a phone it sits in the header beside Ask (since
+         2026-10-08: Bets took the bottom bar's fifth slot, storyboard nav draft B). -->
     <button class="navitem navsearch" id="navsearch" type="button" aria-haspopup="dialog" aria-controls="search" aria-label="{{copy:nav.search.field}}">
       <span class="ix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></span
       ><span class="full">{{copy:nav.search.field}}</span><span class="abbr">{{copy:nav.search.label}}</span
       ><kbd class="navkbd" aria-hidden="true">/</kbd>
     </button>
-    </nav>
     <span class="pill warn" id="topbadge"><span class="dot"></span><span class="full">{{copy:chrome.badge.defaultFull}}</span><span class="abbr">{{copy:chrome.badge.sampleAbbr}}</span></span>
     <div class="statuswrap" id="feed"></div>
     <!-- Chat sits in the bar, not floating over the rows it would otherwise cover. It stays

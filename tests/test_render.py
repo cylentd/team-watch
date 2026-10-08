@@ -85,10 +85,10 @@ def LIVE_PLANT(states=None):
 # two clicks, not one, except in a group of one where no sub-row is drawn at all. Spelling both
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
-GROUP = {"digest": "week", "roster": "league", "waivers": "league",   # Teams and League merged into League on 2026-10-05
-         "recap": "league", "records": "league", "trades": "league", "teams": "league",
-         "highlights": "scouting", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
-         "news": "week", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
+GROUP = {"digest": "week", "roster": "team", "waivers": "team",   # Team split from League on 2026-10-08 (nav regroup)
+         "recap": "league", "records": "league", "trades": "team", "teams": "league",
+         "highlights": "week", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
+         "news": "scouting", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
          "schedule": "scouting",
          "parlay": "bets", "build": "bets", "dfs": "bets"}
 # Weather left the This week sub-row on 2026-10-05 (nav.js NAV_HIDDEN): it is reached by hash or navGo, not a tap.
@@ -841,26 +841,26 @@ def tab(key):
     ("ranks", "scouting", tab("nav.tab.ranks")),
     ("board", "scouting", tab("nav.tab.board")),  # the leaf is still `board`, so its bookmarks land
     ("movers", "scouting", tab("nav.tab.movers")),   # Movers until 2026-09-29, Role until 2026-10-05; the leaf kept its name
-    ("highlights", "scouting", tab("nav.tab.highlights")),
+    ("highlights", "week", tab("nav.tab.highlights")),
     ("pool", "scouting", tab("nav.tab.movers")),     # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", tab("nav.tab.grid")),             # Grid until 2026-10-05
     ("matchups", "week", tab("nav.tab.matchups")),   # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03 -> Matchups 2026-10-06; the leaf stayed
     ("takes", "week", tab("nav.tab.matchups")),
     ("startsit", "week", tab("nav.tab.matchups")),
-    ("news", "week", tab("nav.tab.news")),           # Players until 2026-09-29; the leaf and hash stayed
+    ("news", "scouting", tab("nav.tab.news")),       # Players until 2026-09-29 and again since 2026-10-08; the leaf and hash stayed
     ("weather", "week", None),          # out of the sub-row since 2026-10-05 (nav.js NAV_HIDDEN): the hash still lands, no button is pressed
     ("schedule", "scouting", tab("nav.tab.schedule")),   # Stats > Schedule: hidden 2026-10-05, back in the sub-row 2026-10-06
     ("weekrecap", "week", tab("nav.tab.weekrecap")),
     ("preview", "week", tab("nav.tab.preview")),
-    ("waivers", "league", tab("nav.tab.waivers")),   # Teams and League merged into one League group on 2026-10-05
-    ("roster", "league", tab("nav.tab.roster")),
+    ("waivers", "team", tab("nav.tab.waivers")),     # League until 2026-10-08, Team since (nav regroup)
+    ("roster", "team", tab("nav.tab.roster")),
     ("recap", "league", tab("nav.tab.recap")),
     ("myrecap", "league", tab("nav.tab.recap")),     # Yahoo's My recap and ESPN's League are Recap now; their hashes still land
     ("league", "league", tab("nav.tab.recap")),
     ("parlay", "bets", tab("nav.tab.parlay")),        # the leaf is still `parlay`, so its bookmarks land
     ("build", "bets", tab("nav.tab.build")),   # Build until 2026-10-05; the leaf kept its name
     ("records", "league", tab("nav.tab.records")),   # League became a group of its own on 2026-09-28
-    ("trades", "league", tab("nav.tab.trades")),
+    ("trades", "team", tab("nav.tab.trades")),
     ("teams", "league", tab("nav.tab.teams")),       # League > Teams, the League board (2026-10-05)
 ])
 def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
@@ -877,7 +877,7 @@ def test_a_hash_opens_its_view(browser, page_file, leaf, group, label):
             seen, want = sub.inner_text().strip().upper()[:len(label)], label
         assert seen == want
         # And navigating writes it back, so the next reload holds.
-        page.locator(".navitem[data-s='league']").first.click()
+        page.locator(".navitem[data-s='team']").first.click()
         page.wait_for_function("location.hash === '#roster'")
         assert page.evaluate("location.hash") == "#roster"
         assert errors == []

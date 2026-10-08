@@ -44,6 +44,30 @@ CHROME_PARTS = {"header": HEADER, "tab row": TABROW, "bottom bar": TABBAR}
 EDGE_SIDE = {"header": "bottom", "tab row": "bottom", "bottom bar": "top"}
 
 
+class PhoneBar:
+    """The bottom bar's words and where Search sits (2026-10-08, nav regroup to Team · Matchup · Players · League ·
+    Bets): Search left the bar for the header, beside Ask."""
+
+    def __init__(self, page):
+        self.page = page
+
+    def words(self):
+        """The bottom bar's visible words, left to right."""
+        return self.page.evaluate("""id => [...document.querySelectorAll(`[data-testid="${id}"] button`)]
+          .filter(b => b.getBoundingClientRect().width > 0).map(b => b.innerText.trim())""", TABBAR)
+
+    def search_place(self):
+        """{in_header, in_bar, beside_ask, on_screen} for the Search button (#navsearch, the shell's id)."""
+        return self.page.evaluate("""([h, bar]) => {
+          const s = document.getElementById('navsearch'), ask = document.getElementById('chatfab');
+          const r = s.getBoundingClientRect(), a = ask.getBoundingClientRect(), head = document.querySelector(`[data-testid="${h}"]`).getBoundingClientRect();
+          return {in_header: r.top >= head.top && r.bottom <= head.bottom && r.width > 0,
+                  in_bar: !!s.closest(`[data-testid="${bar}"]`),
+                  beside_ask: Math.round(a.left - r.right) >= 0 && Math.round(a.left - r.right) <= 8,
+                  on_screen: r.left >= 0 && r.right <= innerWidth};
+        }""", [HEADER, TABBAR])
+
+
 class ChromeSurface:
     """The chrome's own surface (2026-10-08, TODO "chrome stands apart from content"): what each part of the
     chrome paints, beside a card's and the page's, all as computed by the browser."""

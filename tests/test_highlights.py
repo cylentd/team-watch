@@ -43,7 +43,7 @@ def test_highlights_leads_players_and_each_card_opens_its_view(browser, page_fil
     ctx, page, errors = open_at(browser, page_file, (360, 800), "#highlights")
     try:
         page.wait_for_selector(".hl-v")
-        assert page.evaluate("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights", "Players opens on Highlights"
+        assert page.evaluate("NAV.find(([, t]) => t.includes('highlights'))[0]") == "week", "Highlights sits in Matchup beside Today"
         heads = [h.strip() for h in page.locator(".hl-go").all_inner_texts()]
         assert heads == [words(f"highlights.view.{k}") for k in ("ranks", "leaders", "role", "grid")]
         assert page.locator(".hl-ln").count() == 8

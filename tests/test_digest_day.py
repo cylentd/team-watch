@@ -177,7 +177,7 @@ def test_a_rows_research_opens_in_place_one_at_a_time(mount):
 def test_rest_of_the_week_links_the_other_views(mount):
     dg, errors = day(mount)
     dg.plant_recap(RECAP_ON)                          # Monday, the recap half final
-    assert dg.strip() == [["weekrecap", "Recap"], ["waivers", "Waivers"]]
+    assert dg.strip() == [["weekrecap", "Results"], ["waivers", "Waivers"]]
     dg.plant_recap(RECAP_LAST_DAY)                    # Wednesday, its last day
     assert [leaf for leaf, _ in dg.strip()] == ["preview", "matchups", "weekrecap", "news"]
     dg.plant_recap(RECAP_ON, "LIVE_RECAP.n_final = 7")        # under half final: no Recap chip

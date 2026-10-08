@@ -55,11 +55,12 @@ def test_the_schedule_counts_when_the_recap_has_no_kickoff(node_js):
     assert end == [4, 0, 0]
 
 
-@pytest.mark.req("Navigation: one League group, Stats", ac="Stats opens on Highlights")
-def test_the_stats_tab_opens_on_highlights(node_js):
-    """David, 2026-10-04: the Digest lost its Highlights section; the Players tab keeps them, first."""
+@pytest.mark.req("Navigation: one League group, Stats", ac="Highlights sits in Matchup beside Today")
+def test_highlights_sits_in_matchup_beside_today(node_js):
+    """David, 2026-10-04: the Digest lost its Highlights section and Stats kept them, first. Since the nav regroup
+    (2026-10-08, storyboard draft B) Highlights waits in Matchup, beside Today, until step 2 folds it in as a card."""
     nav = node_js("data/navmap.js")
-    assert nav("NAV.find(([g]) => g === 'scouting')[1][0]") == "highlights"
+    assert nav("navGroupOf", "highlights") == nav("navGroupOf", "digest") == "week"
 
 
 # ------------------------------------------------------------------ the day plan (2026-10-06, Digest by day)

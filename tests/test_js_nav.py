@@ -19,21 +19,24 @@ def nav(node_js):
     return node_js("data/navmap.js", "data/navrow.js")
 
 
-def test_the_top_bar_is_week_league_stats_bets(nav):
-    assert nav("NAV.map(([g]) => g)") == ["week", "league", "scouting", "bets"]
-    assert [nav("navGroupLabel", g, False) for g in ("week", "league", "scouting", "bets")] == ["This week", "League", "Stats", "Bets"]
+def test_the_bottom_bar_is_team_matchup_players_league_bets(nav):
+    """Nav regroup, step 1 (David 2026-10-08, ledger #32): the Yahoo, ESPN and Sleeper sections. Group ids keep
+    their old spelling where a group was renamed (`week` reads Matchup, `scouting` Players); `team` is new."""
+    assert nav("NAV.map(([g]) => g)") == ["team", "week", "scouting", "league", "bets"]
+    assert [nav("navGroupLabel", g, False) for g in ("team", "week", "scouting", "league", "bets")] == ["Team", "Matchup", "Players", "League", "Bets"]
 
 
-def test_the_group_called_teams_is_gone_and_league_holds_six_leaves(nav):
+def test_team_holds_your_teams_views_and_league_holds_the_leagues(nav):
     assert nav("NAV.some(([g]) => g === 'teams')") is False
-    assert nav("NAV.find(([g]) => g === 'league')[1]") == ["roster", "waivers", "teams", "trades", "recap", "records"]
+    assert nav("NAV.find(([g]) => g === 'team')[1]") == ["roster", "waivers", "trades"]
+    assert nav("NAV.find(([g]) => g === 'league')[1]") == ["recap", "teams", "records"]
 
 
 def test_no_sub_row_holds_more_than_six_leaves(nav):
     """Six fit in the 332 px row of a 360 px phone (316 px for This week's), seven took 383 px (measured in the
     browser, 2026-10-05; the figures are in data/navmap.js). Stats holds six since Schedule came back (2026-10-06)."""
     assert nav("NAV_SUBROW_MAX") == 6
-    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [6, 6, 6, 3]
+    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [3, 6, 6, 3, 3]
 
 
 def test_every_leaf_is_in_one_group_only(nav):
@@ -60,7 +63,7 @@ def test_old_and_new_hashes_land(nav, name, leaf):
 
 
 def test_the_stats_group_keeps_its_id_and_its_leaves(nav):
-    assert nav("NAV.find(([g]) => g === 'scouting')[1]") == ["highlights", "ranks", "board", "movers", "usage", "schedule"]
+    assert nav("NAV.find(([g]) => g === 'scouting')[1]") == ["news", "ranks", "board", "movers", "usage", "schedule"]
     assert nav("navGroupOf", "usage") == "scouting"
 
 
@@ -74,44 +77,48 @@ def test_schedule_is_a_stats_leaf_in_the_sub_row_and_weather_is_the_only_hidden_
     assert tabs[-1] == "schedule" and nav("navFallback", "schedule", tabs) == "schedule"
 
 
-def test_the_matchups_tab_is_labelled_matchups_and_the_old_names_still_land(nav):
-    """Start/Sit became Matchups on 2026-10-06 (David); the leaf id stays, and #startsit and #takes still open it."""
-    assert nav("navLabel", "matchups") == "Matchups"
+def test_the_matchups_tab_is_labelled_start_sit_and_the_old_names_still_land(nav):
+    """Start/Sit became Matchups on 2026-10-06 (David) and Start/Sit again on 2026-10-08, so it never echoes the
+    Matchup group; the leaf id stays, and #startsit and #takes still open it."""
+    assert nav("navLabel", "matchups") == "Start/Sit"
     assert [nav("navLeafOf", n) for n in ("matchups", "startsit", "takes")] == ["matchups"] * 3
 
 
-@pytest.mark.parametrize("leaf,group", [("roster", "league"), ("waivers", "league"), ("teams", "league"), ("trades", "league"),
+@pytest.mark.parametrize("leaf,group", [("roster", "team"), ("waivers", "team"), ("teams", "league"), ("trades", "team"),
                                         ("recap", "league"), ("records", "league"), ("weekrecap", "week"), ("digest", "week")])
 def test_a_leaf_finds_its_group(nav, leaf, group):
     assert nav("navGroupOf", leaf) == group
 
 
 def test_a_yahoo_league_shows_all_six(nav):
-    assert nav("navLeavesFor", "league", YAHOO, False) == ["roster", "waivers", "teams", "trades", "recap", "records"]
+    assert nav("navLeavesFor", "team", YAHOO, False) == ["roster", "waivers", "trades"]
+    assert nav("navLeavesFor", "league", YAHOO, False) == ["recap", "teams", "records"]
 
 
 def test_espn_has_no_record_book_but_has_the_trade_finder(nav):
     """ESPN has no record book, so no Records; Trades is the finder, which every league with rosters has."""
-    assert nav("navLeavesFor", "league", ESPN, False) == ["roster", "waivers", "teams", "trades", "recap"]
+    assert nav("navLeavesFor", "team", ESPN, False) == ["roster", "waivers", "trades"]
+    assert nav("navLeavesFor", "league", ESPN, False) == ["recap", "teams"]
 
 
 def test_ayo_has_the_finder_even_with_no_graded_trades(nav):
     """Its graded history was the old Trades leaf (AYO had none); the finder needs only rosters."""
-    assert nav("navLeavesFor", "league", AYO, False) == ["roster", "waivers", "teams", "trades", "recap", "records"]
+    assert nav("navLeavesFor", "team", AYO, False) == ["roster", "waivers", "trades"]
+    assert nav("navLeavesFor", "league", AYO, False) == ["recap", "teams", "records"]
 
 
 def test_a_connected_league_has_no_waivers(nav):
-    assert "waivers" not in nav("navLeavesFor", "league", CONNECTED, False)
+    assert "waivers" not in nav("navLeavesFor", "team", CONNECTED, False)
 
 
 def test_tuesday_puts_waivers_first(nav):
-    assert nav("navLeavesFor", "league", YAHOO, True)[0] == "waivers"
-    assert nav("navLeavesFor", "league", ESPN, True) == ["waivers", "roster", "teams", "trades", "recap"]
+    assert nav("navLeavesFor", "team", YAHOO, True)[0] == "waivers"
+    assert nav("navLeavesFor", "team", ESPN, True) == ["waivers", "roster", "trades"]
 
 
 def test_other_groups_are_not_filtered(nav):
-    assert nav("navLeavesFor", "scouting", ESPN, False) == ["highlights", "ranks", "board", "movers", "usage", "schedule"]
-    assert nav("navLeavesFor", "week", ESPN, False)[:2] == ["digest", "weekrecap"]
+    assert nav("navLeavesFor", "scouting", ESPN, False) == ["news", "ranks", "board", "movers", "usage", "schedule"]
+    assert nav("navLeavesFor", "week", ESPN, False)[:2] == ["digest", "live"]
 
 
 @pytest.mark.parametrize("leaf,tabs,want", [
@@ -193,6 +200,31 @@ def test_a_role_filter_that_holds_him_stays(nav):
 
 def test_only_grid_and_role_take_a_row(nav):
     assert nav("navRowPlan", "digest", "a-rb", GRID, {"week": 4}) is None
+
+
+@pytest.mark.req("Navigation: one League group, Stats", ac="Matchup's views read Today, Live, Start/Sit, Preview, Results")
+def test_matchup_reads_today_live_start_sit_preview_results(nav):
+    """Storyboard B (2026-10-08): the Digest reads Today and the week's Recap reads Results, so League keeps the
+    only Recap. Leaf ids and hashes stay."""
+    row = nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k))")
+    assert row[:5] == ["digest", "live", "matchups", "preview", "weekrecap"]
+    assert [nav("navLabel", k) for k in row[:5]] == ["Today", "Live", "Start/Sit", "Preview", "Results"]
+
+
+def test_highlights_waits_beside_today_until_it_folds_into_it(nav):
+    """Storyboard B makes Highlights a card on Today; folding is step 2 (draft C), so in step 1 it is Matchup's last
+    view, and News leads Players (its Yahoo and ESPN home)."""
+    assert nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k)).at(-1)") == "highlights"
+    assert nav("NAV.find(([g]) => g === 'scouting')[1][0]") == "news"
+
+
+@pytest.mark.parametrize("leaf,tabs,want", [
+    ("trades", ["roster", "waivers"], "roster"),     # a league with no rosters: Team's first view
+    ("records", ["recap", "teams"], "recap"),         # an ESPN team: League's Recap
+    ("waivers", ["roster", "trades"], "roster"),     # a connected league
+])
+def test_a_team_or_league_leaf_a_league_lacks_lands_in_its_own_group(nav, leaf, tabs, want):
+    assert nav("navFallback", leaf, tabs) == want
 
 
 def test_the_stats_views_are_named_by_what_they_hold(nav):

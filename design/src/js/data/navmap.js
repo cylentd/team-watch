@@ -3,10 +3,15 @@
    `SURFACE` is always the leaf; the group is derived from it, never stored.
 
    The history of the table (what moved when, and why every leaf id stayed) is the header of chrome/nav.js. */
+/* Team · Matchup · Players · League · Bets since 2026-10-08 (David, storyboard nav draft B, ledger #32): the
+   sections Yahoo, ESPN and Sleeper readers already know. A renamed group keeps its id (`week` reads Matchup,
+   `scouting` Players), so nothing keyed on it moves; `team` is new, split from League. Highlights waits at the
+   end of Matchup, beside Today, until step 2 folds it into Today as a card. */
 const NAV = [
-  ["week",     ["digest", "weekrecap", "news", "matchups", "preview", "weather", "live"]],
-  ["league",   ["roster", "waivers", "teams", "trades", "recap", "records"]],
-  ["scouting", ["highlights", "ranks", "board", "movers", "usage", "schedule"]],
+  ["team",     ["roster", "waivers", "trades"]],
+  ["week",     ["digest", "live", "matchups", "preview", "weekrecap", "highlights", "weather"]],
+  ["scouting", ["news", "ranks", "board", "movers", "usage", "schedule"]],
+  ["league",   ["recap", "teams", "records"]],
   ["bets",     ["parlay", "build", "dfs"]],
 ];
 
@@ -17,9 +22,9 @@ const NAV = [
    the row scrolls sideways inside itself as one row (STYLE.md "Controls"; chrome/phonenav.css). A seventh does not fit. */
 const NAV_SUBROW_MAX = 6;
 
-/* Groups whose words need a tighter gap than the phone's 16px (navrow.css .dense): League holds six leaves,
-   longer than This week's, and Stats names its views by what they hold. */
-const NAV_DENSE = ["league", "scouting"];
+/* Groups whose words take the tighter 8px gap on a desktop (navrow.css .dense): Players names its views by
+   what they hold. League held six leaves until 2026-10-08 and was dense too; it holds three now. */
+const NAV_DENSE = ["scouting"];
 
 /* Weather left the sub-row on 2026-10-05 to make room for Recap. It stays in NAV, so #weather,
    navGo("weather") and navGroupOf still work; the Digest's Weather row and every Preview dossier link
@@ -41,7 +46,8 @@ const navLeafOf = name => {
   return NAV.some(([, tabs]) => tabs.includes(leaf)) ? leaf : null;
 };
 
-const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV[0])[0];
+// A name no group holds belongs to Matchup, the default view's group (it was NAV[0] while This week led the bar).
+const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV.find(([, tabs]) => tabs.includes("digest")))[0];
 
 /* The leaves a group shows, given what the league on screen has. `facts` is plain booleans:
    waivers (a league with a packet; a connected one has none), teams (any league has rosters),
@@ -58,8 +64,9 @@ function navLeavesFor(group, facts, waiverDay){
 /* A leaf the league on screen has no view for (a #records link on an ESPN team, #waivers on a connected
    league) lands on its nearest: Waivers on the roster, the league's book and trades on Recap. A leaf
    hidden from the sub-row on purpose (Weather) is left alone. */
+const NAV_LEAGUE_GROUPS = ["team", "league"];   // the groups whose leaves depend on what the league has
 function navFallback(leaf, tabs){
-  if (tabs.includes(leaf) || NAV_HIDDEN.includes(leaf) || !NAV.some(([g, ts]) => g === "league" && ts.includes(leaf))) return leaf;
+  if (tabs.includes(leaf) || NAV_HIDDEN.includes(leaf) || !NAV.some(([g, ts]) => NAV_LEAGUE_GROUPS.includes(g) && ts.includes(leaf))) return leaf;
   const next = leaf === "waivers" ? "roster" : "recap";
   return tabs.includes(next) ? next : tabs[0] || leaf;
 }
@@ -93,9 +100,9 @@ const navCaptionHTML = leaf => {
 };
 
 const navGroupLabel = (group, short) => (short ? {
-  week: t("nav.group.week.short"), scouting: t("nav.group.scouting.short"),
+  team: t("nav.group.team.short"), week: t("nav.group.week.short"), scouting: t("nav.group.scouting.short"),
   league: t("nav.group.league.short"), bets: t("nav.group.bets.short"),
 } : {
-  week: t("nav.group.week.full"), scouting: t("nav.group.scouting.full"),
+  team: t("nav.group.team.full"), week: t("nav.group.week.full"), scouting: t("nav.group.scouting.full"),
   league: t("nav.group.league.full"), bets: t("nav.group.bets.full"),
 })[group] || group;

@@ -349,7 +349,7 @@ def test_startsit_hash_opens_the_view_under_its_new_name(ss):
     pg = ss(hash_="#startsit")
     assert pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0 and pg.locator(".mu-rec").count() == 1
     assert pg.evaluate("SURFACE") == "matchups"
-    assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Matchups"
+    assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Start/Sit"
 
 
 @pytest.mark.render
@@ -455,7 +455,7 @@ def test_compare_two_opens_the_picker_as_a_page_with_a_back_link(ss):
     pg.click("[data-sscmp]")
     assert pg.locator(".ssv-pick").count() == 1 and pg.locator(".ssv-who").count() == 2
     assert pg.locator(".ssv-board, .mu-calls, .mu-rec, .mu-last, [data-sscmp]").count() == 0     # a page, not a card among the rest
-    assert pg.inner_text("[data-ssback]") == "‹ Matchups"
+    assert pg.inner_text("[data-ssback]") == "‹ Start/Sit"
     assert pg.evaluate("SURFACE") == "matchups"
     pg.click("[data-ssback]")
     assert pg.locator(".ssv-pick").count() == 0 and pg.locator(".ssv-board").count() == 1

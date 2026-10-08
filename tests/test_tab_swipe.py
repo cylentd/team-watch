@@ -12,16 +12,16 @@ pytestmark = pytest.mark.render
 LEFT, RIGHT = -120, 120   # a swipe left asks for the tab to the right
 
 
-WEEK = ["digest", "weekrecap", "news", "matchups", "preview", "live"]   # This week's row (data/navmap.js)
+WEEK = ["digest", "live", "matchups", "preview", "weekrecap", "highlights"]   # Matchup's row (data/navmap.js)
 
 
 @pytest.fixture
 def week(mount):
-    """This week's row on a phone, on News: a plain pill with a plain pill on its right."""
+    """Matchup's row on a phone, on Start/Sit: a plain pill with a plain pill on its right."""
     page, errors = mount("digest")
     row = TabSwipe(page)
     assert row.pills() == WEEK
-    row.open("news")
+    row.open("matchups")
     yield row
     assert errors == []
 
@@ -29,9 +29,9 @@ def week(mount):
 @pytest.mark.req("Swipe between tabs", ac="a swipe is a tap on the next thing in the row")
 def test_a_swipe_on_the_view_opens_the_tab_beside_the_open_one(week):
     week.swipe(LEFT)
-    assert (week.pressed_pill(), week.hash()) == ("matchups", "#matchups")
+    assert (week.pressed_pill(), week.hash()) == ("preview", "#preview")
     week.swipe(RIGHT)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="the row's ends stop the swipe")
@@ -43,34 +43,34 @@ def test_a_swipe_past_the_first_tab_stays_put(week):
 
 def test_a_nudge_is_not_a_swipe(week):
     week.swipe(-30)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="a touch at a screen edge is the browser's")
 @pytest.mark.parametrize("x", [10, 350])
 def test_a_swipe_from_the_screen_edge_is_left_to_the_browser(week, x):
     week.swipe(LEFT, x=x)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="a surface's own sideways gesture keeps its touch")
 @pytest.mark.parametrize("kind", sorted(OWNERS))
 def test_a_swipe_on_a_surface_with_its_own_sideways_touch_stays_on_the_tab(week, kind):
     week.swipe_on_owner(kind, LEFT)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="anywhere between the tab row and the bottom bar")
 def test_a_swipe_on_the_empty_page_below_a_short_view_opens_the_next_tab(week):
     week.swipe_on_background(LEFT)
-    assert week.pressed_pill() == "matchups"
+    assert week.pressed_pill() == "preview"
 
 
 @pytest.mark.req("Swipe between tabs", ac="anywhere between the tab row and the bottom bar")
 @pytest.mark.parametrize("part", ["header", "tab row", "bottom bar"])
 def test_a_swipe_on_the_pages_chrome_is_not_a_tab_swipe(week, part):
     week.swipe_on_chrome(part, LEFT)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="never under an overlay")
@@ -78,19 +78,19 @@ def test_a_swipe_while_an_overlay_is_open_stays_on_the_tab(week):
     week.open_search()
     week.swipe_on_background(LEFT)
     week.swipe(LEFT)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="a scroll never turns the tab")
 def test_a_touch_that_scrolls_the_page_is_a_scroll(week):
     week.scroll_while_swiping(LEFT, 200)
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="a scroll never turns the tab")
 def test_a_touch_that_starts_down_the_page_is_a_scroll_however_it_ends(week):
     week.touch([(200, 400), (201, 386), (150, 385), (80, 385)])
-    assert week.pressed_pill() == "news"
+    assert week.pressed_pill() == "matchups"
 
 
 @pytest.mark.req("Swipe between tabs", ac="a swipe into a view lands on its nearest tab")
@@ -99,10 +99,10 @@ def test_a_swipe_into_recap_lands_on_its_first_tab_from_the_left_and_its_last_fr
     segs = week.segs()
     assert len(segs) >= 3, "the fixture's Recap opens into three tabs or more"
     week.tap_seg(segs[-1])                   # Recap remembers its last tab
-    week.open("digest")
+    week.open("preview")
     week.swipe(LEFT)
     assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[0])
-    week.open("news")
+    week.open("highlights")
     week.swipe(RIGHT)
     assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[-1])
 
@@ -112,7 +112,7 @@ def test_a_swipe_onto_a_tab_past_the_rows_edge_brings_it_into_view(week):
     """Recap opened into its four tabs is wider than a 360 px row; landing on its last tab shows that tab."""
     week.open("weekrecap")
     week.tap_seg(week.segs()[0])
-    week.open("news")
+    week.open("highlights")
     week.swipe(RIGHT)
     assert week.pressed_seg() == week.segs()[-1]
     assert week.pressed_seg_overhang() == [0, 0]

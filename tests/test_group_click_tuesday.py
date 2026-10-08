@@ -37,5 +37,5 @@ def tuesday(request, mount):
 def test_league_opens_roster_on_a_tuesday_not_waivers(tuesday):
     tuesday.evaluate("navGo('teams')")
     tap_group(tuesday, "week")
-    tap_group(tuesday, "league")
+    tap_group(tuesday, "team")
     assert leaf(tuesday) == "roster"

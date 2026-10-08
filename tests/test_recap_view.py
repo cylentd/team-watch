@@ -233,13 +233,13 @@ def test_a_section_without_data_hides_and_one_tab_left_hides_the_bar(planted):
 def test_weather_is_out_of_the_sub_row_but_the_hash_and_navgo_still_open_it(browser, page_file):
     ctx, page, errors = open_page(browser, page_file, PHONE)
     nav = RecapNav(page)
-    assert nav.sub_row() == ["Digest", "Recap", "News", "Matchups", "Preview", "Live"]
+    assert nav.sub_row() == ["Today", "Live", "Start/Sit", "Preview", "Results", "Highlights"]
     assert nav.sub_row_fits()
     nav.open_by_hash("weather")
     assert nav.group() == "week"
     assert nav.pressed_subs() == 0
     nav.go("weekrecap")
-    assert nav.pressed_sub() == "Recap"
+    assert nav.pressed_sub() == "Results"
     ctx.close()
     assert errors == []
 

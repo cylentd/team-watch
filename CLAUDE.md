@@ -124,8 +124,21 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
 
 ## Navigation
 
-Two levels since 2026-09-21. Four groups in the nav bar since 2026-10-05 (Week, League, Stats, Bets; five before Teams and League merged), each holding the views that answer one
-question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
+Two levels since 2026-09-21. **Five groups since 2026-10-08: Team · Matchup · Players · League · Bets**
+(David, storyboard nav draft B, ledger #32; step 1 of "C as target, B's regroup first"; labels and grouping
+only, every leaf id, hash and `NAV_ALIAS` unchanged). A renamed group keeps its id: Matchup is `week`, Players
+is `scouting`; Team (`team`) is new. Before: Week, League, Stats, Bets (2026-10-05).
+
+| group (id) | views in the row, left to right |
+|---|---|
+| Team (`team`) | Roster, Waivers, Trades (Waivers leads on a Tuesday) |
+| Matchup (`week`) | Today (leaf `digest`), Live, Start/Sit (leaf `matchups`), Preview, Results (leaf `weekrecap`), Highlights (until step 2 folds it into Today); Weather hidden |
+| Players (`scouting`) | News, Ranks, Leaders, Work vs points, Usage, Schedule |
+| League (`league`) | Recap, Teams, Records |
+| Bets (`bets`) | Slips, All lines, DFS |
+
+The table below is each view's history and detail; where it names a group, read the table above.
+Each group holds the views that answer one question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
 A group with no view to show draws no button; a league that lacks a leaf (ESPN has no Records) shows fewer, and a link to the missing one lands on its nearest (`navFallback`).
 
 | group | views |
@@ -162,11 +175,12 @@ bar until 2026-09-24, then the top bar, superseded): a header bar (`#hdrteam`: t
 switch, "Pick your team" with no pick; Ask on the right), one tab row (`#subnav`: the group's views as pills,
 the open view's own tabs opening in place inside it: Live, Recap, Slips; each view declares them with
 `navModes`, `js/data/tabrow.js`, and draws no bar of its own on a phone), and a bottom tab bar (`#tabbar`:
-Week, League, Stats, Bets, Search; one-handed reach, David 2026-10-05). A desktop keeps the one bar of words.
+Team, Matchup, Players, League, Bets since 2026-10-08; Week, League, Stats, Bets, Search before; one-handed
+reach, David 2026-10-05). A desktop keeps the one bar of words.
 Adding a view = one entry in `NAV`, one copy key, one branch in `render()`.
 
-Player search (2026-09-22) is not a view: no `NAV` entry, no hash. It is the bar's fifth slot on a
-phone and `/` on a desktop; `js/data/search.js` joins every live player row by slug and ranks,
+Player search (2026-09-22) is not a view: no `NAV` entry, no hash. On a phone it sits in the header
+beside Ask (since 2026-10-08; the bar's fifth slot before), on a desktop it is the field after the groups and `/`; `js/data/search.js` joins every live player row by slug and ranks,
 `js/chrome/search.js` is the sheet. Overlays push a URL-less history entry (`js/chrome/layers.js`),
 so Back closes the profile, then search, before it ever changes the view.
 

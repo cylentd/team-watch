@@ -116,7 +116,7 @@ def test_game_card_leads_with_smash_then_bold_starts_and_answers_with_the_pill_a
     assert [(r["name"], r["pill"], r["answer"], r["meta"]) for r in dg.rows("game")] == [
         ("J. Burrow", "SMASH", "SMASH QB3", "CIN @ PIT"), ("C. Brown", "SMASH", "SMASH RB5", "CIN @ PIT"),
         ("J. Chase", "SMASH", "SMASH WR5", "CIN @ PIT"), ("T. Higgins", "START", "START WR16", "CIN @ PIT")]
-    assert dg.more("game") == {"leaf": "matchups", "text": "Matchups"}
+    assert dg.more("game") == {"leaf": "matchups", "text": "Start/Sit"}
     assert errors == []
 
 

@@ -36,7 +36,7 @@ def home(request, mount):
 def test_league_opens_roster_after_the_reader_left_it_on_teams(home):
     home.evaluate("navGo('teams')")
     tap_group(home, "week")
-    tap_group(home, "league")
+    tap_group(home, "team")
     assert leaf(home) == "roster"
 
 
@@ -56,7 +56,7 @@ def test_the_open_group_taps_back_to_its_first_view(home):
 
 
 @pytest.mark.req("Navigation: one League group, Stats", ac="a group click opens the group's first view")
-@pytest.mark.parametrize("group,deep,first", [("scouting", "usage", "highlights"), ("bets", "dfs", "parlay")])
+@pytest.mark.parametrize("group,deep,first", [("scouting", "usage", "news"), ("bets", "dfs", "parlay")])
 def test_stats_and_bets_open_their_first_view_too(home, group, deep, first):
     home.evaluate("leaf => navGo(leaf)", deep)
     tap_group(home, "week")
@@ -83,7 +83,7 @@ def test_a_bookmark_opens_its_leaf_not_the_group_default(mount):
 @pytest.mark.req("Navigation: one League group, Stats", ac="Back is unchanged")
 def test_back_after_a_group_click_returns_to_the_view_it_left(home):
     home.evaluate("navGo('news')")
-    tap_group(home, "league")
+    tap_group(home, "team")
     assert leaf(home) == "roster"
     home.go_back()
     home.wait_for_function("SURFACE === 'news'")

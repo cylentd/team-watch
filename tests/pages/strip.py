@@ -356,8 +356,8 @@ class StripPage:
         self.page.goto(url, timeout=LOAD_MS)
 
     def open_roster(self):
-        """League, then Roster by name: the group's default has moved before."""
-        self.page.locator(".navitem[data-s='league']").click()
+        """Team, then Roster by name: the group's default has moved before."""
+        self.page.locator(".navitem[data-s='team']").click()
         self.page.locator("[data-leaf='roster']").click()
 
     def open_profile(self, name):
