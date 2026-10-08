@@ -144,6 +144,9 @@ Leaders keeps the leaf and hash `board`. Role has its own surface (`js/surface/r
 Every part shares one script scope, so a view's function names must be unique
 (`test_js_syntax.py::test_no_top_level_function_is_declared_twice`).
 
+A group click (phone `#tabbar` or desktop bar, the same `#nav` buttons) opens the group's first leaf in the
+row, every time (since 2026-10-07; it returned to the last leaf seen there before). A hash still wins.
+
 With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens the Digest (the week league-wide; it was
 Leaders, then briefly Ranks, on 2026-09-26) except on a Tuesday, when Waivers still leads.
 

@@ -155,7 +155,6 @@ const navFromHash = () => {
 
 function navGo(leaf, fromHash){
   leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
-  LAST_LEAF[navGroupOf(leaf)] = leaf;
   if (leaf !== "trades" && TB_EDIT) tfLeft();   // the trade finder's edit page left open by a tap on another view (finder/page.js)
   SURFACE = leaf;
   const active = navGroupOf(leaf);
@@ -207,9 +206,11 @@ function buildNav(){
   n.querySelectorAll(".navitem").forEach(b => b.addEventListener("click", () => {
     const g = b.dataset.s;
     if (navGroupOf(SURFACE) !== g) morphLogo();
-    // Back to where you were in that group, not to its first tab.
-    const tabs = navTabsOf(g);
-    navGo(navFallback(LAST_LEAF[g] || tabs[0], tabs));
+    // A group click opens the group's first view, every time (2026-10-07, David: League -> Roster, This
+    // week -> Digest, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there until then.
+    // The row's first leaf is the league's own (navLeavesFor), so a leaf the league lacks never leads;
+    // Tuesday's Waivers-first order is the row's, so it leads here too. The hash still restores a leaf.
+    navGo(navTabsOf(g)[0]);
     window.scrollTo({top: 0, behavior: "smooth"});
   }));
 
