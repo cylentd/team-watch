@@ -35,3 +35,37 @@ class PhoneChrome:
           const a = top(h), b = top(t);
           return {header_top: Math.round(a.top), header_bottom: Math.round(a.bottom), row_top: Math.round(b.top)};
         }""", [HEADER, TABROW])
+
+
+# The bottom tab bar (#tabbar): on a phone the groups and search; on a desktop display:contents, no box.
+TABBAR = "chrome-tabbar"
+CHROME_PARTS = {"header": HEADER, "tab row": TABROW, "bottom bar": TABBAR}
+# Which side of each part meets the content: the header and tab row end at their bottom, the bar starts at its top.
+EDGE_SIDE = {"header": "bottom", "tab row": "bottom", "bottom bar": "top"}
+
+
+class ChromeSurface:
+    """The chrome's own surface (2026-10-08, TODO "chrome stands apart from content"): what each part of the
+    chrome paints, beside a card's and the page's, all as computed by the browser."""
+
+    def __init__(self, page):
+        self.page = page
+
+    def paint(self, card_row):
+        """{part: {bg, edge}} for every chrome part, plus "card" (the first box with a background around
+        the first `card_row` test id) and "page" (the body). `edge` is the border on the side that meets
+        the content, or None when that border is not drawn."""
+        return self.page.evaluate("""([parts, sides, row]) => {
+          const paint = (el, side) => {
+            const cs = getComputedStyle(el), w = parseFloat(cs[`border-${side}-width`]);
+            return {bg: cs.backgroundColor, edge: w > 0 && cs[`border-${side}-style`] !== 'none' ? cs[`border-${side}-color`] : null};
+          };
+          const out = {};
+          for (const [name, id] of Object.entries(parts))
+            out[name] = paint(document.querySelector(`[data-testid="${id}"]`), sides[name]);
+          let card = document.querySelector(`[data-testid="${row}"]`);
+          while (card && /rgba\\(0, 0, 0, 0\\)|transparent/.test(getComputedStyle(card).backgroundColor)) card = card.parentElement;
+          out.card = paint(card, 'top');
+          out.page = paint(document.body, 'top');
+          return out;
+        }""", [CHROME_PARTS, EDGE_SIDE, card_row])

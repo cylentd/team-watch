@@ -27,8 +27,11 @@
   body{padding-bottom:var(--dock-b)}
 
   /* ---- the header bar ---- */
-  .navbar{position:sticky;top:0;padding-top:env(safe-area-inset-top, 0px);background:var(--void);
+  /* The header and the tab row are one frame (tokens.css --chrome-*, 2026-10-08): no edge between them,
+     the tab row draws the frame's edge and shadow (nav.css); with no tab row, the header draws them. */
+  .navbar{position:sticky;top:0;padding-top:env(safe-area-inset-top, 0px);background:var(--chrome-bg);
     border-bottom:0;box-shadow:none}
+  body:has(#subnav[hidden]) .navbar{border-bottom:1px solid var(--chrome-edge);box-shadow:var(--chrome-shadow)}
   .navbar .navrow{height:var(--hdr-h);padding:0 4px 0 14px;gap:8px}   /* over responsive/760.css .wrap */
   /* No brand on a phone (2026-09-24): an app's name does not sit beside its own tabs. Discord is in the
      team switch's menu (teamswitch.js); the status badge only repeated what the view's rows show. */
@@ -71,7 +74,8 @@
 
   /* ---- the bottom tab bar ---- */
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:stretch;
-    height:var(--dock-b);padding:0 4px env(safe-area-inset-bottom, 0px);background:var(--void);border-top:1px solid var(--line)}
+    height:var(--dock-b);padding:0 4px env(safe-area-inset-bottom, 0px);background:var(--chrome-bg);
+    border-top:1px solid var(--chrome-edge);box-shadow:var(--chrome-shadow-up)}
   .tabbar .nav{display:contents}
   .tabbar .navitem{flex:1 1 0;min-width:0;height:var(--bar-h);margin:0;padding:0;flex-direction:column;justify-content:center;align-items:center;gap:4px;
     border:0;border-radius:0;background:none;font-family:var(--ui);font-size:var(--t-1);font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink-3)}

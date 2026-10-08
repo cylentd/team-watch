@@ -1,0 +1,13 @@
+  /* The chrome's own surface (2026-10-08, TODO "chrome stands apart from content"): the header bar, the
+     tab row, the bottom tab bar and the desktop bar. They were --void, the page's own ground, so a --panel
+     card scrolling under them met the chrome on a 1px --line, the same line every card draws. The chrome
+     is now the frame, a step darker than the page, while the cards sit a step lighter: two steps apart,
+     the cards read as content inside it. Calmest of three tried at 360px; a lighter bar (--panel-2) read
+     as one more card, and --void with a firmer edge alone did not separate.
+     Still inside tokens.css's :root, which base.css closes (order.css.txt). */
+  --chrome-bg:#08090b;      /* the frame's ground: --ink on it 17.6:1, --ink-3 7.1:1, lime 16.9:1 */
+  --chrome-bg-rgb:8 9 11;
+  --chrome-edge:#3a424e;    /* where the frame meets the content: 2.0:1 on the frame, where a card's --line is 1.3:1 on the page */
+  --chrome-edge-rgb:58 66 78;
+  --chrome-shadow:0 8px 16px -8px rgb(var(--shadow-rgb) / .85);     /* cast down by the header and tab row */
+  --chrome-shadow-up:0 -8px 16px -8px rgb(var(--shadow-rgb) / .85); /* cast up by the bottom tab bar */

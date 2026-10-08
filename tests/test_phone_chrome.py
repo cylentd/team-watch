@@ -6,9 +6,11 @@ view (tests/component.py), read through tests/pages/phonechrome.py."""
 import pytest
 
 from component import mount  # noqa: F401  (the fixture)
-from pages.phonechrome import PhoneChrome
+from pages.phonechrome import ChromeSurface, PhoneChrome
 
 PHONE = (360, 740)
+DESKTOP = (1280, 800)
+CARD_ROW = "ranks-row"       # a Ranks row; the tier card around it is the card the chrome must not look like
 DOWN, BACK_UP = 900, 700     # past hidebar's old 120px floor, then a scroll up of 200px
 ROOM = 3000                  # the fixture's Ranks is shorter than a screen; this much more lets it scroll
 
@@ -28,4 +30,28 @@ def test_the_header_and_tab_row_stay_put_through_a_scroll_down_and_back_up(mount
 
     assert chrome.scroll_through([BACK_UP]) == BACK_UP
     assert chrome.edges() == rest, "a scroll back up moved the header or the tab row"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Phone layout", ac="the chrome paints its own surface, not the page's or a card's")
+@pytest.mark.parametrize("size, part", [(PHONE, "header"), (PHONE, "tab row"), (PHONE, "bottom bar"),
+                                        (DESKTOP, "header"), (DESKTOP, "tab row")])
+def test_the_chrome_paints_a_ground_unlike_the_page_and_the_cards(mount, size, part):
+    page, errors = mount("ranks", size=size)
+    paint = ChromeSurface(page).paint(CARD_ROW)
+    assert paint[part]["bg"] != paint["card"]["bg"], f"the {part} is painted like a card"
+    assert paint[part]["bg"] != paint["page"]["bg"], f"the {part} is painted like the page under the cards"
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Phone layout", ac="the chrome's edge against the content is not a card's border")
+@pytest.mark.parametrize("size, part", [(PHONE, "tab row"), (PHONE, "bottom bar"),
+                                        (DESKTOP, "header"), (DESKTOP, "tab row")])
+def test_the_chrome_meets_the_content_with_an_edge_unlike_a_cards_border(mount, size, part):
+    page, errors = mount("ranks", size=size)
+    paint = ChromeSurface(page).paint(CARD_ROW)
+    assert paint[part]["edge"] is not None, f"the {part} draws no edge where it meets the content"
+    assert paint[part]["edge"] != paint["card"]["edge"], f"the {part}'s edge is a card's border"
     assert errors == []

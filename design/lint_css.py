@@ -30,7 +30,8 @@ SRC = ROOT / "src"
 TOKENS = "base/tokens.css"
 # Every part that holds colour tokens. newsprint.css (2026-09-29) is more of tokens.css's :root,
 # split out when tokens.css passed its 250-line budget; a hex is at home in either.
-TOKEN_FILES = (TOKENS, "base/newsprint.css")
+# chromesurface.css (2026-10-08) is the same: the chrome's colour tokens, split out for the same budget.
+TOKEN_FILES = (TOKENS, "base/newsprint.css", "base/chromesurface.css")
 BASE = "base/base.css"       # the type scale lives here, so its px values are the tokens
 # 1100 is Waivers' wide layout only (surface/teams/wdesk.css): the rail as a right-hand column.
 BREAKPOINTS = {1100, 960, 760, 430}

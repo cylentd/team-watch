@@ -7,10 +7,11 @@
 #      0,1,0), not on order. Reordering breaks the phone nav silently.
 # pin: chrome/feed.css is followed by surface/dfs/lineup.css because the template kept the DFS
 #      lineup grid under the FEED STATUS banner. Relocating it is a separate, rendered-diff change.
-# pin: base/tokens.css opens :root and base/base.css closes it; base/newsprint.css sits between them
-#      because it is more of the same block, not a file of its own rules.
+# pin: base/tokens.css opens :root and base/base.css closes it; base/newsprint.css and
+#      base/chromesurface.css sit between them because they are more of the same block, not files of their own rules.
 base/tokens.css
 base/newsprint.css
+base/chromesurface.css
 base/base.css
 chrome/topbar.css
 chrome/teamswitch.css

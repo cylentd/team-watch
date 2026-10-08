@@ -4,7 +4,8 @@
    language. Icons and uppercase went: the word is the label, and the icon beside it said it twice. */
 .navbar{
   position:sticky; top:0; z-index:39;
-  border-bottom:1px solid var(--line);background:var(--void);
+  /* The chrome's own surface (tokens.css, 2026-10-08): darker than the page, the cards lighter. */
+  border-bottom:1px solid var(--chrome-edge);background:var(--chrome-bg);box-shadow:var(--chrome-shadow);
 }
 .navrow{display:flex;align-items:center;gap:6px;height:56px}
 /* The groups' side padding eases from 12px at 1280 to 7px at 1100 (the narrow desktop below takes
@@ -50,7 +51,7 @@
 /* The row's own padding lives out here, on the full-bleed element, so that .subnav-in carries
    nothing but .wrap's: a padding shorthand on .subnav-in zeroes the sides and drops the first
    tab off the groups' left edge. */
-.subnav{background:var(--void);border-bottom:1px solid var(--line)}
+.subnav{background:var(--chrome-bg);border-bottom:1px solid var(--chrome-edge);box-shadow:var(--chrome-shadow)}
 .subnav[hidden]{display:none}
 .subnav-in{display:flex;align-items:center}
 .subnav .modes-sub{margin:0!important;gap:22px;border:0;background:none;padding:0}
