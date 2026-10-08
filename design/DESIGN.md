@@ -1652,6 +1652,40 @@ is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data
   cost the METHODOLOGY pointer; `test_sos_view.py` holds the line at 240px.
 - Position and weeks are this view's own choice; they are not shared with Ranks, which is one week.
 
+## Player tags (Roster, Ranks and the profile, 2026-10-08, ledger #41)
+
+Tags replace numbers, the way usage became the profile's tiles (Every Down, Complete). A pill on the row is the
+answer; the profile says the rule behind it in one plain line. ff-jarvis's `player_tags` block holds numbers only
+(`model.season.player_tags`, METHODOLOGY 12.114 and 12.118); every word is ours, `tags.*` in content.json, keyed by
+tag and kind.
+
+| Tag on the page | ff-jarvis tag | Colour | Plain line (profile) |
+|---|---|---|---|
+| Rising | RISING (fact since 12.114 Amendment 1) | green: up | his work over the last 3 games against before |
+| Sleeper | POTENTIAL (fact, 12.118) | lime: buy-low | one line per usage signal; the effect (+1.17 expected points a game) only for the signals the file names, never VACATED |
+| Trending | TRENDING (fact) | grey: a market fact, no direction | his place on Sleeper's most-added list and his adds |
+
+| Decision | Why | Where |
+|---|---|---|
+| **ff-jarvis's own SLEEPER tag is never shown**; the build drops its entries (ff-jarvis stopped writing it, 0bb6610) | David, 2026-10-08: "a starter on the waiver almost never happens; if he is, the other tags already cover him" | `design/player_tags.py` `SHOWN` |
+| **LUCKY is hidden** until ff-jarvis re-tests a sharper rule; the same `SHOWN` list drops it | David, 2026-10-08 (2a): it flags elite players whose skill beats their workload | `design/player_tags.py` `SHOWN` |
+| **No Fact or Tested word, no legend** | David, 2026-10-08, "show not tell": the plain line says it; a tested kind changes the line itself (Rising's tested words say what the test found) | `data/tags.js` `tagView` |
+| **POTENTIAL is named Sleeper on the page** | David, 2026-10-08 | `tags.label.sleeper` |
+| **Where:** Roster rows (Sheet), Ranks rows, the profile. Not the Cards (a trading card has no line for it; its back opens the profile), not Teams or the trade finder yet | VISION focus 4: the reader researching his own roster's players; Ranks is where a pickup is found | `surface/teams/board.js`, `surface/ranks/ranks.js`, `surface/profile/panel.js` |
+| **One pill per row**, the first in the order Rising, Sleeper, Trending; the profile lists every tag | a 360px row has no width for two; a usage change outranks a market fact | `data/tags.js` `TAG_ORDER` |
+| **Roster: the pill stacks over his weekly points bars**, in the bars' own column | the name column is 93px at 360px; a three-line row (66px) has the height for pill and bars, so it keeps its height (measured on 2026-10-08's data); a two-line row grows by the pill rather than letting it cover the bars; and the tag names the trend those bars draw. A starters column of 560px or more labels each bar, so there a second copy on the name line shows instead (container query) | `css/component/tags.css`, `board.js` |
+| **Ranks: the pill sits on the name line**, after MINE; only the name gives way to an ellipsis | on the game line it cut the kickoff off every tagged row at 360px (41 Lucky players on 2026-10-08, before Lucky was hidden). Cost: a MINE row with a tag shortens a long name ("J. Wil…") | `rkRowHTML`, `.rk-nmt` |
+| **Profile: a list under the strip**, each pill with its line beside it | the head is fixed above the scroll, so the lines live in the body | `ui/tags.js` `tagsBlockHTML` |
+| **Watch's RISING verdict gives way to the Rising tag** in the profile head when both fire | one word, one meaning on one screen; SELL HIGH and the rest stay | `surface/profile/tags.js` |
+| A kind "tested" with no tested words (Trending, Sleeper) reads as its plain line | no claim the page cannot source | `tagView` |
+| **No METHODOLOGY ids** on the page; `potential_forward` (the descriptive record) is not shown yet | David, 2026-10-08; its record counts frozen weeks only, none yet | `design/player_tags.py` |
+
+- **Lookup:** by slug; two tagged players who share a name are keyed `<slug>-<team>` by ff-jarvis, so the page tries the
+  plain slug, then slug-team in its own spelling and in nflverse's (`alias`, LA for LAR). Never merged.
+- **No file, no tags:** `LIVE_PLAYER_TAGS` is null and every view draws as before.
+- Tests: `tests/test_player_tags.py` (the build's cut, contract, loader), `tests/test_js_tags.py` (Node: lookup, order,
+  the lines, kinds, the effect rule), `tests/test_tags_view.py` (the pills and the profile list at 360px).
+
 ## Defenders out (Preview and the profile's Matchup, 2026-10-06)
 
 Which defenses are missing starters this week, shown before the reader sets lineups. A **displayed fact, never a

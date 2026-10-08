@@ -110,6 +110,11 @@
       "tests": ["tests/test_ranks.py", "tests/test_week_ranks.py","tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_ros_fp.py", "tests/test_js_ros.py", "tests/test_ros_view.py"],
       "render": ["ranks"]
     },
+    "tags": {
+      "paths": ["design/player_tags.py", "design/src/js/data/tags.js", "design/src/js/ui/tags.js", "design/src/css/component/tags.css"],
+      "tests": ["tests/test_player_tags.py", "tests/test_js_tags.py", "tests/test_tags_view.py"],
+      "render": []
+    },
     "rbrules": {
       "paths": ["tests/test_js_rbrules.py"],
       "tests": ["tests/test_js_rbrules.py"],

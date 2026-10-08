@@ -30,14 +30,17 @@
 .rk-face img{width:100%;height:100%;object-fit:cover;object-position:top}
 .rk-face .fallback{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
 .rk-who{display:grid;min-width:0}
-.rk-nm{font-size:var(--t-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The name line: the name, MINE, a player tag (ui/tags.js, 2026-10-08). Only the name gives way to an ellipsis; the
+   tag sits here and not on the game line, where it cut the kickoff off every tagged row at 360px. */
+.rk-nm{display:flex;align-items:center;gap:6px;min-width:0;font-size:var(--t-2);font-weight:600;white-space:nowrap}
+.rk-nmt{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .rk-game{display:flex;align-items:center;gap:6px;min-width:0;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .rk-game > span{overflow:hidden;text-overflow:ellipsis}
 .rk-pos{font-family:var(--mono);font-weight:700;color:var(--ink-2)}
 .rk-mu{display:none;font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .rk-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
 .rk-row.mine .rk-nm{color:var(--lime)}
-.rk-mine{margin-left:6px;font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;color:var(--lime)}
+.rk-mine{flex:none;font-style:normal;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.1em;color:var(--lime)}
 /* The matchup: signed points under the projection, green for a soft defense, red for a tough one,
    the way a delta sits under a price. */
 .rk-mx{display:block;margin-top:2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;

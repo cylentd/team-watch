@@ -9,7 +9,8 @@
 function sheetTagsHTML(p){
   const sig = signalsFor({slug: p.slug || slugOf(p.n)});
   // "On 2 of your teams" left on 2026-09-28: the owner pills (owners.js) name each league's team.
-  if (!sig.verdict) return "";
+  // A player tag of the same name (RISING, ui/tags.js, 2026-10-08) says it in the body with its own rule: one word, once.
+  if (!sig.verdict || tagCovers(tagBlock(), tagWho(p), sig.verdict)) return "";
   // The reason is a sentence (data/signals.js signalWords), not watch's shorthand ("snaps -5.0, share +19").
   const why = signalWords(sig.verdict, sig.why);
   // RISING carries its test in the tooltip (2026-10-06); SELL HIGH passed 12.41 and carries none.

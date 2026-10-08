@@ -73,7 +73,7 @@ function rkRowHTML(r, place, mine, flex){
   return `<button type="button" class="rk-row${mine ? " mine" : ""}" data-testid="ranks-row" data-rkopen="${esc(r.slug)}">
     <span class="rk-n">${place}</span>
     <span class="rk-face">${avatarHTML(r)}</span>
-    <span class="rk-who"><span class="rk-nm">${esc(nameInitial(r.n))}${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}</span>
+    <span class="rk-who"><span class="rk-nm"><span class="rk-nmt">${esc(nameInitial(r.n))}</span>${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}${tagRowHTML(r, "ranks-row")}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}${rbNoLineHTML(r, "rk-noline")}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
     <span class="rk-pts" data-testid="ranks-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>

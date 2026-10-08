@@ -44,6 +44,7 @@ surface/teams/rail.css
 surface/teams/wdesk.css
 component/empty.css
 component/dstarters.css
+component/tags.css
 component/blip.css
 chrome/drawer.css
 chrome/modal.css

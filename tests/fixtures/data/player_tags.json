@@ -1,0 +1,203 @@
+{
+ "version": 1,
+ "generated": "2026-09-12T05:50",
+ "season": 2026,
+ "week": 3,
+ "through": 2,
+ "rules": {
+  "RISING": {
+   "rule": "xfp a game over his last 3 counted games minus his earlier games this season",
+   "kind": "fact",
+   "trial": "12.114 T1",
+   "thresholds": {
+    "last_n": 3,
+    "earlier_min": 1,
+    "min_delta": 2.0,
+    "weeks": [
+     3,
+     13
+    ],
+    "pace_or_xfp_min": 5.0
+   }
+  },
+  "LUCKY": {
+   "rule": "season pace a game minus xfp a game",
+   "kind": "tested",
+   "trial": "12.114 T3",
+   "thresholds": {
+    "min_gap": 3.0,
+    "weeks": [
+     3,
+     13
+    ],
+    "pace_or_xfp_min": 5.0
+   }
+  },
+  "SLEEPER": {
+   "rule": "ROS rank inside the starter line at his position and on no roster in that league",
+   "kind": "fact",
+   "trial": null,
+   "thresholds": {
+    "lines": {
+     "QB": 12,
+     "RB": 24,
+     "WR": 24,
+     "TE": 12
+    },
+    "rostered_pct_max": 50
+   }
+  },
+  "TRENDING": {
+   "rule": "one of Sleeper's top adds over the last 24 hours, by the file's own rank",
+   "kind": "fact",
+   "trial": null,
+   "thresholds": {
+    "top": 10,
+    "hours": 24,
+    "stale_h": 36
+   }
+  },
+  "POTENTIAL": {
+   "rule": "one of 12.118's usage signals fired (vacated work, rookie ramp, routes before targets, efficient part-timer); one entry per signal, nums.signal names it",
+   "kind": "fact",
+   "trial": "12.118",
+   "thresholds": {
+    "signals": [
+     "VACATED",
+     "ROOKIE_RAMP",
+     "ROUTES_FIRST",
+     "EFFICIENT_PARTTIMER"
+    ],
+    "effect_xfp_pg": 1.17,
+    "effect_set": "s25",
+    "effect_signals": [
+     "ROOKIE_RAMP",
+     "ROUTES_FIRST",
+     "EFFICIENT_PARTTIMER"
+    ]
+   }
+  }
+ },
+ "players": {
+  "jahmyr-gibbs": [
+   {
+    "tag": "RISING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "last": 21.4,
+     "earlier": 17.2,
+     "delta": 4.2
+    }
+   },
+   {
+    "tag": "TRENDING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "rank": 4,
+     "adds": 412305
+    }
+   }
+  ],
+  "breece-hall": [
+   {
+    "tag": "RISING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "last": 16.6,
+     "earlier": 10.0,
+     "delta": 6.6
+    }
+   },
+   {
+    "tag": "LUCKY",
+    "kind": "tested",
+    "league": null,
+    "nums": {
+     "pace": 18.9,
+     "xfp": 13.1,
+     "gap": 5.8
+    }
+   },
+   {
+    "tag": "TRENDING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "rank": 9,
+     "adds": 236169
+    }
+   }
+  ],
+  "chase-brown": [
+   {
+    "tag": "POTENTIAL",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "signal": "VACATED",
+     "tgt_share": 0.231,
+     "games_out": 2
+    }
+   },
+   {
+    "tag": "POTENTIAL",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "signal": "ROUTES_FIRST",
+     "route_pct": 0.71,
+     "tgt_share": 0.09
+    }
+   }
+  ],
+  "george-kittle-buf": [
+   {
+    "tag": "TRENDING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "rank": 2,
+     "adds": 602775
+    }
+   }
+  ],
+  "george-kittle-sf": [
+   {
+    "tag": "RISING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "last": 12.3,
+     "earlier": 8.7,
+     "delta": 3.6
+    }
+   }
+  ],
+  "joe-burrow": [
+   {
+    "tag": "LUCKY",
+    "kind": "tested",
+    "league": null,
+    "nums": {
+     "pace": 25.1,
+     "xfp": 15.7,
+     "gap": 9.4
+    }
+   }
+  ],
+  "tee-higgins": [
+   {
+    "tag": "TRENDING",
+    "kind": "fact",
+    "league": null,
+    "nums": {
+     "rank": 1,
+     "adds": 770067
+    }
+   }
+  ]
+ }
+}

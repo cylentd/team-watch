@@ -4,7 +4,15 @@
    The number stays neutral: an old filled pill coloured by trend made six red boxes on eight
    starters read as an alarm. Bench and out rows drop the slot;
    on a desktop the bench sits beside the starters. The rank and the market are the profile's;
-   news is the checklist's. */
+   news is the checklist's. One player tag (ui/tags.js, 2026-10-08) sits over the bars: Lucky, Rising, Sleeper or
+   Trending, the word for the trend the bars draw. A wide column labels the bars, so there the name line's copy shows
+   instead (css/component/tags.css). */
+/* The bars' column: the strip alone, or the tag over it in one wrapper, so the strip itself never holds a word. */
+function rowTrendHTML(p, bars){
+  const tag = tagRowHTML(p, "roster-row");
+  return tag ? `<div class="rtrend">${tag}${bars}</div>` : bars;
+}
+
 function rowHTML(p, i, teamKey){
   const cls = (p.slot === "OUT" ? "out" : p.start ? "start" : "bench") + injClass(p);
   // The injury badge on the head: ! out, D doubtful, Q questionable; the reason is its tooltip.
@@ -18,10 +26,10 @@ function rowHTML(p, i, teamKey){
     ${p.start ? `<span class="slot" data-testid="roster-row-slot">${esc(slotLabel(p.slot))}</span>` : ""}
     <div class="head" data-testid="roster-row-head"${clipRingHTML(p)}>${headHTML(p)}${badge}${ring}</div>
     <div class="nm" data-testid="roster-row-name">
-      <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b></div>
+      <div class="nm-1"><b><span class="nm-full">${esc(p.n)}</span><span class="nm-ini">${esc(nameInitial(p.n))}</span></b>${tagRowHTML(p, "roster-row-wide")}</div>
       <div class="nm-2" data-testid="roster-row-matchup">${mlRowHTML(p)}</div>
     </div>
-    <div class="rbars">${pbRowHTML(p, pbLeague(teamKey))}</div>
+    ${rowTrendHTML(p, `<div class="rbars">${pbRowHTML(p, pbLeague(teamKey))}</div>`)}
     ${supportNumHTML(p, pbLeague(teamKey)) || projNumHTML(p)}
   </div>`;
 }

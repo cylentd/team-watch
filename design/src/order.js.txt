@@ -48,6 +48,8 @@ ui/player.js
 ui/matchup.js
 data/dstarters.js
 ui/dstarters.js
+data/tags.js
+ui/tags.js
 ui/weather.js
 surface/teams/matchupline.js
 surface/teams/pointsbars.js

@@ -1,0 +1,27 @@
+/* ============================== PLAYER TAGS ============================== */
+/* The tag pill (js/ui/tags.js, 2026-10-08, ledger #41) on Roster rows, Ranks rows and in the profile, so its rules are
+   shared. One colour per meaning: Rising green (up), Sleeper lime (buy-low), Trending grey (a market fact with no
+   direction). Mixed case in the UI face: "Trending" in mono caps did not fit a 360px row's bars column. */
+.tg{display:inline-flex;align-items:center;flex:none;max-width:100%;padding:1px 5px;border-radius:4px;
+  font-family:var(--ui);font-size:var(--t-1);font-weight:700;line-height:1.25;white-space:nowrap;
+  color:var(--tg-c);background:rgb(var(--tg-rgb) / .08);box-shadow:inset 0 0 0 1px rgb(var(--tg-rgb) / .5)}
+.tg-rising{--tg-c:var(--up);--tg-rgb:var(--up-rgb)}
+.tg-sleeper{--tg-c:var(--lime);--tg-rgb:var(--lime-rgb)}
+.tg-trending{--tg-c:var(--ink-2);--tg-rgb:var(--ink-2-rgb)}
+
+/* A Roster row (surface/teams/board.js): the pill stacks over the bars in their own column. A three-line row (66px at
+   360px) has the height for both; a two-line row grows by the pill rather than letting it cover the bars. A wide
+   starters column labels each bar above it, so there the name line's copy shows instead. */
+.rtrend{grid-area:trend;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0}
+.rtrend > .rbars{align-self:stretch}
+.nm-1 > .tg{display:none}
+@container (min-width:560px){
+  .row.pbr.start .rtrend > .tg{display:none}
+  .row.pbr.start .nm-1 > .tg{display:inline-flex}
+}
+
+/* The profile's list (tagsBlockHTML): the pill, its line beside it. */
+.tg-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px;max-width:640px}
+.tg-item{display:grid;grid-template-columns:68px minmax(0,1fr);column-gap:12px;align-items:start}
+.tg-item > .tg{justify-self:start;margin-top:1px}
+.tg-lines{font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}

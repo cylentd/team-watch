@@ -9,6 +9,7 @@
                  as a solid (orb.js), a tap from the full radar (orbsheet.js) -- and Compare
      the strip   this week's projection, ppg, rank by ppg, role share, snap share (lede.js),
                  then a link to his row in the Usage grid (gridlink.js)
+     the tags    his player tags, each with its plain line (ui/tags.js, 2026-10-08)
      the owners  one pill per league: yours, a leaguemate's team, or free (owners.js)
      the panes   Season first -- every week, played and to come -- then usage, matchup, bio
 
@@ -41,6 +42,7 @@ function openProfile(p, originEl){
     </div>
     <div class="dr-body pf-body pos-${esc(String(prof ? prof.pos : p.pos || "").toLowerCase())}" data-testid="profile-body">
       ${ledeHTML(p, prof)}
+      ${tagsBlockHTML(p)}
       ${pfGridLinkHTML(p)}
       ${ownersHTML(p)}
       ${tabsHTML(prof, p)}

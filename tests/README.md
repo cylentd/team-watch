@@ -230,6 +230,7 @@ object does not lower it; moving the test to Node does.
 | `clips` | `pages/clips.py` | The Roster's Week plays rail and the "This week" list under it (`ClipsPage`); the clip theater's stubs |
 | `recap` | `pages/recap.py` | This week > Recap: banner, tabs, leaders, touchdowns, games, Claude's calls (`RecapPage`), and the nav row it sits in (`RecapNav`) |
 | `digest_story` | `pages/digest_story.py` | The Digest's story banner and Monday block with a planted game day (`DigestStoryPage`) |
+| `tags` | `pages/tags.py` | Player tags as drawn: the pill on a Roster and a Ranks row, the profile's list (`TagsPage`, 2026-10-08) |
 | `league_chip` | `pages/league_chip.py` | The League's one team line on any leaf (`LeagueChip`); class selectors until `surface/league/switch.js` has test ids |
 | `open_at`, `open_page` | `test_render.py` | A full page at a size and hash: `(ctx, page, errors)` |
 | `pin_network` | `test_render.py` | Refuse every request off the machine, and answer a clip's picture (i.ytimg.com) with a fixed image, so no answer changes the markup (2026-10-06) |
