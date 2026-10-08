@@ -46,7 +46,8 @@ function openProfile(p, originEl){
       ${pfGridLinkHTML(p)}
       ${ownersHTML(p)}
       ${tabsHTML(prof, p)}
-    </div>`;
+    </div>
+    ${pfFootHTML({...p, pos: p.pos || (prof && prof.pos)})}`;
   CMP.base = p;   // whom the head's Compare button sets others beside (cmp.js)
   wireOrbSheet(d, p);
   wireTabs(d, prof, p);

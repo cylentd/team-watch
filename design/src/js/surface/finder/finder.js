@@ -58,6 +58,8 @@ const tfTailHTML = (lg, me) => !TB_DATA ? "" : (tbEditOk(lg, me) ? `<button type
 
 function tfViewHTML(){
   if (TB_EDIT && TB) return tfEditPageHTML();             // page.js
+  const route = tpRoute();                                 // a player's trade page, at its own hash (tpage.js)
+  if (route) return tpViewHTML(route);
   const lg = lbOf(lbLeagueKey()), head = lgChipHTML(), me = lg && tbMine(lg);
   // No team picked, or a pick that is not in this league (a connected one): the picker. A league with no rosters: the empty block.
   if (!myTeamLoad() || (lg && !me)) return `<div class="wrap tf">${head}${tfNeedHTML()}</div>`;
@@ -94,6 +96,7 @@ function tfClick(e, lg, me){
 /* One listener per draw: the view is new each time, so it never stacks. */
 function wireTf(v){
   if (TB_EDIT && TB) return wireTfPage(v);
+  if (tpRoute()) return wireTp(v);
   wireLgChip(v);
   const root = v.querySelector(".tf"), lg = lbOf(lbLeagueKey()), me = lg && tbMine(lg);
   if (!root) return;

@@ -1,0 +1,21 @@
+/* ============================================================
+   PROFILE: THE FOOTER (2026-10-08, ledger #51, js/surface/profile/tradefoot.js)
+   The modal's bottom edge, under the scrolling body: Close and the way to trade him, two equal halves, 48px, in the
+   thumb's reach (STYLE.md "Overlays", as the game sheet's Prev · Close · Next). The trade button is lime: it is the one
+   thing to do here. With no trade, Close takes the row. From 760px the ✕ is in reach, so the footer keeps only the
+   trade button at its right end, and draws nothing without one.
+   ============================================================ */
+.pf-foot{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:8px 16px 12px;
+  border-top:1px solid var(--line);background:var(--panel)}
+.pf-foot.solo{grid-template-columns:minmax(0,1fr)}
+.pf-foot button{appearance:none;min-height:48px;padding:0 12px;border-radius:12px;font:700 var(--t-3)/1 var(--ui);cursor:pointer;
+  transition:transform .12s var(--ease)}
+.pf-foot button:active{transform:scale(var(--press))}
+.pf-foot button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pf-foot-close{border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink)}
+.pf-foot-go{border:0;background:var(--lime);color:var(--on-lime)}
+@media (min-width:760px){
+  .pf-foot{display:flex;justify-content:flex-end;padding:10px 26px}
+  .pf-foot.solo,.pf-foot-close{display:none}
+  .pf-foot-go{min-width:220px}
+}

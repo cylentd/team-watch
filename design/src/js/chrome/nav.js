@@ -150,10 +150,11 @@ function paintHdrTeam(){
    roster -- which matters more now that there are eight views instead of one. Only the view: the
    grid's position and week reset, and that is a deliberate line, because every control that
    learns the URL is another thing to keep in step with it. Old names land too (NAV_ALIAS), and a
-   leaf the league on screen lacks lands on its nearest (navFallback). */
+   leaf the league on screen lacks lands on its nearest (navFallback). A view's own page lives under its leaf
+   (`#trades/get/<slug>`, a player's trade page, 2026-10-08): the first part names the view, the view reads the rest. */
 const navHash = () => (location.hash || "").replace(/^#\/?/, "");
 const navFromHash = () => {
-  const leaf = navLeafOf(navHash());
+  const leaf = navLeafOf(navHash().split("/")[0]);
   return leaf && navFallback(leaf, navTabsOf(navGroupOf(leaf)));
 };
 

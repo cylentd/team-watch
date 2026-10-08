@@ -1,0 +1,63 @@
+/* ============================================================
+   LEAGUE > TRADES: A PLAYER'S TRADE PAGE (2026-10-08, ledger #51, js/surface/finder/tpage.js)
+   One column of --tf-w at every width (the finder's controls column): a row pins what moves to its left edge and the
+   gains to its right, and STYLE.md keeps a label within 560px of its value. The list is rows on the page, hairlines
+   between them, no box: the offer card a row opens is the one card (DESIGN.md "Cards": never a card in a card).
+   Colour: the reader's gain green above 0, red below, grey at 0 (the cards' rule); the partner's in quiet ink.
+   ============================================================ */
+.tpg{padding-bottom:24px}
+
+/* The head: his face, "GET J. SMITH-NJIGBA" in the display face, his line under it. */
+.tpg-head{display:grid;grid-template-columns:56px minmax(0,1fr);align-items:center;column-gap:12px;margin:6px 0 4px}
+.tpg-face img,.tpg-face .fallback{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;object-fit:cover;
+  background:var(--panel-2);color:var(--ink-2);font:700 var(--t-3)/1 var(--ui)}
+.tpg-title{margin:0;font:800 var(--t-6)/1 var(--tab);text-transform:uppercase;letter-spacing:.01em;color:var(--ink);overflow-wrap:anywhere}
+.tpg-id{margin:5px 0 0;font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tpg-id b{font-weight:700;color:var(--ink)}
+
+/* Send's one control row: Add a player (a pill over a native picker), or the two shopped, each with its ✕. */
+.tpg-shop{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 2px}
+.tpg-add,.tpg-pin{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;
+  font:600 var(--t-2)/1 var(--ui);cursor:pointer;transition:transform .12s var(--ease)}
+.tpg-add{border:1px solid var(--line-2);color:var(--ink)}
+.tpg-add:hover{border-color:var(--ink-3)}
+.tpg-add:active,.tpg-pin:active{transform:scale(var(--press))}
+.tpg-add:focus-within{outline:2px solid var(--lime);outline-offset:2px}
+.tpg-add svg,.tpg-pin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.tpg-add select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:var(--t-3)}
+.tpg-pin{appearance:none;border:1px solid var(--lime);background:rgb(var(--lime-rgb) / .12);color:var(--ink);padding-right:12px}
+.tpg-pin:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+/* The list: the column heads, then a row per package or team. */
+.tpg-list{margin-top:12px}
+.tpg-list ul{margin:0;padding:0;list-style:none}
+.tpg-lh{display:flex;justify-content:space-between;gap:12px;margin:0;padding:0 28px 6px 0;border-bottom:1px solid var(--line);
+  font:600 var(--t-1)/1.3 var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.tpg-li{border-bottom:1px solid var(--line)}
+.tpg-row{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) 64px 16px;align-items:center;column-gap:12px;width:100%;
+  min-height:60px;padding:9px 0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer}
+.tpg-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px;border-radius:8px}
+.tpg-what{display:grid;gap:3px;min-width:0}
+.tpg-what b{font:700 var(--t-3)/1.25 var(--ui);overflow-wrap:anywhere}
+.tpg-what small,.tpg-none small{font:500 var(--t-2)/1.3 var(--ui);color:var(--ink-3);overflow-wrap:anywhere}
+.tpg-num{display:grid;justify-items:end;gap:3px}
+.tpg-num b{font:700 var(--t-4)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--up)}
+.tpg-num b.neg{color:var(--down)}
+.tpg-num b.flat{color:var(--ink-3)}
+.tpg-num small{font:600 var(--t-1)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.tpg-chev{width:16px;height:16px;fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .2s var(--ease)}
+.tpg-row[aria-expanded="true"] .tpg-chev{transform:rotate(180deg)}
+.tpg-li.open > .tpg-row .tpg-what b{color:var(--lime)}
+.tpg-card{padding:0 0 12px}
+
+/* The teams with no offer: one line, quiet, under the rows. */
+.tpg-none{display:grid;gap:3px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tpg-none b{font:600 var(--t-2)/1.35 var(--ui);color:var(--ink-2);overflow-wrap:anywhere}
+
+/* One line for a player with nothing, and the shapes while the files load. */
+.tpg-why{margin-top:12px;min-height:96px}
+.tpg .tf-tail{margin-top:20px}
+.tpg-skel .tpg-row{cursor:default}
+.tpg-skel i{display:block;height:14px;border-radius:7px;background:var(--panel-3)}
+.tpg-skel i + i{width:48px}

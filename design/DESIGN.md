@@ -750,6 +750,23 @@ Plan: ff-jarvis `trade-finder` (producer, `trade_offers.json` v2) and team-watch
   2026-10-05:** the sheets (`#lbsheet`, `#tbsheet`, their scrims and the `.lbs-body` scroller), which once shrank an 8-man lineup
   to five and a half rows; pages scroll with the document.
 
+## Trade page (League > Trades, a page per player, 2026-10-08, ledger #51)
+
+Storyboard trades-pin draft B, which David picked (VISION 2026-10-08). Code: `data/tradepage.js` (pure, `test_js_tradepage.py`),
+`surface/finder/tpdata.js` (the pinned file), `tprows.js` (rows), `tpage.js` (the page), `surface/profile/tradefoot.js` (the door).
+
+| Part | Rule |
+|---|---|
+| Door | The profile's footer (phone): Close, and "Trade for him" (another team in the reader's league has him) or "Shop him" (the reader's own); QB/RB/WR/TE only, nothing with no team picked. 48px, two halves; the trade button lime. From 760px only the trade button shows, at the right |
+| Hash | `#trades/get/<slug>`, `#trades/send/<slug>[+<slug>]` (David 3a: shareable). nav.js reads the first part as the view; the page reads the rest. The side follows the owner once the offers are in: a Get link for the reader's own player is rewritten to Send in place |
+| Get | One row per package that lands him, sorted by YOUR gain (David 1a; ties to the smaller trade, then the partner). A row: what you send (surnames), "also get <initials>" or "<n> for 1", your gain over his on the right (each side on its judging lens when the offer has lenses) |
+| Send | One row per team, its best return: the team, what you get, "you add <surnames>". Teams with no offer: ONE folded line (David 2a). Add a player (a native picker of the reader's other QB/RB/WR/TE) shops two at once; each shopped player then has a ✕ |
+| Rows | A tap opens today's offer card under the row (Copy offer, Edit), one at a time |
+| Make your own | Opens Edit with him locked in YOU GET (against his owner) or YOU SEND (the partner picked on the page; the best return's team first). A locked player is a plain package row and a disabled roster row |
+| Data | ff-jarvis's pinned file `trade_pins/<league>/<owner-slug>.json` when it exists for this league and owner (#59, not landed 2026-10-08; the build does not copy it yet), else today's `trade_offers.json` filtered to him. A failed pinned fetch is silent |
+| Nothing | One plain line why: the pinned search's reason (namesake, unpriced, no gain for you, no gain for him, lens gate, no legal drop) or "Tonight's search found no package for him"; a player on no roster in the league says so |
+| Layout | One `--tf-w` (560px) column at every width; rows on the page with hairlines, no box, so the opened offer card is the one card. No legend: the column heads (You send · You / Them) say it |
+
 ## Clips (Roster, 2026-10-05)
 
 NFL YouTube clips of the reader's own players, picked from a storyboard (A reel + B ring,

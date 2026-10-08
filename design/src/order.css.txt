@@ -49,6 +49,7 @@ component/blip.css
 chrome/drawer.css
 chrome/modal.css
 surface/profile/panel.css
+surface/profile/tradefoot.css
 surface/profile/details.css
 surface/profile/history.css
 surface/profile/season.css
@@ -149,6 +150,7 @@ surface/lboard/offers.css
 # pin: tbedit.css after offers.css -- the edit state reuses the offer card's columns and buttons (.tb-card, .tb-col, .tb-p, .tb-copy).
 surface/lboard/tbedit.css
 surface/finder/finder.css
+surface/finder/tpage.css
 surface/chat/chat.css
 surface/live/live.css
 surface/live/mirror.css

@@ -107,6 +107,7 @@ surface/profile/details.js
 surface/profile/lede.js
 surface/profile/tabs.js
 surface/profile/rail.js
+surface/profile/tradefoot.js
 surface/profile/panel.js
 surface/profile/cmp.js
 surface/profile/cmppick.js
@@ -215,7 +216,10 @@ surface/trades/alive.js
 # (the file and the guard), tbcard (an offer card), tbedit (the edit state), then finder/: logic (pure), lenses (an
 # offer card's lenses and bye notes, 2026-10-08), finder, deep,
 # page (the edit page). Nothing binds at load (the pages wire per draw), so the order is readability: every name is
-# used only after the last part ran.
+# used only after the last part ran. A player's trade page (2026-10-08, ledger #51): data/tradepage.js (pure), then
+# finder/tpdata.js (the pinned file's fetch), finder/tprows.js (its rows) and finder/tpage.js, which binds one
+# hashchange listener at load (it reads only names declared above it or inside functions).
+data/tradepage.js
 surface/lboard/lboard.js
 surface/lboard/lbcard.js
 surface/lboard/tbscore.js
@@ -227,6 +231,9 @@ surface/finder/lenses.js
 surface/finder/finder.js
 surface/finder/deep.js
 surface/finder/page.js
+surface/finder/tpdata.js
+surface/finder/tprows.js
+surface/finder/tpage.js
 # pin: board/* after data/usage.js -- bdRows memoises off USAGE.sheet, and after
 #      surface/profile/sheet.js, whose sheetValues() is the one definition of who counts on an
 #      axis. leaders.js before board.js is readability, not load order: both are functions.
