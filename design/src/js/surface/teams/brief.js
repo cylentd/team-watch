@@ -229,7 +229,7 @@ function wireBriefSwipe(el, team){
    measurement Waivers' rail takes (wdesk.js wvRailSide), since the nav's height is not a token. */
 function wireBrief(v){
   const rl = v.querySelector(".rl"), nav = document.querySelector(".navbar");
-  if (rl && nav) rl.style.setProperty("--rl-stick", `${Math.round((parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight)}px`);
+  if (rl && nav) rl.style.setProperty("--rl-stick", `${Math.round(navStickTop())}px`);
   const box = v.querySelector(".brief[data-bteam]"), team = box && TEAMS[box.dataset.bteam];
   v.querySelectorAll(".brief-line").forEach(el => {
     el.addEventListener("click", () => {

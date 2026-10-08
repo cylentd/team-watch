@@ -53,7 +53,7 @@
     "league": {
       "paths": ["design/src/js/surface/league/", "design/src/css/surface/league/", "design/src/js/data/league.js",
                 "design/league_back.py", "design/league_recap.py", "design/avatars.py"],
-      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py", "tests/test_records_tabs.py", "tests/test_recap_type.py", "tests/test_avatars.py"],
+      "tests": ["tests/test_league_back.py", "tests/test_league_recap.py", "tests/test_leagues.py", "tests/test_js_league_share.py", "tests/test_records_tabs.py", "tests/test_recap_type.py", "tests/test_polish_walk.py", "tests/test_avatars.py"],
       "render": ["league", "myrecap", "recap", "records"]
     },
     "trades": {
@@ -96,12 +96,12 @@
     },
     "phonechrome": {
       "paths": ["tests/test_phone_chrome.py"],
-      "tests": ["tests/test_phone_chrome.py"],
+      "tests": ["tests/test_phone_chrome.py", "tests/test_polish_walk.py"],
       "render": []
     },
     "schedule": {
       "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
-      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py"],
+      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_polish_walk.py"],
       "render": ["schedule"]
     },
     "ranks": {
@@ -150,7 +150,7 @@
       "paths": ["design/src/js/surface/teams/", "design/src/css/surface/teams/", "design/src/js/data/waiver.js",
                 "design/src/js/data/wire.js", "design/src/js/data/mates.js", "design/src/js/data/matchupline.js", "design/src/js/data/pointsbars.js", "design/src/js/data/kdst.js", "design/kdst.py", "design/src/js/data/supportback.js", "design/src/js/data/packrip.js", "design/src/js/data/weekstat.js", "design/src/js/data/firstsentence.js", "design/src/js/data/proofshow.js", "design/waiver.py", "design/wire_watch.py",
                 "design/injury.py", "design/mates.py", "design/yt_clips.py", "design/player_names.py"],
-      "tests": ["tests/test_brief.py", "tests/test_js_mates.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py",
+      "tests": ["tests/test_brief.py", "tests/test_js_mates.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py", "tests/test_polish_walk.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_js_waiver.py", "tests/test_js_proofshow.py", "tests/test_waiver_blank_stats.py", "tests/test_roster_cards.py",
                 "tests/test_roster_pack.py", "tests/test_roster_sheet.py", "tests/test_roster_matchup.py", "tests/test_js_matchupline.py", "tests/test_js_pointsbars.py", "tests/test_js_kdst.py", "tests/test_kdst.py", "tests/test_kdst_bars.py", "tests/test_js_supportback.py", "tests/test_roster_backs.py", "tests/test_js_packrip.py", "tests/test_pack_rip.py", "tests/test_js_weekstat.py", "tests/test_js_firstsentence.py","tests/test_reel_stat_fit.py", "tests/test_pack_centre.py", "tests/test_teamswitch.py", "tests/test_waiver.py", "tests/test_js_goldweeks.py", "tests/test_roster_gold.py", "tests/test_signed_weeks.py",
                 "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py", "tests/test_waiver_teams.py", "tests/test_waiver_teams_units.py", "tests/test_js_waiver_teams.py"],
@@ -160,7 +160,7 @@
       "paths": ["design/src/js/surface/parlay/", "design/src/js/surface/dfs/", "design/src/js/builder/",
                 "design/src/css/surface/builder/", "design/src/css/surface/dfs/", "design/src/js/data/dfs.js",
                 "design/src/js/data/market.js", "design/src/js/data/kickwin.js", "design/src/js/data/ourpicks.js", "design/dfs_backtest.py", "design/dfs_slate.py", "design/slate.py", "design/defense.py", "design/slips.py"],
-      "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_js_dfs_heading.py", "tests/test_dfs_slate.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
+      "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_polish_walk.py", "tests/test_js_dfs_heading.py", "tests/test_dfs_slate.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
                 "tests/test_parlay_grid.py", "tests/test_prop_picks.py","tests/test_slip_reasons.py",
                 "tests/test_claude_record.py", "tests/test_js_bets.py", "tests/test_js_bets_mine.py", "tests/test_js_mine_rows.py", "tests/test_build_mine.py", "tests/test_mine_build.py","tests/test_mine_public.py", "tests/test_js_topcalls.py", "tests/test_js_kickwin.py", "tests/test_slate_kick.py", "tests/test_top_calls.py",
                 "tests/test_js_ourpicks.py", "tests/test_slips_windows.py"],

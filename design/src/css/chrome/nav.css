@@ -7,7 +7,8 @@
   /* The chrome's own surface (tokens.css, 2026-10-08): darker than the page, the cards lighter. */
   border-bottom:1px solid var(--chrome-edge);background:var(--chrome-bg);box-shadow:var(--chrome-shadow);
 }
-.navrow{display:flex;align-items:center;gap:6px;height:56px}
+:root{--nav-h:56px}   /* the desktop bar's row; the tab row sticks under it and its 1px edge */
+.navrow{display:flex;align-items:center;gap:6px;height:var(--nav-h)}
 /* The groups' side padding eases from 12px at 1280 to 7px at 1100 (the narrow desktop below takes
    8px), so the row still fits beside the 22px wordmark (2026-09-29: 34px of overlap at 1100 with a
    fixed 12px, 5px with an 8px floor). */
@@ -51,7 +52,11 @@
 /* The row's own padding lives out here, on the full-bleed element, so that .subnav-in carries
    nothing but .wrap's: a padding shorthand on .subnav-in zeroes the sides and drops the first
    tab off the groups' left edge. */
-.subnav{background:var(--chrome-bg);border-bottom:1px solid var(--chrome-edge);box-shadow:var(--chrome-shadow)}
+/* It stays put under the bar on a scroll, as a phone's does (VISION 2026-10-07: nothing slides at the edge of
+   the eye; it scrolled away on a desktop until 2026-10-08). A view's own sticky column starts under it at
+   --stick-top, which nav.js measures (navStickTop). */
+.subnav{position:sticky;top:calc(var(--nav-h) + 1px);z-index:38;
+  background:var(--chrome-bg);border-bottom:1px solid var(--chrome-edge);box-shadow:var(--chrome-shadow)}
 .subnav[hidden]{display:none}
 .subnav-in{display:flex;align-items:center}
 .subnav .modes-sub{margin:0!important;gap:22px;border:0;background:none;padding:0}

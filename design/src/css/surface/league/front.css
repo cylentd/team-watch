@@ -34,6 +34,17 @@
 .bp2-lead.has-fig{grid-template-columns:96px minmax(0,1fr)}
 .bp2-lbody{display:grid;gap:8px;align-content:start;min-width:0}
 .bp2-lead .bp2-score{font-size:var(--t-3)}   /* a phone: one line beside the winner's avatar; 24px from 760px */
+/* A phone holds the lead's line on one line (David's walk, 2026-10-08: "David 109.38 beat" ended the line and
+   the loser wrapped under it). Each side is its name, score and stamps in a row; when the two widest names and a
+   stamp outgrow 360px, a name gives way with an ellipsis, never a score or a stamp. */
+@media (max-width:760px){
+  .bp2-lead .bp2-score{flex-wrap:nowrap;align-items:center;column-gap:6px}
+  .bp2-lead .bp2-score > .lg-av{margin-right:0}
+  .bp2-lead :is(.bp2-w,.bp2-l){display:inline-flex;align-items:baseline;gap:4px;min-width:0}
+  .bp2-lead :is(.bp2-w,.bp2-l) > b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bp2-lead :is(.bp2-w,.bp2-l) > :not(b),.bp2-lead .bp2-d{flex:none;white-space:nowrap}
+  .bp2-lead :is(.bp2-w,.bp2-l) > .lg-stamp{margin-left:2px}
+}
 /* the report: the game's line and the dek as one paragraph under the score, a newspaper's lede (2026-10-06) */
 .bp2-report{margin:0;max-width:72ch;font-size:var(--t-3);line-height:1.5;color:var(--ink);text-wrap:pretty;overflow-wrap:anywhere}
 .bp2-beats{margin:0;padding:8px 0 0;list-style:none;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:3px 16px;font-size:var(--t-2);color:var(--ink-2)}

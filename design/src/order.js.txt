@@ -312,6 +312,7 @@ chrome/render.js
 chrome/feed.js
 chrome/fresh.js
 chrome/nav.js
+chrome/stick.js
 # pin: statspos.js after nav.js: it binds its listeners at load, on #statspos (shell.html) and NAV_PHONE (nav.js).
 chrome/statspos.js
 chrome/tabswipe.js

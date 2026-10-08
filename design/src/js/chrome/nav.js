@@ -109,6 +109,7 @@ function paintSubnav(){
   if (html === NAV_ROW) return;
   NAV_ROW = html;
   inner.innerHTML = html;
+  document.documentElement.style.setProperty("--stick-top", `${navStickTop()}px`);
   el.querySelectorAll("[data-leaf]").forEach(b => b.addEventListener("click", () => {
     if (SURFACE === b.dataset.leaf) return;
     morphLogo();

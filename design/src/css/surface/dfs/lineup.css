@@ -21,4 +21,9 @@
 .salbar i{position:absolute;top:0;bottom:0;left:0;background:var(--lime);width:0;animation:grow 1s var(--ease) .3s forwards}
 .salbar.over i{background:var(--down)}
 .salrow{display:flex;gap:26px;flex-wrap:wrap}
+/* The suggested lineups (lineup.js lineupCard; in builder/side.css until 2026-10-08, the only user is DFS). The
+   best one, first, takes the strong neutral edge: lime is the reader's own player or the pressed control, and a
+   suggestion is neither (David's walk, 2026-10-08). Its "Best" label names it. */
+.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
+.lineupcard.best{border-color:var(--ink-3)}
 

@@ -14,6 +14,4 @@
 .railscroll::-webkit-scrollbar{height:6px}
 .railscroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
 .railscroll > *{min-width:0}
-.lineupcard{position:static;border:1px solid var(--line-2);background:var(--panel)}
-.lineupcard.best{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
 

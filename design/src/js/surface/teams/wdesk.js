@@ -24,7 +24,7 @@ function wvRailSide(wv){
   if (!rail || !wvFlag(rail, "--wvr-side")) return;
   const more = rail.querySelector(".wvr-more");
   if (more && !more.open) more.open = true;
-  if (nav) wv.style.setProperty("--wv-stick", `${Math.round((parseFloat(getComputedStyle(nav).top) || 0) + nav.offsetHeight)}px`);
+  if (nav) wv.style.setProperty("--wv-stick", `${Math.round(navStickTop())}px`);
 }
 
 function wvDesk(v){

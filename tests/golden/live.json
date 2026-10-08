@@ -3017,7 +3017,7 @@
 "subnav-in": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "tabbar": "rgb(243, 241, 234)|rgb(8, 9, 11)|rgb(58, 66, 78)|solid|1px|0px|4px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "teamswitch": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(243, 241, 234)|none|0px|0px|0px|0px|normal|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|block|none|1e-06s",
-"tp-team": "rgb(243, 241, 234)|rgb(29, 34, 42)|rgb(52, 59, 70)|solid|1px|10px|14px|0px|normal|Archivo, \"Segoe UI\", sans-serif|15px|600|normal|normal|1|inline-block|none|1e-06s",
+"tp-team": "rgb(243, 241, 234)|rgb(29, 34, 42)|rgb(52, 59, 70)|solid|1px|6px|10px|0px|normal|Archivo, \"Segoe UI\", sans-serif|13.5px|600|normal|16.2px|1|inline-block|none|1e-06s",
 "tr-seg": "rgb(11, 13, 5)|rgb(200, 255, 46)|rgb(11, 13, 5)|none|0px|0px|12px|0px|6px|Archivo, \"Segoe UI\", sans-serif|15px|600|normal|normal|1|flex|none|1e-06s",
 "tr-x": "rgb(243, 241, 234)|rgba(0, 0, 0, 0)|rgb(200, 255, 46)|solid|1px|0px|0px|0px|2px|Archivo, \"Segoe UI\", sans-serif|14px|400|normal|normal|1|flex|none|1e-06s",
 "ts-back": "rgb(200, 255, 46)|rgba(0, 0, 0, 0)|rgb(200, 255, 46)|none|0px|10px|2px|0px|10px|Archivo, \"Segoe UI\", sans-serif|13.5px|600|normal|normal|1|flex|none|1e-06s",

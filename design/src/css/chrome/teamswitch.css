@@ -34,7 +34,7 @@
 .ts-head{position:sticky;top:0;z-index:1;padding:8px 13px 6px;background:var(--panel-3);
   font-family:var(--ui);font-size:var(--t-1);font-weight:700;color:var(--ink-2);border-bottom:1px solid var(--line)}
 /* My teams' first screen until a pick (teamswitch.js pickHTML): each league's twelve as a column of
-   full-width buttons, one column on a phone, the two leagues side by side from 760px. */
+   buttons, two to a row on a phone (since 2026-10-08), the leagues side by side from 760px. */
 .tp{padding-block:18px 32px;display:grid;gap:14px}
 .tp h1{margin:0;font-family:var(--tab);font-size:var(--t-6);font-weight:900;line-height:1;text-transform:uppercase;text-wrap:balance}
 .tp-sub{margin:0;max-width:52ch;font-size:var(--t-3);color:var(--ink-2)}
@@ -51,6 +51,12 @@
   font-family:var(--ui);font-size:var(--t-2);font-weight:600;color:var(--lime);text-decoration:underline;text-underline-offset:3px}
 @media (min-width:760px){
   .tp-grid{grid-template-columns:1fr 1fr;gap:28px}
+}
+/* A phone: two to a row, so a league of twelve is six rows, not twelve full-width cards (David's walk,
+   2026-10-08). Still a full tap target; a long name wraps to a second line inside it. */
+@media (max-width:760px){
+  .tp-lg ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tp-team{min-height:44px;padding:6px 10px;font-size:var(--t-2);line-height:1.2}
 }
 .ts-discord{color:var(--discord);text-decoration:none;--tint:var(--discord)}
 /* A followed or followable team (2026-09-26): the name to view it, a star to follow it. The row

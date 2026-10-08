@@ -5,8 +5,13 @@
    wrapping (a 13-week window takes two lines, 7 and 6) so nothing scrolls sideways and nothing is hidden. From 760px the cells join the first
    line. No colour says good or bad: the page is context, not a call. */
 .sos-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px}
-.sos-seg{display:flex;gap:3px}
-.sos-seg .chip{min-height:40px;padding:6px 7px;font-size:var(--t-1);letter-spacing:0}
+/* The weeks chips are drawn as every other filter row's (lboard.css .lb-sort, 2026-10-08, David's walk: they were
+   filled pills): an edge and no fill, the pressed one lime, at every width. */
+.sos-seg{display:flex;gap:6px}
+.sos-seg .chip{min-height:40px;padding:0 14px;border:1px solid var(--line-2);border-radius:999px;background:none;
+  color:var(--ink-2);font:700 var(--t-2)/1 var(--mono);letter-spacing:.04em;text-transform:none}
+.sos-seg .chip:hover{color:var(--ink);border-color:var(--line-2)}
+.sos-seg .chip[aria-pressed="true"]{border-color:var(--lime);background:var(--lime);color:var(--on-lime)}
 .sos-head{margin:10px 0 0}
 .sos-head h2{margin:0;font-family:var(--disp);font-size:var(--t-4);line-height:1.15;font-weight:800;color:var(--ink)}
 .sos-head p{margin:2px 0 0;font-size:var(--t-1);color:var(--ink-3);max-width:70ch}
