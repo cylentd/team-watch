@@ -35,6 +35,10 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-08: chose Slips grouped by kickoff window, each window showing the best call per game (David).
 - 2026-10-08: chose the chrome its own darker surface, edge and shadow (David).
 - 2026-10-08: chose one pick per Slips line, model and Claude as one "our pick": "users dont need to understand if claude or model is better" (David).
+- 2026-10-08: chose Home as the fantasy week for everyone, nothing personal, over a personal Home: "how is home different from roster view then?" (David). The reader's own team lives in Team. Home is its own tab: Home · Team · Matchup · Players · League, Search in the header, Bets under Matchup; each weekday's job leads; draft B adds a week tier sheet.
+- 2026-10-08: chose a page per player for trades (Get every package for him, Send each team's best return) over a filter on the finder or a locked Edit page (David, trade draft B).
+- 2026-10-08: chose show over tell: no legends or explainer blocks; the content must explain itself ("show not tell is our design principles", David).
+- 2026-10-08: dropped ff-jarvis's SLEEPER tag ("a starter on the waiver almost never happens") and show POTENTIAL under the name SLEEPER (David).
 - 2026-10-08: chose four focus areas over the Later list (Yahoo sign-in, chain trades, Follow a game): "they're nice to have. I rather focus on the vision" (David).
 
 ## Not doing
