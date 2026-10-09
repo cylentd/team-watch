@@ -125,18 +125,20 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
 
 ## Navigation
 
-Two levels since 2026-09-21. **Five groups since 2026-10-08: Team · Matchup · Players · League · Bets**
-(David, storyboard nav draft B, ledger #32; step 1 of "C as target, B's regroup first"; labels and grouping
-only, every leaf id, hash and `NAV_ALIAS` unchanged). A renamed group keeps its id: Matchup is `week`, Players
-is `scouting`; Team (`team`) is new. Before: Week, League, Stats, Bets (2026-10-05).
+Two levels since 2026-09-21. **Five groups since 2026-10-08: Home · Team · Matchup · Players · League**
+(David, storyboard home draft B, ledger #52; superseding Team · Matchup · Players · League · Bets, nav draft B,
+ledger #32, the same day). Home is its own group of one view, the Digest; Bets' three views moved under Matchup
+and the `bets` group is gone. Every leaf id, hash and `NAV_ALIAS` unchanged. A renamed group keeps its id:
+Matchup is `week`, Players is `scouting`. Before: Week, League, Stats, Bets (2026-10-05). `NAV` in
+`js/data/navmap.js` is the authority.
 
 | group (id) | views in the row, left to right |
 |---|---|
+| Home (`home`) | Digest only, so no tab row |
 | Team (`team`) | Roster, Waivers, Trades (Waivers leads on a Tuesday) |
-| Matchup (`week`) | Today (leaf `digest`), Live, Start/Sit (leaf `matchups`), Preview, Results (leaf `weekrecap`), then Bets' Slips, All lines, DFS; Weather hidden. Highlights dropped 2026-10-08; `#highlights` opens Ranks |
+| Matchup (`week`) | Live, Start/Sit (leaf `matchups`), Preview, Results (leaf `weekrecap`), Slips (leaf `parlay`), All lines (leaf `build`), DFS; Weather hidden. Highlights dropped 2026-10-08; `#highlights` opens Ranks |
 | Players (`scouting`) | News, Ranks, Leaders, Work vs points, Usage, Schedule |
 | League (`league`) | Recap, Teams, Records, Trade history (leaf `tradehist`, hash `#tradehist`, Yahoo's Madden Curse only; a tab of Records until 2026-10-08, David ledger #74) |
-| Bets (`bets`) | Slips, All lines, DFS |
 
 The table below is each view's history and detail; where it names a group, read the table above.
 Each group holds the views that answer one question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
@@ -176,7 +178,7 @@ bar until 2026-09-24, then the top bar, superseded): a header bar (`#hdrteam`: t
 switch, "Pick your team" with no pick; Ask on the right), one tab row (`#subnav`: the group's views as pills,
 the open view's own tabs opening in place inside it: Live, Recap, Slips; each view declares them with
 `navModes`, `js/data/tabrow.js`, and draws no bar of its own on a phone), and a bottom tab bar (`#tabbar`:
-Team, Matchup, Players, League, Bets since 2026-10-08; Week, League, Stats, Bets, Search before; one-handed
+Home, Team, Matchup, Players, League since 2026-10-08; Team, Matchup, Players, League, Bets earlier that day; Week, League, Stats, Bets, Search before; one-handed
 reach, David 2026-10-05). A desktop keeps the one bar of words.
 Adding a view = one entry in `NAV`, one copy key, one branch in `render()`.
 
