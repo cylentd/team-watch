@@ -1526,6 +1526,27 @@ roster is read, and the players named are the ones ff-jarvis's `game_preview` pi
 - **No take yet:** the slate row says the call arrives with the next refresh; the dossier keeps every
   research row.
 
+### Players up front (2026-10-09, ledger #82)
+
+The players move up from the bottom of the game page to right under the headline and story. David, 2026-10-07: the players section "is the best part and is buried";
+clean up what is under it; the Moneyline / Spread / Total rows, Vegas beside Claude, are hard to read. Storyboard
+draft A, "Ledger", of three 360px drafts (B drew each bet as a track with Vegas's tick and our dot, labels
+collided at 360px; C set the bets as three tiles and the players as cards, and lost each player's reason).
+Supersedes the order in "Front page" below and the answer row of the table above (pick 3A).
+
+| part | what it shows |
+|---|---|
+| Order | headline and story, players, the answer, the call's reason, the box score. From 1100px the story then the players left; the answer, the reason and the box score stacked in a 340px column right. ~~Players first~~ (the first cut the same day; David: "i dont exactly love the players on top. The headline is gone! maybe swap?") |
+| Player row | face; Claude's ▲ ▼ ● and the name, position and team; his reason under it (a tap opens the profile). Right: the yards our model expects (the line's `mu`, his position's own market first) and his chance to score (the TD line's `model`), never fantasy points; a tap opens his lines in the Slips player sheet. No lines this week: his projected points in grey, plain text. `pvPlayerLine`, `data/pvdossier.js` |
+| Slip hand-off | the box-score section "From this game to your slip" is gone: each player's yards open his lines, and one "All N players in Slips" button sits under the players |
+| The answer | our score, then one row per bet: Vegas grey, ours in the same unit white (CHI by 1.5 beside CHI by 4; 45.5 beside 42; CHI 52% beside CHI 57%), then the pick with its confidence word under it. Number beside number says why the pick is the pick, so 3A's "wins by 4 or more" line left the page (`pvAnswer` still carries it). `pvOurs`, `data/pvdossier.js`. "Claude" became "Ours" and "Claude's pick" "Our pick" (VISION 2026-10-08: one "our pick") |
+| Story | the headline, the first paragraph, "Read the rest" (a native `<details>`, closed), then What could go wrong, open |
+| Defense rank | a row per offense, a column per position (QB RB WR TE), the rank of the defense it faces, soft `--up`, tough `--down`, the WR column faded. Points allowed and the pass EPA row left the page |
+
+- **Measured 2026-10-09, week 5's CHI @ GB at 360px:** the game page went from 4,723px to about 2,400px; the
+  fixture's games all end inside three 800px screens (`test_a_game_page_ends_inside_three_screens`).
+- Tests: `tests/test_preview_dossier.py`, `tests/test_js_preview_dossier.py`.
+
 ### Front page (2026-09-29, evening)
 
 The slate and the game page read like a newspaper. Storyboard option C (David, 2026-09-29: "the left

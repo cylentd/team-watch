@@ -19,6 +19,7 @@ import pytest
 import contract
 from component import mount  # noqa: F401  (the fixture)
 from pages.preview import PreviewPage
+from pages.preview_dossier import PreviewDossier
 from preview import _ats, _base, _blind, _total, live_preview
 from test_render import open_at
 from wording import words
@@ -249,19 +250,18 @@ def test_the_answer_is_one_row_per_bet_vegas_beside_claude(preview):
     pv, errors = preview
     pv.show_game(2)                                                      # DET @ CAR
     assert pv.score() == "DET 30, CAR 19"
-    assert pv.bet_heads() == ["", "VEGAS", "CLAUDE"]
-    assert pv.bet_rows() == [["Moneyline", "DET 64%", "DET wins 74% chance"],
-                             ["Spread", "DET by 3.5", "DET covers Confident wins by 4 or more"],
-                             ["Total", "50.5", "Under Slight 50 points or fewer"]]
+    # Ledger #82 (2026-10-09): Vegas beside ours in the same unit, then the pick (test_preview_dossier.py has the rows).
+    assert pv.bet_heads() == ["", words("preview.ans.vegas"), words("preview.ans.ours"), words("preview.ans.pickcol")]
     pv.show_game(1)                                                      # JAX @ LA: Claude takes the underdog
-    assert pv.bet_rows()[1][1:] == ["LA by 3", "JAX covers Very confident wins, or loses by 2 or less"]   # 3 is a push
+    assert pv.bet_rows()[1][1] == "LA by 3"
+    assert pv.bet_rows()[1][3] == f"JAX covers {words('preview.conf.strong')}"
     # Gone with 3A: the market's score, the bar, "getting / giving", where a line opened.
     ans = pv.answer_text()
     assert [gone for gone in ("market", "getting", "giving", "opened") if gone in ans] == []
     assert pv.answer_bar_count() == 0
     pv.show_game(4)                                                      # ATL @ NO: no take, Vegas only
     assert pv.score_count() == 0
-    assert [r[2] for r in pv.bet_rows()] == ["–", "–", "–"]
+    assert [r[2:] for r in pv.bet_rows()] == [["–", "–"]] * 3
     assert errors == []
 
 
@@ -271,13 +271,15 @@ def test_the_game_page_reads_like_a_newspaper(preview):
     the story. Section names are run-in words and plain bold names, never all-caps label rows."""
     pv, errors = preview
     pv.tap_game(2)                                                       # DET @ CAR
-    # The answer first (2026-10-05, plan U3): pick, line, total and win chance above the headline.
-    assert pv.parts() == ["pvn-ans", "pvn-head", "pvn-call", "pvn-box", "pvn-story"]
+    # Ledger #82 (2026-10-09): the headline and story first (David: "The headline is gone! maybe swap?"), then
+    # the players, the answer and its reason, the box score.
+    assert pv.parts() == ["pvn-head", "pvn-pl", "pvn-ans", "pvn-call", "pvn-box"]
     assert pv.bet_ids() == ["ml", "spread", "total"]
-    # "slip" since 2026-10-03: the take names Amon-Ra St. Brown, who has lines on the fixture's slate.
     # "ds" since 2026-10-06: Carolina is missing a lineman and a corner (tests/test_d_starters_view.py).
-    assert pv.section_kinds() == ["matchup", "handoff", "inj", "ds", "wx", "rest"]
+    # The slip hand-off left the box score for the player rows (ledger #82).
+    assert pv.section_kinds() == ["matchup", "inj", "ds", "wx", "rest"]
     assert pv.headline_font().startswith("Newsreader")
+    PreviewDossier(pv.page).open_rest_of_story()                         # past the first paragraph (ledger #82)
     # The story's paragraphs (2026-09-30), every one set alike: one voice, not a dek and smaller body copy.
     assert pv.dek_texts() == ["Rain keeps it on the ground, and Carolina allows the second-most RB points.",
                               "Gibbs gets the carries early and Detroit leans on him once it leads.",
@@ -308,15 +310,17 @@ def test_the_game_page_reads_like_a_newspaper(preview):
 
 
 @pytest.mark.render
-def test_the_answer_is_above_the_fold_on_a_phone_and_the_story_starts_below_it(mount):
-    """Plan U3 (2026-10-05): the line, total, win chance and Claude's pick were under five paragraphs. At
-    390x844 the whole block ends above the fold and the headline starts under it."""
+def test_the_headline_and_first_paragraph_open_the_phone_screen_and_the_answer_follows(mount):
+    """Plan U3 (2026-10-05) put the answer above the headline; ledger #82 (2026-10-09, David: "The headline is
+    gone! maybe swap?") puts the headline first again. At 390x844 the headline and the story's first paragraph
+    are on the first screen; the answer comes after them, past the players, and the story is cut to one
+    paragraph so it is never five paragraphs down."""
     page, errors = mount("preview", size=(390, 844), touch=True)
     pv = PreviewPage(page)
     pv.tap_game(2)                                                       # DET @ CAR: every cell
     box = pv.answer_box()
-    assert box["ans"][1] <= box["vh"], box                               # the whole block is on the first screen
-    assert box["head"] >= box["ans"][1] - 1 and box["dek"] > box["head"]
+    assert box["head"] < box["dek"] < box["vh"], box                     # headline, then its first paragraph, on screen
+    assert box["ans"][0] > box["dek"], box
     assert pv.scroll_width() <= 390
     assert errors == [], errors
 
@@ -503,7 +507,7 @@ def test_optional_rows_are_absent_without_data(preview):
     pv.step(-1)
     pv.step(-1)                                                 # DET @ CAR: the one with defense ranks
     assert pv.match() == "DET @ CAR" and pv.matchup_count() == 1
-    assert pv.dim_matchup_row().startswith("WR")
+    assert PreviewDossier(pv.page).dim_heads() == ["WR"]
     assert "Rain" in pv.effects_text()                          # rain 56% is past the backtest's threshold
     assert "J. Coker" in pv.injury_text(1)
     assert errors == []
@@ -569,6 +573,7 @@ def test_a_bold_name_in_the_story_opens_his_profile(preview):
     pv, errors = preview
     pv.tap_game(2)                                                       # DET @ CAR
     pv.spy_on_profile()
+    PreviewDossier(pv.page).open_rest_of_story()                         # Young is named in the third paragraph
     pv.tap_name("Young")
     assert pv.opened_profiles() == ["bryce-young"]
     assert errors == []
@@ -595,9 +600,9 @@ def test_a_desktop_shows_the_rail_beside_the_dossier(mount):
     assert pv.match() == "DET @ CAR" and pv.current_row_match() == "DET @ CAR"
     assert pv.layers() == 0 and not pv.is_open()                  # a click on a desktop pushes no layer
     assert pv.edges("slate")[0] < pv.edges("dossier")[0]
-    # The box score is a column right of the call, the two sharing a top edge (storyboard option C).
-    call, box = pv.edges("call"), pv.edges("box")
-    assert box[0] > call[2] and abs(box[1] - call[1]) < 2
+    # Ledger #82 (2026-10-09): the players left; the call and the box score under it in the right column.
+    players, call, box = pv.edges("players"), pv.edges("call"), pv.edges("box")
+    assert call[0] > players[2] and abs(box[0] - call[0]) < 2 and box[1] > call[1]
     assert errors == [], errors
 
 
@@ -631,39 +636,29 @@ def test_nothing_scrolls_sideways_at_360(preview):
 @pytest.mark.render
 @pytest.mark.journey
 def test_the_dossier_hands_its_players_to_the_slip(browser, page_file):
-    """From this game to your slip (2026-10-03): each player the take names with his lines in the
-    player sheet's row; a side tapped lands in the same tray as Slips', and he is marked on slip;
-    "All N players in Slips" opens Slips on the game's kickoff with its card. The fixture's preview games
-    and its props slate are different games, so game 3 becomes the props slate's SEA @ SF and names Kittle.
-    A journey: it leaves for Slips and Back returns, so it needs the whole page."""
+    """From this game to your slip (2026-10-03; since ledger #82, 2026-10-09, on the player rows): a player's
+    yards open his lines in the Slips player sheet; "All N players in Slips" opens Slips on the game's kickoff
+    with its card. The fixture's preview games and its props slate are different games, so game 3 becomes the
+    props slate's SEA @ SF and names Kittle. A journey: it leaves for Slips and Back returns, so it needs the
+    whole page."""
     ctx, page, errors = open_at(browser, page_file, PHONE, "#preview")
     try:
-        pv = PreviewPage(page)
+        pv, dz = PreviewPage(page), PreviewDossier(page)
         slips = pv.handoff.slips()
-        assert pv.section_count("handoff") == 0, "no game of the props slate is open"
         pv.handoff.plant_game_as_sea_sf()
         pv.handoff.open_game_for_real(3)   # the real open: it pushes the dossier's history entry
-        assert pv.handoff.title() == words("preview.row.slip")
-        assert pv.handoff.players() == 1 and pv.handoff.lines() == 1, "one line each, his position's own (REC)"
-        assert pv.handoff.market().startswith("Rec yds"), "the primary line is his yards market"
-        assert pv.handoff.lines_label().startswith("2 lines"), "TD and yards; LONG is no line"
+        assert dz.yards_is_button(0), "Kittle's yards are the way to his lines"
         assert pv.handoff.tray_drawn() == 0, "no tray on Preview until a pick is in it"
-        rec = pv.handoff.props_index("george-kittle", "REC")
-        pv.handoff.pick(rec, "higher")
-        assert slips.slip() == [[rec, "higher"]]
-        assert slips.tray_count() == "1"
-        assert pv.handoff.marked_count() == 1
         assert pv.scroll_width() <= 360
         n = pv.handoff.players_with_lines(3)
         assert pv.handoff.slip_all_text().startswith(f"All {n} players in Slips")
         pv.handoff.tap_slip_all()
         assert slips.surface() == "parlay" and slips.kickoff()["chosen"] == "evening-sun"
         assert slips.game_titles().count("SEA @ SF") == 1
-        assert slips.row_on_slip("george-kittle") == 1
         # Back from Slips lands on the dossier it left, not the slate; Back again closes the dossier.
         pv.browser_back()
         pv.wait_for_view("preview")
-        assert pv.handoff.dossier_open_state() is True and pv.section_count("handoff") == 1
+        assert pv.handoff.dossier_open_state() is True and dz.slips_button_count() == 1
         pv.browser_back()
         pv.handoff.wait_for_dossier_state_closed()
         assert errors == []

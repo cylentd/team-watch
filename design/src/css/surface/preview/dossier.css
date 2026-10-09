@@ -1,9 +1,9 @@
 /* ============================== PREVIEW DOSSIER ============================== */
 /* One game, printed like a sports page (js/surface/preview/dossier.js, research.js; 2026-09-29,
    storyboard option C). No card and no boxes: the page's own ground, hairline rules between parts.
-   The story is words in the reading faces; the box score beside it is small type, every number
-   there. A phone stacks headline, call, box score, story; from 1100px the box score is a 340px
-   column right of the call and the story. */
+   The story is words in the reading faces; the box score is small type, every number there. A phone
+   stacks headline and story, players, answer, call, box score (ledger #82, 2026-10-09); from 1100px
+   the story then the players sit left of a 340px column of answer, call and box score. */
 .pvn{display:flex;flex-direction:column;gap:16px;touch-action:pan-y;min-width:0}
 .pv-note,.pv-nil{margin:6px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
 .pv-nil{margin:0}
@@ -21,7 +21,7 @@
 
 /* A bold run-in word leads each part of the story: "The call.", "Players.", "What could go wrong." */
 .pv-rin{font-weight:700;color:var(--ink)}
-.pvn-call,.pvn-story{min-width:0;max-width:66ch}
+.pvn-call{min-width:0;max-width:66ch}
 .pv-callp,.pv-vs{margin:0;font-size:var(--t-3);line-height:1.55;color:var(--ink)}
 .pv-vs{margin-top:8px;color:var(--ink-2)}
 
@@ -35,15 +35,17 @@
 .pv-fin b{color:var(--ink)}
 .pv-ak{font-size:var(--t-1);color:var(--ink-3)}
 .pv-am{font-family:var(--mono);font-size:var(--t-5);font-weight:700;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
-.pv-bt{width:100%;margin-top:8px;border-collapse:collapse}
-.pv-bt thead th{padding:0 8px 4px 0;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;
-  text-transform:uppercase;text-align:left;color:var(--ink-3)}
-.pv-bt tbody th,.pv-bt td{padding:8px 8px 8px 0;border-top:1px solid var(--line);vertical-align:top;text-align:left}
-.pv-bt tbody th{width:1%;padding-right:14px;font-size:var(--t-2);font-weight:700;color:var(--ink-2);white-space:nowrap}
-.pv-vg{width:1%;padding-right:14px;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
-.pv-cc{font-size:var(--t-2);font-weight:700;color:var(--ink)}
-.pv-cc .pv-conf{margin-left:4px;vertical-align:1px}
-.pv-as{display:block;margin-top:2px;font-size:var(--t-1);font-weight:400;color:var(--ink-3)}
+/* One row per bet (ledger #82): Vegas grey and ours white in the same unit, mono so the two numbers line up
+   down their columns, then the pick in words with its confidence under it. The pick column takes the slack. */
+.pv-bt{width:100%;margin-top:8px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.pv-bt thead th{padding:0 10px 4px 0;font-size:var(--t-1);font-weight:400;text-align:left;color:var(--ink-3)}
+.pv-bt tbody th,.pv-bt td{padding:9px 10px 9px 0;border-top:1px solid var(--line);vertical-align:top;text-align:left}
+.pv-bt tbody th{width:1%;font-size:var(--t-2);font-weight:600;color:var(--ink-2);white-space:nowrap}
+.pv-vg,.pv-us{width:1%;font-family:var(--mono);font-size:var(--t-2);white-space:nowrap}
+.pv-vg{color:var(--ink-3)}
+.pv-us{font-weight:700;color:var(--ink)}
+.pv-bt td.pv-cc{padding-right:0;font-size:var(--t-2);font-weight:700;color:var(--ink)}
+.pv-cw{display:block;margin-top:2px}
 .pv-mk{font-weight:700}
 .pv-mk.hit{color:var(--up)}
 .pv-mk.miss{color:var(--down)}
@@ -64,17 +66,15 @@
 .pv-cl{font-weight:700;color:var(--lime)}
 .pv-site{margin:0 0 6px;font-size:var(--t-2);color:var(--ink)}
 
-/* Defense rank: each offense against the defense it faces; the rank, points allowed small beside it. */
+/* Defense rank (ledger #82): a row per offense, a column per position, the rank of the defense it faces. */
 .pv-mx{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:var(--t-2);font-variant-numeric:tabular-nums}
-.pv-mx th{padding:0 0 4px 10px;font-family:var(--ui);font-size:var(--t-1);font-weight:400;line-height:1.25;color:var(--ink-3);text-align:right}
-.pv-mx th:first-child,.pv-mx th[scope]{text-align:left}
-.pv-mx td,.pv-mx th[scope]{padding:3px 0;border-top:1px solid var(--line)}
+.pv-mx th{padding:0 0 4px 10px;font-family:var(--mono);font-size:var(--t-1);font-weight:400;color:var(--ink-3);text-align:right}
+.pv-mx td,.pv-mx th[scope]{padding:5px 0 5px 10px;border-top:1px solid var(--line)}
 .pv-mx td{text-align:right;color:var(--ink)}
-.pv-mx th[scope]{padding-left:0;font-family:var(--mono);font-size:var(--t-2);color:var(--ink-2);white-space:nowrap}
-.pv-mx td small{margin-left:6px;font-size:var(--t-1);color:var(--ink-3)}
+.pv-mx th[scope]{width:100%;padding-left:0;font-family:var(--ui);font-size:var(--t-2);color:var(--ink-2);text-align:left;white-space:nowrap}
 .pv-mx td.pv-soft{color:var(--up)}
 .pv-mx td.pv-tough{color:var(--down)}
-.pv-mx tr.dim td,.pv-mx tr.dim th{opacity:.45}
+.pv-mx .dim{opacity:.45}
 
 /* Injuries: the two teams side by side, each a tag and a name. */
 .pv-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
@@ -93,24 +93,41 @@
 .pv-eff li{display:flex;flex-wrap:wrap;gap:4px 12px}
 .pv-eff b{color:var(--sky);font-weight:700}
 
-/* Player calls: face, call, name, projection; why under the name. The whole row opens him. */
-.pv-plh{margin:0 0 2px;font-size:var(--t-3)}
-.pv-pl{list-style:none;margin:0 0 14px;padding:0}
-.pv-pl li{border-top:1px solid var(--line)}
-.pv-p{width:100%;display:grid;grid-template-columns:30px 14px minmax(0,1fr) auto;column-gap:8px;row-gap:1px;align-items:center;padding:8px 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+/* Player calls, first on the page (ledger #82): face, Claude's mark and the name, position and team, his reason
+   under it (the button that opens him); his yards and chance to score on the right (the button to his lines). */
+.pvn-pl{min-width:0}
+.pv-pl{list-style:none;margin:0;padding:0}
+.pv-pr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:start;border-top:1px solid var(--line)}
+.pv-p{display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:10px;row-gap:2px;align-items:baseline;min-width:0;padding:10px 0;
+  background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .pv-p:hover .pv-pn{text-decoration:underline;text-underline-offset:3px}
-.pv-face{grid-row:1/3;width:30px;height:30px;border-radius:50%;overflow:hidden;background:var(--panel-3);align-self:start}
+.pv-p:focus-visible,.pv-py:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.pv-face{grid-row:1/3;width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--panel-3);align-self:start}
 .pv-face img,.pv-face .fallback{width:100%;height:100%;object-fit:cover;display:grid;place-items:center;font-size:var(--t-1);color:var(--ink-3)}
-.pv-call{font-family:var(--mono);font-size:var(--t-1);font-weight:700;text-align:center}
+.pv-call{margin-right:6px;font-family:var(--mono);font-size:var(--t-1);font-style:normal;font-weight:700}
 .pv-call.up{color:var(--up)}
 .pv-call.down{color:var(--down)}
 .pv-call.hold{color:var(--ink-3)}
-.pv-pn{font-size:var(--t-3);font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pv-pn small{margin-left:6px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
-.pv-pj{font-family:var(--mono);font-size:var(--t-2);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
-.pv-pw{grid-column:2/-1;font-size:var(--t-2);line-height:1.45;color:var(--ink-2)}
+.pv-pn{min-width:0;font-size:var(--t-3);font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-pt{margin-left:8px;font-size:var(--t-1);font-weight:400;color:var(--ink-3)}
+.pv-pw{grid-column:2;font-size:var(--t-2);line-height:1.4;color:var(--ink-2)}
+.pv-py{display:flex;flex-direction:column;align-items:flex-end;gap:2px;margin:0;padding:10px 0;background:none;border:0;color:inherit;font:inherit;text-align:right;white-space:nowrap}
+button.pv-py{cursor:pointer}
+button.pv-py b{text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:4px}
+.pv-py b{font-family:var(--mono);font-size:var(--t-3);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pv-py b small{font-family:var(--ui);font-size:var(--t-1);font-weight:400;color:var(--ink-3)}
+.pv-py b.pv-pts{font-size:var(--t-2);font-weight:400;color:var(--ink-3)}
+.pv-td{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
 
-.pv-risk{margin:0;font-size:var(--t-3);line-height:1.55;color:var(--ink-2)}
+/* The rest of the story behind one tap, then what could go wrong, open. */
+.pv-more{margin-top:10px}
+.pv-more summary{display:inline-flex;align-items:center;gap:6px;min-height:36px;font-size:var(--t-2);font-weight:600;color:var(--ink);cursor:pointer;list-style:none}
+.pv-more summary::-webkit-details-marker{display:none}
+.pv-more summary svg{width:6px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none;transform:rotate(90deg)}
+.pv-more summary:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
+.pv-more[open] summary{display:none}
+.pv-more .pv-dek{margin-top:12px}
+.pv-risk{margin:14px 0 0;max-width:62ch;font-size:var(--t-2);line-height:1.5;color:var(--ink-2)}
 
 /* A phone's headline one step down, so a long one takes three lines, not five; 760px up is full size. */
 .pv-head{font-size:var(--t-5)}
@@ -120,20 +137,18 @@
   .pv-dek{font-size:var(--t-4)}
 }
 
-/* From 1100px: the answer and the headline across, then the call and the story left, the box score a
-   column right. The story's row takes the slack, so the call keeps its own height beside a tall box score. */
+/* From 1100px (ledger #82): the story then the players left; the answer, its reason and the box score stacked
+   right, so neither column leaves a hole while the other runs on. The last row takes the slack. */
 @media (min-width:1100px){
-  .pvn{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto auto 1fr;column-gap:36px;row-gap:16px;
-    grid-template-areas:"ans ans" "head head" "call box" "story box"}
-  .pvn-ans{grid-area:ans}
-  .pvn-head{grid-area:head}
+  .pvn{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto auto 1fr;column-gap:36px;row-gap:20px;
+    grid-template-areas:"head ans" "head call" "head box" "pl box"}
+  .pvn-pl{grid-area:pl}
+  .pvn-ans{grid-area:ans;align-self:start}
+  .pvn-call{grid-area:call;align-self:start;max-width:none}
+  .pvn-head{grid-area:head;align-self:start}
   /* The story runs wider than a phone's measure here (David, 2026-09-30: "it shouldn't match the mobile
      width"), still inside a readable line. */
   .pv-dek{max-width:80ch}
-  .pvn-call,.pvn-story{max-width:none}
-  .pvn-call{grid-area:call}
-  .pvn-box{grid-area:box;align-self:start;border-bottom:0}
-  .pvn-story{grid-area:story}
+  .pvn-box{grid-area:box;align-self:start;border-top:0;border-bottom:0}
   .pvn-box .pva:first-child{padding-top:0}
-  .pvn-box{border-top:0}
 }

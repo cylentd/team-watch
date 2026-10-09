@@ -409,10 +409,12 @@ STATES = [
     ("preview-dossier", go("preview") + [("click", "[data-pvopen='2']")]),
     ("preview-notake", go("preview") + [("click", "[data-pvopen='4']")]),
     # From this game to your slip (2026-10-03): game 3 made the props slate's SEA @ SF, Kittle named
-    # in its take, his receiving yards tapped Higher, so the tray and the "on slip" mark show.
+    # in its take, his receiving yards Higher on the slip, so the tray and the "on slip" mark show. Since
+    # ledger #82 (2026-10-09) the pick is made in the Slips player sheet his yards open, so it is planted.
     ("preview-slip", go("preview") + [("eval", """(() => { const g = LIVE_PREVIEW.games[3]; g.away = 'SEA'; g.home = 'SF';
       g.take.players = [{n: 'George Kittle', slug: 'george-kittle', pos: 'TE', team: 'SF', proj: 9.1, call: 'up', why: 'Seattle allows the most TE points.'}];
-      PV_I = 3; PV_OPEN = true; render(); })()"""), ("click", ".pva.handoff [data-side='higher']")]),
+      slipSet(PROPS.findIndex(p => p.slug === 'george-kittle' && p.mkt === 'REC'), 'higher');
+      PV_I = 3; PV_OPEN = true; render(); })()""")]),
     # Past games (2026-10-05, picks 1A and 2A; the record card before): opened from its row under the slate
     # on week 1, the fixture's earlier graded week; and the slate before any graded week, with no such row.
     ("preview-record", go("preview") + [("click", "[data-pvarcwk]")]),

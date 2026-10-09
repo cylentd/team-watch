@@ -44,11 +44,11 @@
     },
     "preview": {
       "paths": ["design/src/js/surface/preview/", "design/src/css/surface/preview/", "design/src/js/data/preview.js",
-                "design/preview.py", "design/preview_archive.py", "design/d_starters.py", "design/src/js/data/dstarters.js",
+                "design/src/js/data/pvdossier.js", "design/preview.py", "design/preview_archive.py", "design/d_starters.py", "design/src/js/data/dstarters.js",
                 "design/src/js/ui/dstarters.js", "design/src/css/component/dstarters.css"],
       "tests": ["tests/test_preview.py", "tests/test_js_preview_wx.py", "tests/test_js_preview_answer.py",
                 "tests/test_preview_archive.py", "tests/test_d_starters.py", "tests/test_js_dstarters.py",
-                "tests/test_d_starters_view.py"],
+                "tests/test_d_starters_view.py", "tests/test_js_preview_dossier.py", "tests/test_preview_dossier.py"],
       "render": ["preview"]
     },
     "league": {

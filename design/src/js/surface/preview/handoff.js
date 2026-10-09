@@ -1,13 +1,10 @@
 /* ------------------------------------------------------------------
-   PREVIEW's hand-off to Slips (2026-10-03, storyboard "Slips research board", frame 3). A box-score
-   section, "From this game to your slip": each player Claude's take names who has a line this week,
-   with his lines in the player sheet's own row (parlay/lineitem.js), so a side tapped here lands in
-   the same tray as on Slips. Then "All N players in Slips", which opens Slips on this game's kickoff
-   and brings its card into view. Facts and the take's own words only; never advice.
+   PREVIEW's hand-off to Slips. From 2026-10-03 to 2026-10-09 a box-score section, "From this game to your
+   slip", repeated every player call with his line row (storyboard "Slips research board", frame 3). Since
+   ledger #82 (2026-10-09) each player call carries it: his yards are a tap to his lines in the Slips player
+   sheet (dossier.js pvPlayerHTML), and under the players one button, "All N players in Slips", opens Slips
+   on this game's kickoff with its card in view. Facts and the take's own words only; never advice.
 ------------------------------------------------------------------ */
-/* The one line a take player shows: his position's own yards market, else the first he has. */
-const SL_PRIMARY = {QB: "PASS", RB: "RUSH", WR: "REC", TE: "REC"};
-
 /* The board's rows for this game: both clubs, either spelling. */
 function pvSlipRows(g){
   const want = new Set([schedCode(g.away), schedCode(g.home)]);
@@ -17,22 +14,12 @@ function pvSlipRows(g){
   });
 }
 
-function pvSlipRow(g){
-  if (!LIVE_MARKET) return "";
+/* "All N players in Slips ›", or nothing when Slips holds no line for the game. */
+function pvSlipAllHTML(g){
   const rows = pvSlipRows(g), n = new Set(rows.map(([p]) => slSlug(p))).size;
-  const ps = (g.take ? g.take.players : []).map(x => ({x, lines: slPlayerRows(x.slug)})).filter(o => o.lines.length)
-    .map(({x, lines}) => ({x, n: lines.length, lines: [lines.find(i => PROPS[i].mkt === SL_PRIMARY[x.pos]) ?? lines.find(i => PROPS[i].mkt !== "TD") ?? lines[0]]}));
-  if (!ps.length && !n) return "";
-  const on = onSlipSlugs();
-  const body = ps.map(({x, n: nl, lines}) => `<div class="pv-sl" data-testid="preview-slip-player">
-      <p class="pv-slh"><b>${shortName(x.n)}</b><small>${esc(x.pos)} · ${esc(x.team)}</small>${on.has(x.slug) ? `<span class="sl-on" data-testid="preview-slip-on">${t("slips.onSlip")}</span>` : ""}</p>
-      ${x.why ? `<p class="pv-slw">${esc(x.why)}</p>` : ""}
-      ${lines.map(slLineHTML).join("")}
-      <button type="button" class="chip pv-sln" data-testid="preview-slip-lines" data-slplayer="${esc(x.slug)}">${t("preview.slip.lines", {n: nl})}${SL_CHEV}</button>
-    </div>`).join("");
-  const first = rows[0] && rows[0][0];
-  const go = n ? `<button type="button" class="chip pv-slgo" data-testid="preview-slip-all" data-pvslips="${esc(first.win || "")}" data-pvgame="${esc(first.game)}">${t("preview.slip.all", {n})}${SL_CHEV}</button>` : "";
-  return pvRow("handoff", t("preview.row.slip"), body + go);
+  if (!n) return "";
+  const first = rows[0][0];
+  return `<button type="button" class="chip pv-slgo" data-testid="preview-slip-all" data-pvslips="${esc(first.win || "")}" data-pvgame="${esc(first.game)}">${t("preview.slip.all", {n})}${SL_CHEV}</button>`;
 }
 
 /* Slips on this game's kickoff, its card in view. The dossier's history entry stays and so does

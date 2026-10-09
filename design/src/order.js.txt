@@ -140,6 +140,7 @@ surface/weather/weather.js
 data/sos.js
 surface/sos/sos.js
 data/preview.js
+data/pvdossier.js
 surface/preview/slate.js
 surface/preview/record.js
 surface/preview/dossier.js
