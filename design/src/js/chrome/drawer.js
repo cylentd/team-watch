@@ -43,9 +43,18 @@ function showDrawer(d, labelledby){
   const close = d.querySelector(".dr-close");
   close.addEventListener("click", closeDrawer);
   close.focus({preventScroll: true});
+  layerPush("drawer", drawerShut);   // the phone's Back closes this, not the view (layers.js)
 }
 
+/* The close from the drawer itself (x, scrim, Escape) takes its history entry back too. */
 function closeDrawer(){
+  if (!document.getElementById("drawer").classList.contains("on")) return;
+  drawerShut();
+  layerDone("drawer");
+}
+
+/* The close itself, with no history bookkeeping: what Back runs, after the entry is already gone. */
+function drawerShut(){
   const d = document.getElementById("drawer");
   if (!d.classList.contains("on")) return;
   d.classList.remove("on");

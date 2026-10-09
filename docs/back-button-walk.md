@@ -19,10 +19,19 @@ Cause of 2 to 5: setting `location.hash` fires `popstate`, which closed the topm
 
 Every group and pill in sequence and back (21 views); search sheet, profile, Escape and Back; profile close button; Preview dossier Back; Recap tabs (Back leaves the view, by rule).
 
+## Second walk, 2026-10-09 (after the Home / Team / Matchup regroup)
+
+| # | from | expected | got | status |
+|---|---|---|---|---|
+| 7 | DFS or Slips, "How this works" drawer open, Back | drawer closes, view stays | view changed, drawer left open over it (`showDrawer` pushed no entry) | fixed |
+| 8 | A league connected through the sheet | URL `#roster`, Back returns to the view before | URL kept the old view (`SURFACE` set without the hash) | fixed |
+
+Walked, correct: every group and pill in the new row (Home, Team, Matchup, Players, League; 19 steps) and back, with the active group and pressed pill matching each entry; Live game sheet, clip sheet, leg sheet, search, Connect, profile, Preview dossier (opened by a Digest card, a Recap game or Ranks), each closed by Back and by its own close; trade finder Edit and a trade page's Make your own offer (Back closes, a pill tap unwinds first); the trade page's Trades link (a step forward by its label; Back returns to the page); the team switch on a trade page (replaces the entry).
+
 ## Open (not fixed)
 
 | from | note |
 |---|---|
-| Connect a league succeeds | `connectSubmit` sets `SURFACE = "roster"` without writing the hash; URL keeps the old view. Needs a connect-flow test with the network stubbed. |
-| Reload with an overlay open | The restored entry keeps `history.state.layer`, so one Back does nothing visible. |
-| Recap game to Preview dossier, Live game sheet, trade edit page, clip sheet, pack | Not walked this pass; they use the same layer helpers. |
+| Reload with an overlay open | The restored entry keeps `history.state.layer`, so one Back does nothing visible. Clearing the marker still leaves one duplicate step. |
+| Ask chat panel | Deliberately not a layer (chat.js header): it stays open across views. Back leaves the view with it open. |
+| Tabs inside a view (Live, Recap, Ranks' Rest of season) | Not entries, by the rule above. Making each a step is a decision for David. |

@@ -107,11 +107,13 @@ async function connectSubmit(teamId){
   if (got.pick) CONNECT.pick = {league: got.league, teams: got.pick};
   else if (got.error){ CONNECT.error = got.error; if (got.private) CONNECT.step = "private"; }
   else if (got.league){
-    connectClose();
-    VIEW = got.league.key;
-    myTeamSave(VIEW);   // a connected league is the reader's pick, so My teams does not ask again
-    SURFACE = "roster";
-    paintSubnav(); render();
+    // The sheet closes and takes its history entry back first, then the Roster opens through navGo, which writes
+    // the hash (layers.js layersUnwind): setting SURFACE alone left the address on the old view.
+    layersUnwind(() => {
+      VIEW = got.league.key;
+      myTeamSave(VIEW);   // a connected league is the reader's pick, so My teams does not ask again
+      navGo("roster");
+    });
     return;
   }
   connectPaint();

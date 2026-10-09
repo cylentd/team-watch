@@ -183,7 +183,7 @@ Adding a view = one entry in `NAV`, one copy key, one branch in `render()`.
 Player search (2026-09-22) is not a view: no `NAV` entry, no hash. On a phone it sits in the header
 beside Ask (since 2026-10-08; the bar's fifth slot before), on a desktop it is the field after the groups and `/`; `js/data/search.js` joins every live player row by slug and ranks,
 `js/chrome/search.js` is the sheet. Overlays push a URL-less history entry (`js/chrome/layers.js`),
-so Back closes the profile, then search, before it ever changes the view.
+so Back closes the profile, then search, before it ever changes the view. The slide-over drawer ("How this works") is a layer too since 2026-10-09, and a connected league opens its Roster through `navGo`, which writes the hash (`tests/test_back_button_flows.py`; the walk is `docs/back-button-walk.md`).
 
 ## Staying current in an open tab
 
