@@ -298,13 +298,6 @@ def load_digest_headline():
     return feed_block(("digest_headline",), "week") or read_first(DWR / "digest_headline.json")
 
 
-def load_highlights():
-    """Players > Highlights: two Claude-written, number-checked lines per Players view
-    (model.season.highlights, 2026-09-29), feed block `highlights` first, the file second. None when
-    neither exists."""
-    return feed_block(("highlights",), "views") or read_first(DWR / "highlights.json")
-
-
 def load_clips():
     """Official YouTube clips per player and per game (ff-jarvis clips.json, 2026-10-05), feed block
     `clips` first, the file second. design/yt_clips.py cuts it; None when neither exists."""

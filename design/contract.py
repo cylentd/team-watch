@@ -318,8 +318,6 @@ CONTRACT = {
     # design/startsit_board.py, the Start / Sit picker and board (2026-10-03): `fp` {slug: {ecr, pos}}, `board` {POS: {avg, n, best, worst}}
     # (rows {team, opp, pts, rank}), `out` {slug: [{n, pos, s}]}; each part may be empty. The nested shapes are checked by its `problems`.
     "LIVE_SSB": {"keys": ["week", "fp", "board", "out"], "checks": [startsit_board.problems]},
-    # design/highlights.py, Players > Highlights (2026-09-29); a view's rows are pinned in tests/test_highlights.py.
-    "LIVE_HIGHLIGHTS": {"keys": ["season", "week", "generated", "views"], "rows": [("views", ["view", "leaf", "rows"])]},
     # design/yt_clips.py, official YouTube clips (2026-10-05): `players` {slug: [{id, title, kind, secs, embed, shape}]}, `games` {team: {id, title, secs, embed, shape}}; null without ff-jarvis's file. Nested shapes are checked by its `problems`.
     "LIVE_CLIPS": {"keys": ["week", "players", "games", "alias"], "checks": [yt_clips.problems]},
     # design/player_names.py, jersey numbers and nicknames for the clip matcher (2026-10-05): the block IS the map {slug: {n, t, k}}; null without ff-jarvis's file.

@@ -142,11 +142,6 @@
       "tests": ["tests/test_recap_data.py", "tests/test_recap_view.py", "tests/test_accuracy_view.py"],
       "render": ["weekrecap"]
     },
-    "highlights": {
-      "paths": ["design/src/js/surface/highlights/", "design/src/css/surface/highlights/", "design/highlights.py"],
-      "tests": ["tests/test_highlights.py"],
-      "render": ["highlights"]
-    },
     "profile": {
       "paths": ["design/src/js/surface/profile/", "design/src/css/surface/profile/", "design/src/js/data/lede.js", "design/pedigree.py", "design/gamelog.py",
                 "design/routes.py", "design/archetype.py"],

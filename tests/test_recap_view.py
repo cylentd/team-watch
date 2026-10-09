@@ -234,7 +234,7 @@ def test_weather_is_out_of_the_sub_row_but_the_hash_and_navgo_still_open_it(brow
     ctx, page, errors = open_page(browser, page_file, PHONE)
     nav = RecapNav(page)
     nav.go("live")
-    assert nav.sub_row() == ["Live", "Start/Sit", "Preview", "Results", "Highlights", "Slips", "All lines", "DFS"]
+    assert nav.sub_row() == ["Live", "Start/Sit", "Preview", "Results", "Slips", "All lines", "DFS"]
     assert nav.sub_row_fits()
     nav.open_by_hash("weather")
     assert nav.group() == "week"

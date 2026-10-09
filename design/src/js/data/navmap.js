@@ -5,15 +5,15 @@
    The history of the table (what moved when, and why every leaf id stayed) is the header of chrome/nav.js. */
 /* Team · Matchup · Players · League · Bets since 2026-10-08 (David, storyboard nav draft B, ledger #32): the
    sections Yahoo, ESPN and Sleeper readers already know. A renamed group keeps its id (`week` reads Matchup,
-   `scouting` Players), so nothing keyed on it moves; `team` is new, split from League. Highlights waits at the
-   end of Matchup, beside Today, until step 2 folds it into Today as a card.
+   `scouting` Players), so nothing keyed on it moves; `team` is new, split from League. Highlights was dropped
+   2026-10-08 (David: "the information is not useful"); #highlights opens Ranks.
    Home · Team · Matchup · Players · League since 2026-10-08 (David, storyboard home draft B, ledger #52): Home is
    its own group of one view, today's Digest (leaf `digest`), so it draws no tab row; Bets' three views moved under
    Matchup with their leaf ids and hashes, and the `bets` group is gone. */
 const NAV = [
   ["home",     ["digest"]],
   ["team",     ["roster", "waivers", "trades"]],
-  ["week",     ["live", "matchups", "preview", "weekrecap", "highlights", "parlay", "build", "dfs", "weather"]],
+  ["week",     ["live", "matchups", "preview", "weekrecap", "parlay", "build", "dfs", "weather"]],
   ["scouting", ["news", "ranks", "board", "movers", "usage", "schedule"]],
   ["league",   ["recap", "teams", "records"]],
 ];
@@ -41,8 +41,8 @@ const NAV_HIDDEN = ["weather"];
 /* Old names that still land. Movers was the `pool` view until 2026-09-25. Takes kept Matchups' leaf
    `matchups` (2026-09-29), so #takes is the new name's way in; Start/Sit (2026-10-03) was the same leaf, #startsit
    its name; it reads Matchups again since 2026-10-06 (the picker moved behind "Compare two"), and every name
-   still lands. `myrecap` and `league` merged into Recap on 2026-10-05. */
-const NAV_ALIAS = {pool: "movers", takes: "matchups", startsit: "matchups", myrecap: "recap", league: "recap"};
+   still lands. `myrecap` and `league` merged into Recap on 2026-10-05. `highlights` opens Ranks since the view was dropped 2026-10-08. */
+const NAV_ALIAS = {pool: "movers", takes: "matchups", startsit: "matchups", myrecap: "recap", league: "recap", highlights: "ranks"};
 
 /* A hash or a name -> the leaf it opens, or null when no view has it. */
 const navLeafOf = name => {
@@ -88,7 +88,7 @@ function navFocusKey(team, keys){
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), weekrecap: t("nav.tab.weekrecap"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"),
   records: t("nav.tab.records"), recap: t("nav.tab.recap"), trades: t("nav.tab.trades"),
-  highlights: t("nav.tab.highlights"), ranks: t("nav.tab.ranks"),
+  ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   weather: t("nav.tab.weather"), preview: t("nav.tab.preview"), teams: t("nav.tab.teams"),
@@ -97,7 +97,7 @@ const navLabel = leaf => ({
 }[leaf] || leaf);
 
 /* One line under the sub-row saying what a Stats view holds (2026-10-05, David: A + C). Role's is its own
-   head (role.head.sub); Highlights, Ranks and the rest are named plainly already. */
+   head (role.head.sub); Ranks and the rest are named plainly already. */
 const navCaptionHTML = leaf => {
   const say = {board: t("nav.caption.board"), usage: t("nav.caption.usage")}[leaf];
   return say ? `<p class="stat-cap">${say}</p>` : "";

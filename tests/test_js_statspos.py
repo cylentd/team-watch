@@ -46,7 +46,7 @@ def test_a_view_lists_only_the_positions_it_has_data_for(sp):
     assert sp("statsPosList", "usage", {"have": []}) == []
 
 
-@pytest.mark.parametrize("leaf", ["highlights", "digest", "roster"])
+@pytest.mark.parametrize("leaf", ["digest", "roster"])
 def test_a_view_with_no_position_lists_none(sp, leaf):
     assert sp("statsPosList", leaf, {}) == []
 

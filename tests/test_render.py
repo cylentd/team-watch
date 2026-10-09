@@ -87,7 +87,7 @@ def LIVE_PLANT(states=None):
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "home", "roster": "team", "waivers": "team",   # Team split from League on 2026-10-08 (nav regroup)
          "recap": "league", "records": "league", "trades": "team", "teams": "league",
-         "highlights": "week", "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
+         "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "scouting", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
          "schedule": "scouting",
          "parlay": "week", "build": "week", "dfs": "week"}   # Home took Today and Matchup took Bets' views on 2026-10-08 (Home draft B)
@@ -422,9 +422,6 @@ STATES = [
     ("role-wr", MOVERS + [("click", "[data-rvpos='WR']")]),
     ("role-empty", [("eval", "LIVE_ROLE.rows.splice(0)")] + MOVERS),
     ("role-modal", MOVERS + [("click", "[data-rvopen]")]),
-    # Players > Highlights (2026-09-29): the fixture is the real week 4 run's packet; empty says so.
-    ("highlights", go("highlights")),
-    ("highlights-empty", [("eval", "LIVE_HIGHLIGHTS.views.splice(0)")] + go("highlights")),
     # The usage grid: the default RB level view on the newest week most teams have played, the
     # same grid as week-over-week change (the mode the level view cannot show; the week and the
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
@@ -841,7 +838,7 @@ def tab(key):
     ("ranks", "scouting", tab("nav.tab.ranks")),
     ("board", "scouting", tab("nav.tab.board")),  # the leaf is still `board`, so its bookmarks land
     ("movers", "scouting", tab("nav.tab.movers")),   # Movers until 2026-09-29, Role until 2026-10-05; the leaf kept its name
-    ("highlights", "week", tab("nav.tab.highlights")),
+    ("highlights", "scouting", tab("nav.tab.ranks")),   # dropped 2026-10-08: the old hash opens Ranks
     ("pool", "scouting", tab("nav.tab.movers")),     # the old Movers view's hash, kept for bookmarks
     ("usage", "scouting", tab("nav.tab.grid")),             # Grid until 2026-10-05
     ("matchups", "week", tab("nav.tab.matchups")),   # Matchups -> Takes 2026-09-29 -> Start/Sit 2026-10-03 -> Matchups 2026-10-06; the leaf stayed

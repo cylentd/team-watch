@@ -23,7 +23,6 @@
       "tests/golden/dfs.json",
       "tests/golden/digest.json",
       "tests/golden/finder.json",
-      "tests/golden/highlights.json",
       "tests/golden/lboard.json",
       "tests/golden/league.json",
       "tests/golden/live.json",

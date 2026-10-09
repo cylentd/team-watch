@@ -49,3 +49,4 @@ Where this page is going. The conductor reads it before sizing work here and app
 - No automated scrape of the Yahoo DFS pool: the contest CSV is imported by hand.
 - No fantasy points in Digest headlines.
 - No private leagues: public leagues only, "too hard to support private ones" (David, 2026-10-08). The ESPN QR fallback is dropped with it.
+- 2026-10-08: dropped the Highlights view: "the information is not useful" (David); each line repeated a number its own view already shows.

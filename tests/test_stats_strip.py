@@ -51,11 +51,12 @@ def test_a_desktop_keeps_the_top_chips_and_draws_no_strip(mount):
 
 @pytest.mark.render
 @pytest.mark.req("Stats position strip", ac="a Stats view with no position draws no strip")
-def test_highlights_draws_no_strip(mount):
+def test_news_draws_no_strip(mount):
+    """Highlights, the first such view, was dropped 2026-10-08; News holds no position either."""
     page, errors = mount("ranks", size=PHONE, touch=True)
     strip = StatsPosStrip(page)
-    strip.open_view("highlights")
-    assert strip.surface() == "highlights" and not strip.shown()
+    strip.open_view("news")
+    assert strip.surface() == "news" and not strip.shown()
     strip.open_view("ranks")
     assert strip.shown(), "back on Ranks it returns"
     assert errors == []

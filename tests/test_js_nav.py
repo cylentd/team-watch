@@ -37,8 +37,8 @@ def test_no_sub_row_holds_more_than_six_leaves(nav):
     """Six fit in the 332 px row of a 360 px phone (316 px for This week's), seven took 383 px (measured in the
     browser, 2026-10-05; the figures are in data/navmap.js). Stats holds six since Schedule came back (2026-10-06)."""
     assert nav("NAV_SUBROW_MAX") == 6
-    # Matchup holds eight since Bets moved under it (Home draft B, 2026-10-08): it scrolls as one row, like Players'.
-    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [1, 3, 8, 6, 3]
+    # Matchup holds seven since Bets moved under it (Home draft B, 2026-10-08): it scrolls as one row, like Players'.
+    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [1, 3, 7, 6, 3]
     assert nav("NAV_DENSE").count("week") == 1
 
 
@@ -215,11 +215,18 @@ def test_matchup_reads_today_live_start_sit_preview_results(nav):
     assert [nav("navLabel", k) for k in row[:4]] == ["Live", "Start/Sit", "Preview", "Results"]
 
 
-def test_highlights_waits_beside_today_until_it_folds_into_it(nav):
-    """Storyboard B makes Highlights a card on Today; folding is step 2 (draft C), so in step 1 it is Matchup's last
-    view before Bets' three (Home draft B), and News leads Players (its Yahoo and ESPN home)."""
-    assert nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k)).slice(-4)") == ["highlights", "parlay", "build", "dfs"]
+def test_matchup_ends_with_bets_three_and_news_leads_players(nav):
+    """Highlights was dropped 2026-10-08 (David: "the information is not useful"): Matchup's row ends with Bets'
+    three (Home draft B), and News leads Players (its Yahoo and ESPN home)."""
+    assert nav("NAV.find(([g]) => g === 'week')[1].filter(k => !NAV_HIDDEN.includes(k)).slice(-4)") == ["weekrecap", "parlay", "build", "dfs"]
     assert nav("NAV.find(([g]) => g === 'scouting')[1][0]") == "news"
+
+
+def test_the_dropped_highlights_hash_opens_ranks(nav):
+    """David, 2026-10-08: the view is gone; an old #highlights bookmark lands on Players > Ranks."""
+    assert nav("navLeafOf", "highlights") == "ranks"
+    assert nav("navGroupOf", "ranks") == "scouting"
+    assert nav("NAV.some(([, tabs]) => tabs.includes('highlights'))") is False
 
 
 @pytest.mark.parametrize("leaf,tabs,want", [

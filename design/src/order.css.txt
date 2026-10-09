@@ -83,7 +83,6 @@ surface/matchups/matchups.css
 surface/ranks/ranks.css
 surface/ranks/dst.css
 surface/ranks/ros.css
-surface/highlights/highlights.css
 # pin: role.css after pool.css -- its rows reuse .xf-head and its chips .setrow and .chip.
 surface/role/role.css
 surface/weather/weather.css

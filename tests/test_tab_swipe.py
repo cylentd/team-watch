@@ -12,7 +12,7 @@ pytestmark = pytest.mark.render
 LEFT, RIGHT = -120, 120   # a swipe left asks for the tab to the right
 
 
-WEEK = ["live", "matchups", "preview", "weekrecap", "highlights", "parlay", "build", "dfs"]   # Matchup's row (data/navmap.js); Today is Home since 2026-10-08
+WEEK = ["live", "matchups", "preview", "weekrecap", "parlay", "build", "dfs"]   # Matchup's row (data/navmap.js); Today is Home since 2026-10-08
 
 
 @pytest.fixture
@@ -102,7 +102,8 @@ def test_a_swipe_into_recap_lands_on_its_first_tab_from_the_left_and_its_last_fr
     week.open("preview")
     week.swipe(LEFT)
     assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[0])
-    week.open("highlights")
+    week.open("parlay")
+    week.tap_seg(week.segs()[0])             # Slips has tabs of its own: a swipe from its first one leaves it
     week.swipe(RIGHT)
     assert (week.pressed_pill(), week.pressed_seg()) == ("weekrecap", segs[-1])
 
@@ -112,7 +113,8 @@ def test_a_swipe_onto_a_tab_past_the_rows_edge_brings_it_into_view(week):
     """Recap opened into its four tabs is wider than a 360 px row; landing on its last tab shows that tab."""
     week.open("weekrecap")
     week.tap_seg(week.segs()[0])
-    week.open("highlights")
+    week.open("parlay")
+    week.tap_seg(week.segs()[0])             # Slips has tabs of its own: a swipe from its first one leaves it
     week.swipe(RIGHT)
     assert week.pressed_seg() == week.segs()[-1]
     assert week.pressed_seg_overhang() == [0, 0]

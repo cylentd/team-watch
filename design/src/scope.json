@@ -92,7 +92,6 @@
     "surface/ranks/ranks.css": ["ranks"],
     "surface/ranks/dst.css": ["ranks"],
     "surface/ranks/ros.css": ["ranks"],
-    "surface/highlights/highlights.css": ["highlights"],
     "surface/role/role.css": ["movers"],
     "surface/teams/brief.css": ["roster", "waivers"],
     "surface/teams/cliprail.css": ["roster", "waivers", "live"],

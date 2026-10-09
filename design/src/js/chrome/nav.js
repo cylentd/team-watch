@@ -31,7 +31,7 @@ const NAV_ICON = {
      This week, the week's results; it took Weather's room in the sub-row (NAV_HIDDEN).
    2026-09-29 News moved from Players to This week (storyboard 96B1dMss6vfyhhsQLUSK4x), then Takes (leaf
      `matchups`, Start / Sit since 2026-10-03). Highlights (storyboard W5ty9RzT4XWSRfSjtdKEAk, option A)
-     leads Players: two lines from each view below it.
+     led Players: two lines from each view below it; dropped 2026-10-08, `#highlights` opens Ranks.
    2026-09-28 League became a group of its own (storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn):
      the Yahoo league's recap, record book and trades left This week. Live joined This week.
    2026-09-26 "This week" leads: the Digest, what changed league-wide this week, is the front page.
@@ -49,7 +49,7 @@ const NAV_ICON = {
    is the question: an empty hash opens Waivers and Waivers leads its group. A hash still wins.
    The day comes from Date.now(), which the render suite pins, so a test picks the weekday. Any
    other day the Digest opens (2026-09-26): the week league-wide in one screen. It was Ranks for
-   part of that day, and Board (who leads each stat) before; Highlights is Stats' first view (Ranks second). */
+   part of that day, and Board (who leads each stat) before; Highlights, once Stats' first view, was dropped 2026-10-08. */
 const navWaiverDay = () => new Date(Date.now()).getDay() === 2;
 const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "digest";
 

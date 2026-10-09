@@ -55,15 +55,6 @@ def test_the_schedule_counts_when_the_recap_has_no_kickoff(node_js):
     assert end == [4, 0, 0]
 
 
-@pytest.mark.req("Navigation: one League group, Stats", ac="Highlights sits in Matchup beside Today")
-def test_highlights_sits_in_matchup_beside_today(node_js):
-    """David, 2026-10-04: the Digest lost its Highlights section and Stats kept them, first. Since the nav regroup
-    (2026-10-08, storyboard draft B) Highlights waits in Matchup, beside Today, until step 2 folds it in as a card."""
-    nav = node_js("data/navmap.js")
-    assert nav("navGroupOf", "highlights") == "week"
-    assert nav("navGroupOf", "digest") == "home", "Today is Home, its own tab (Home draft B, 2026-10-08)"
-
-
 # ------------------------------------------------------------------ the day plan (2026-10-06, Digest by day)
 #
 # Each Pacific weekday is one job: the banner's kind, its cards in order, the strip's views. Noon Pacific
