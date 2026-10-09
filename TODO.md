@@ -30,6 +30,9 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 - [ ] **Back button assessment.** Back in some places lands somewhere unexpected; the breadcrumb is probably broken. Walk every view, tab, drill-in and overlay at 360px, press Back after each, and log each wrong landing as from / expected / got. History code: `js/chrome/layers.js`, `js/chrome/nav.js`, `js/surface/recap/state.js`, `js/surface/profile/gridlink.js`, `js/data/owner.js`. Done when each wrong landing is fixed and pinned by a test like `test_a_hash_opens_its_view`. (2026-10-06)
 - [ ] **Team logo assessment.** Find where a team logo makes a view easier to read; League > Teams is the first candidate. Open question: fantasy team logos (Yahoo/ESPN avatars), NFL club logos, or both. Rank the views yes/no, storyboard the yes ones (STYLE.md), check what ff-jarvis already fetches before adding a source. (2026-10-06)
 
+- [ ] **Landing rule reads the live clock (suggested).** Matchup opens Live from kickoff to +4 h (`LANDING_GAME_MS`) and on Sunday from the first kickoff to the last final, all from schedule times (`js/data/landing.js`). Feed ESPN's scoreboard state (in progress / final, already read in the browser for Live) so a long delay or an early final is exact. Keep `landingLeaf` pure: pass the state in. Only if the schedule rule is seen to misfire. (ledger #91 worker, 2026-10-09)
+- [ ] **Slips and All lines share one chip (suggested).** Check at 360px whether a kickoff or filter chip chosen in Slips carries into All lines (`surface/parlay/bar.js`). Decide: shared on purpose, or each view keeps its own. (ledger #91 worker, 2026-10-09)
+
 ## Checks on a date
 
 - [ ] Tue 2026-10-06, after the week turn: Preview > Past games shows week 4.
