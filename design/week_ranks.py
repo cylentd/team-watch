@@ -9,8 +9,9 @@ tier at each position and FLEX, cut upstream. Stats > Ranks draws its order, ran
 `val` is the list's order key and `src` says whose number it is: the page shows neither (David, 2026-10-08: readers
 see one rank). `pts` is our projection. v2 (ff-jarvis 9ef94b4, 2026-10-08) adds `rank_pts`, the half-PPR number the
 list is ordered and tiered by (QB/RB/TE the books' price where priced, else ours; FLEX its blend twin; WR points, but
-the list is ordered by the blended rank, so `rank_pts` can step up down it). Ranks shows that number
-(design/ranks.py); a v1 file without it shows `pts`. `val` is not points everywhere: never shown. Out players are already dropped and a row freezes at its kickoff. K and
+the list is ordered by the blended rank, so `rank_pts` can step up down it). Since 2026-10-09 (ledger #81) Ranks no longer
+shows it or orders by it: the lists give membership and the game, the page prints and ranks by our projection
+(design/ranks.py). `val` is not points everywhere: never shown. Out players are already dropped and a row freezes at its kickoff. K and
 D/ST rows are team-level; the K and D/ST tabs keep reading `dst_projections` (LIVE_DST). `ros` is ignored here.
 
 Shape-checked where it enters: a malformed file fails the build, not the page. None when no file exists.

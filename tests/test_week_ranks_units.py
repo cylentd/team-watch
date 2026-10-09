@@ -42,7 +42,7 @@ def test_no_projections_and_no_lists_is_no_block_but_lists_alone_make_one():
 def test_a_list_row_is_enriched_from_the_projections_row_by_slug():
     raw = {"players": [{"name": "Ann Arm", "pos": "QB", "team": "BBB", "game": "AAA @ BBB", "pts": 9.0, "injury": "Doubtful"}]}
     got = live_ranks(raw, slug, None, None, doc({"QB": [row("Ann Arm", "QB", 1, 1, 8.0)]}))["rows"][0]
-    assert (got["home"], got["inj"], got["pts"], got["rank"], got["tier"]) == (True, "D", 8.0, 1, 1)
+    assert (got["home"], got["inj"], got["pts"], got["rank"], got["tier"]) == (True, "D", 9.0, 1, 1)   # his projection (9.0), not the list's frozen 8.0
     assert (got["rank_pts"], got["unlined_backup"], got["pts_before_unlined"]) == (None, None, None)
 
 
@@ -72,7 +72,7 @@ def test_flex_rows_carry_their_position_rank_and_the_position_lists_hold_no_flex
                  "FLEX": [row("Cy Catch", "WR", 1, 1, 9.5), row("Bo Back", "RB", 2, 1, 8.0), row("Ann Arm", "RB", 3, 2, 9.0)]})
     got = live_ranks({"players": [{"name": "x", "pts": 1.0}]}, slug, None, None, lists)
     assert [(r["slug"], r["rank"]) for r in got["rows"]] == [("ann-arm", 1), ("bo-back", 2), ("cy-catch", 1)]
-    assert [(r["slug"], r["rank"], r["tier"]) for r in got["flex"]] == [("cy-catch", 1, 1), ("bo-back", 2, 1), ("ann-arm", 1, 2)]
+    assert [(r["slug"], r["rank"], r["tier"]) for r in got["flex"]] == [("cy-catch", 1, 1), ("ann-arm", 1, 2), ("bo-back", 2, 3)]   # ordered by the points (9.5, 9.0, 8.0), not the list
 
 
 def test_the_old_cut_carries_the_books_fields_for_a_back_only_and_rounds_points_to_hundredths():
@@ -188,3 +188,18 @@ def test_the_check_says_what_is_wrong_in_its_own_words():
     assert week_ranks.problems(doc({"QB": [{"x": 1}, row("A A", "QB", 2, 1, 1.0)]}))[0].startswith("weekly.lists.QB[0]: keys ['x'], expected")
     notnum = doc({"QB": [row("A A", "QB", 1, 1, 1.0, val="x")]})
     assert week_ranks.problems(notnum) == ["weekly.lists.QB[0].val: 'x' is not a number at or below the row above"]
+
+
+# ---- the cards' rank from the Ranks block (ledger #81) ----
+
+@pytest.mark.parametrize("block", [None, {}, {"from": "projections", "rows": [{"slug": "a", "pos": "QB", "rank": 1}]}],
+                         ids=["none", "empty", "the old cut"])
+def test_ranks_places_is_none_without_a_week_ranks_cut(block):
+    from ranks import ranks_places
+    assert ranks_places(block) is None
+
+
+def test_ranks_places_maps_each_slug_to_its_rank_and_its_positions_length():
+    from ranks import ranks_places
+    rows = [{"slug": "q1", "pos": "QB", "rank": 1}, {"slug": "r1", "pos": "RB", "rank": 1}, {"slug": "r2", "pos": "RB", "rank": 2}]
+    assert ranks_places({"from": "week_ranks", "rows": rows}) == {"q1": (1, 1), "r1": (1, 2), "r2": (2, 2)}

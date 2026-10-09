@@ -14,7 +14,7 @@ import contract
 import sources
 import week_ranks
 from projections import live_projections
-from ranks import live_ranks, report as ranks_report
+from ranks import live_ranks, ranks_places, report as ranks_report
 from test_build import injected
 
 FIXTURE = pathlib.Path(__file__).resolve().parent / "fixtures" / "data" / "week_ranks.json"
@@ -69,21 +69,22 @@ def test_a_missing_list_or_row_field_is_named():
     assert week_ranks.problems({})[0].startswith("week_ranks")
 
 
-def test_the_lists_set_each_positions_order_rank_and_tier():
+def test_our_points_set_each_positions_order_rank_and_tier():
+    """(ledger #81, 2026-10-09; was: the lists set them) The lists say who is in each one; the order is the points shown."""
     block = live_ranks(PROJ, slug, None, None, DOC)
     rbs = rows(block, "RB")
-    assert [(r["slug"], r["rank"], r["tier"]) for r in rbs] == [("breece-hall", 1, 1), ("chase-brown", 2, 1), ("kendre-miller", 3, 2)], \
-        "Hall (15.0) leads Brown (16.2): the list's order, not the points"
-    assert [r["pts"] for r in rbs] == [15.0, 16.2, 3.1], "the number shown is the file's pts"
+    assert [(r["slug"], r["rank"], r["tier"]) for r in rbs] == [("chase-brown", 1, 1), ("breece-hall", 2, 2), ("kendre-miller", 3, 3)], \
+        "Brown (16.2) leads Hall (15.0): the points shown order the list, not the producer's books order; 3 players, 3 tiers"
+    assert [r["pts"] for r in rbs] == [16.2, 15.0, 3.1], "the number shown is his projection"
     assert [(r["slug"], r["tier"]) for r in rows(block, "QB")] == [("joe-burrow", 1), ("brock-purdy", 2)]
     assert (block["week"], block["off"], block["scoring"]) == (2, [], "half-PPR")
 
 
-def test_flex_rows_keep_the_flex_order_and_tier_with_their_position_rank():
+def test_flex_rows_follow_the_points_with_their_position_rank():
     flex = live_ranks(PROJ, slug, None, None, DOC)["flex"]
     assert [(r["slug"], r["rank"], r["tier"]) for r in flex] == [
-        ("amon-ra-st-brown", 1, 1), ("chase-brown", 2, 1), ("breece-hall", 1, 2), ("george-kittle", 1, 2), ("kendre-miller", 3, 3)], \
-        "rank is the place at his position (the row's RB2), tier is the FLEX list's"
+        ("amon-ra-st-brown", 1, 1), ("chase-brown", 1, 2), ("breece-hall", 2, 3), ("george-kittle", 1, 4), ("kendre-miller", 3, 5)], \
+        "rank is the place at his position (Brown RB1, Hall RB2), tier is the FLEX list's own cut of the points"
 
 
 def test_a_row_shows_one_rank_whoever_made_it():
@@ -98,7 +99,7 @@ def test_a_row_keeps_what_only_the_projections_know():
     by = {r["slug"]: r for r in rows(live_ranks(PROJ, slug, None, None, DOC), "RB")}
     brown = by["chase-brown"]
     assert (brown["home"], brown["inj"], brown["mx"], brown["mxp"]) == (False, "Q", 1.4, 0.6)
-    assert (by["breece-hall"]["floor"], by["breece-hall"]["ceil"]) == (None, None), "his rank_pts (17.0) is not our 15.0: no band beside it"
+    assert (by["breece-hall"]["floor"], by["breece-hall"]["ceil"]) == (6.4, 26.0), "the number shown is ours (15.0), so his band stays"
     assert brown["mu"] == {"RUSH": 75, "REC": 20, "TD": 0.4}
     assert (brown["team"], brown["opp"], brown["kick"]) == ("CIN", "NYJ", "2026-09-13T17:00:00Z"), "the game is the list's own"
 
@@ -113,16 +114,16 @@ def test_a_player_in_the_list_but_not_the_projections_is_still_a_row():
 def test_a_list_cut_by_the_producer_is_not_cut_again():
     """Out players are dropped upstream: whatever the list holds is drawn, with no status lookup here."""
     out = {"x": {"name": "Chase Brown", "injury": "Out"}}
-    assert [r["slug"] for r in rows(live_ranks(PROJ, slug, out, None, DOC), "RB")] == ["breece-hall", "chase-brown", "kendre-miller"]
+    assert [r["slug"] for r in rows(live_ranks(PROJ, slug, out, None, DOC), "RB")] == ["chase-brown", "breece-hall", "kendre-miller"]
 
 
 def test_the_cards_read_the_same_rank():
     wanted = {"breece-hall", "chase-brown", "kendre-miller", "joe-burrow", "george-kittle"}
-    cards = live_projections(PROJ, slug, wanted, None, None, DOC)["players"]
     block = live_ranks(PROJ, slug, None, None, DOC)
+    cards = live_projections(PROJ, slug, wanted, None, None, DOC, ranks=ranks_places(block))["players"]
     on_page = {r["slug"]: r["rank"] for r in block["rows"]}
     assert {s: cards[s]["rank"] for s in wanted} == {s: on_page[s] for s in wanted}
-    assert cards["breece-hall"]["rank"] == 1 and cards["chase-brown"]["rank"] == 2
+    assert cards["chase-brown"]["rank"] == 1 and cards["breece-hall"]["rank"] == 2
     assert cards["breece-hall"]["of"] == 3, "of: the length of his position's list"
 
 
@@ -142,7 +143,7 @@ def test_without_the_file_the_old_cut_stands():
 
 
 def test_the_report_line_names_the_source():
-    assert ranks_report(live_ranks(PROJ, slug, None, None, DOC)) == "Ranks: week_ranks · QB 2 in 2 tiers · RB 3 in 2 tiers · WR 1 in 1 tiers · TE 1 in 1 tiers · FLEX 5 in 3 tiers"
+    assert ranks_report(live_ranks(PROJ, slug, None, None, DOC)) == "Ranks: week_ranks · QB 2 in 2 tiers · RB 3 in 3 tiers · WR 1 in 1 tiers · TE 1 in 1 tiers · FLEX 5 in 5 tiers"
     old = ranks_report(live_ranks(PROJ, slug, None, None, None))
     assert old.startswith("Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order) · QB 2 in")
     assert ranks_report(None) == "Ranks: none, so no Ranks view"
@@ -174,7 +175,7 @@ def test_a_malformed_feed_block_fails_the_build_not_the_page(tmp_path, monkeypat
 def test_the_fixture_build_reads_the_lists(built):
     block = injected(built.fragment)["LIVE_RANKS"]
     assert block["from"] == "week_ranks"
-    assert [r["slug"] for r in block["rows"] if r["pos"] == "RB"][0] == "breece-hall"
+    assert [r["slug"] for r in block["rows"] if r["pos"] == "RB"][0] == "chase-brown", "most points leads, not the producer's first"
     assert any(line.startswith("Ranks: week_ranks ·") for line in built.report), built.report
 
 

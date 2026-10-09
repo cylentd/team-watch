@@ -28,7 +28,7 @@ from dfs_slate import main_slate    # design/dfs_slate.py: DFS is the Sunday ear
 from pedigree import live_pedigree, report as pedigree_report   # design/pedigree.py: the profile modal's bio strip
 from gamelog import live_gamelog, report as gamelog_report      # design/gamelog.py: the profile modal's weekly history
 from projections import live_projections, report as projections_report  # design/projections.py: projected vs actual
-from ranks import live_ranks, load_week_ranks, report as ranks_report   # design/ranks.py: Players > Ranks, tiered (week_ranks: ff-jarvis's lists, ledger #23)
+from ranks import live_ranks, load_week_ranks, ranks_places, report as ranks_report  # design/ranks.py: Players > Ranks, tiered (week_ranks: ff-jarvis's lists, ledger #23)
 from injury import live_injury, report as injury_report  # design/injury.py: who is out, doubtful, questionable
 from signed import with_weeks, report as signed_report  # design/signed.py: who earned an autograph
 from lines import live_lines, report as lines_report  # design/lines.py: implied points per team
@@ -653,8 +653,8 @@ def render():
         "LIVE_SCHEDULE": load_schedule(DWR),
         "LIVE_PEDIGREE": live_pedigree(load_status(), load_draft_pedigree(), slugify, wanted_set),
         "LIVE_GAMELOG": live_gamelog(load_gamelog_weekly(), slugify, wanted_set),
-        "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set, load_status(), load_schedule(DWR), wr := load_week_ranks()),   # shape-checked on entry; None without the file: Ranks keeps its old cut
-        "LIVE_RANKS": live_ranks(load_player_proj(), slugify, load_status(), load_schedule(DWR), wr),
+        "LIVE_PROJECTIONS": live_projections(load_player_proj(), slugify, wanted_set, load_status(), load_schedule(DWR), wr := load_week_ranks(), ranks_places(rk := live_ranks(load_player_proj(), slugify, load_status(), load_schedule(DWR), wr))),   # the cards' rank is the place Ranks draws (ledger #81): LIVE_RANKS is cut first; None without the file keeps the old cut
+        "LIVE_RANKS": rk,
         "LIVE_INJURY": live_injury(load_status(), slugify, wanted_set),
         "LIVE_WEATHER": {**w, "kicked": wx_kicked(load_weather_history())} if (w := load_weather()) else None,
         "LIVE_WX_HISTORY": live_wx_history(load_weather_backtest(), load_player_proj()),

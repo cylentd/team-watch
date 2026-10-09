@@ -251,16 +251,16 @@ TIP = words("ranks.noline.tip")
 
 
 @pytest.mark.render
-@pytest.mark.req("Ranks", ac="the back list is ff-jarvis's list and says nothing about whose number it is")
-def test_the_back_list_is_the_lists_order_and_says_nothing_about_whose_number_it_is(mount):
-    """The fixture's week_ranks list: Hall 15.0 points above Brown 16.2, Miller third (ledger #23, 2026-10-08). The
-    number shown is points. Readers see one rank: no note on the books' order, no "No line" tag (David: users
-    do not need to know whose number it is)."""
+@pytest.mark.req("Ranks", ac="the back list follows the points it shows and says nothing about whose number it is")
+def test_the_back_list_follows_the_points_it_shows_and_says_nothing_about_whose_number_it_is(mount):
+    """The fixture's week_ranks list holds Hall, Brown and Miller; their points are 15.0, 16.2 and 3.1 (ledger #81,
+    2026-10-09: the order is the number shown, ours, was the producer's books order). Readers see one rank: no note on
+    the books' order, no "No line" tag (David: users do not need to know whose number it is)."""
     page, errors = mount("ranks")
     ranks = RanksPage(page)
     rows = ranks.rows()
-    assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "17.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
-    assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2"], "tiers are the file's: Hall and Brown, then Miller"
+    assert [[r["slug"], r["pts"]] for r in rows] == [["chase-brown", "16.2"], ["breece-hall", "15.0"], ["kendre-miller", "3.1"]]
+    assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2", "TIER 3"], "three players, three natural breaks"
     sub = ranks.sub()
     assert NOTE not in sub and words("ranks.noline.word") not in sub
     assert [r["noline"] for r in rows] == [None, None, None]
@@ -278,7 +278,9 @@ def test_with_no_week_ranks_file_the_back_list_keeps_its_books_note_and_no_line_
     page, errors = mount("ranks")
     ranks = RanksPage(page)
     page.evaluate("""() => { LIVE_RANKS.from = "projections";
-      LIVE_RANKS.rows.find(r => r.slug === "kendre-miller").unlined_backup = true; render(); }""")
+      const rb = LIVE_RANKS.rows, h = rb.findIndex(r => r.slug === "breece-hall"), b = rb.findIndex(r => r.slug === "chase-brown");
+      [rb[h], rb[b]] = [rb[b], rb[h]];   // the old cut put Hall (books) above Brown
+      rb.find(r => r.slug === "kendre-miller").unlined_backup = true; render(); }""")
     sub = ranks.sub()
     assert NOTE in sub and sub.count(NOTE) == 1 and words("ranks.noline.word") + " " + TIP in sub
     assert [r["noline"] for r in ranks.rows() if r["noline"]] == [{"text": words("ranks.noline.word"), "title": TIP}]

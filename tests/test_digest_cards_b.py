@@ -115,7 +115,7 @@ def test_game_card_leads_with_smash_then_bold_starts_and_answers_with_the_pill_a
     dg.plant_game(THU, "CIN", "PIT", TNF_KICK)
     assert dg.title("tonight") == words("digest.card.tonight.title").format(game="CIN @ PIT")
     assert [(r["name"], r["pill"], r["answer"], r["meta"]) for r in dg.rows("tonight")] == [
-        ("J. Burrow", "SMASH", "SMASH", "CIN · QB1"), ("C. Brown", "SMASH", "SMASH", "CIN · RB2")]   # Ranks' own rank, not Start/Sit's (QB3, RB5)
+        ("J. Burrow", "SMASH", "SMASH", "CIN · QB1"), ("C. Brown", "SMASH", "SMASH", "CIN · RB1")]   # Ranks' own rank, not Start/Sit's (QB3, RB5)
     assert dg.foot("tonight").startswith(words("digest.card.tonight.more").format(n=2))
     assert dg.foot_go("tonight") == {"leaf": "matchups", "text": words("nav.tab.matchups")}
     assert errors == []

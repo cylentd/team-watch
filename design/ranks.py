@@ -20,9 +20,6 @@ from week_ranks import load_week_ranks   # noqa: F401  (build.py loads the file 
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
 FLEX = ("RB", "WR", "TE")
 SCORING_WORD = {"half": "half-PPR"}   # week_ranks says "half"; the heading says the scoring the way the projections do
-# A row's band and matchup are ours: next to a rank_pts further than this from our own number (the one decimal the page
-# prints, so half of it) they would describe a different number, and the row drops them.
-SAME_NUMBER = 0.05
 FALLBACK_WORDS ="Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order)"
 
 
@@ -178,12 +175,13 @@ def _row(p, slug):
 
 
 def _from_lists(doc, players, slugify):
-    """LIVE_RANKS from ff-jarvis's week_ranks lists: their order, rank and tier, their `pts`, their game, and the
-    number they rank by as `shown` (v2 `rank_pts`, else `pts`; `pts` stays our projection for the other readers of
-    the block). What only the projections hold (home, injury tag, the points' makeup, the matchup, the band) is read
-    off his projections row by slug, null when he has none; the band and the matchup are ours, so they are dropped
-    from a row whose `shown` is not our number (SAME_NUMBER). The producer's `val` and `src` stay behind, and so do the books' back fields: the
-    list already holds the books' order, and a reader sees one rank."""
+    """LIVE_RANKS from ff-jarvis's week_ranks lists, ranked by our own number (ledger #81, 2026-10-09; David chose "our
+    own rank and tiers, with Vegas as a supporting input, over the books' rank" on 2026-10-08). The lists say who is in
+    each one, his game and kickoff. The number is the projection every other view prints (his projections row's `pts`,
+    else the list's own), printed as `shown`; each list is ordered by it and cut into tiers by natural breaks, and `rank`
+    is the place in that order, so a card's rank is the one drawn here. The producer's order, tier, `val`, `src` and
+    `rank_pts` (the books' price) stay behind: the page ranks by what it shows. What only the projections hold (home,
+    injury tag, the points' makeup, the matchup, the band) is read off his projections row by slug, null when he has none."""
     wk = doc["weekly"]
     held = {}
     for p in players:
@@ -191,19 +189,33 @@ def _from_lists(doc, players, slugify):
         if slug and p.get("pts") is not None and (slug not in held or p["pts"] > held[slug]["pts"]):
             held[slug] = p
     place, lists = {}, {}
-    for pos in DEPTH:   # QB RB WR TE first, FLEX last: a FLEX row's rank is his place at his own position
-        lists[pos] = []
+    for pos, (_, k) in DEPTH.items():   # QB RB WR TE first, FLEX last: a FLEX row's rank is his place at his own position
+        rows = []
         for r in wk["lists"][pos]:
             slug = slugify(r["name"])
-            number = r.get("rank_pts", r["pts"])   # v1 files carry none: their points are the number
-            row = {**_row(held.get(slug, {}), slug), "n": r["name"], "pos": r["pos"], "team": r["team"], "opp": r["opp"],
-                   "kick": r["kickoff"], "pts": round(r["pts"], 2), "shown": round(number, 2), "rank_pts": None,
-                   "unlined_backup": None, "pts_before_unlined": None,
-                   "rank": r["rank"] if pos != "FLEX" else place.get(slug), "tier": r["tier"]}
-            if abs(number - r["pts"]) >= SAME_NUMBER:   # nomutate: >= vs >, a difference of exactly 0.05 is not representable in floats
-                row.update(floor=None, ceil=None, mx=None, mxp=None)
+            mine = held.get(slug)
+            pts = round(mine["pts"] if mine else r["pts"], 2)
+            rows.append({**_row(mine or {}, slug), "n": r["name"], "pos": r["pos"], "team": r["team"], "opp": r["opp"],
+                         "kick": r["kickoff"], "pts": pts, "shown": pts, "rank_pts": None,
+                         "unlined_backup": None, "pts_before_unlined": None})
+        rows.sort(key=lambda r: (-r["pts"], r["slug"]))
+        for i, (r, tier) in enumerate(zip(rows, natural_breaks([r["pts"] for r in rows], k))):
+            r["tier"] = tier
+            r["rank"] = place.get(r["slug"]) if pos == "FLEX" else i + 1
             if pos != "FLEX":
-                place[slug] = r["rank"]
-            lists[pos].append(row)
+                place[r["slug"]] = i + 1
+        lists[pos] = rows
     return {"scoring": SCORING_WORD.get(wk["scoring"], wk["scoring"]), "week": wk["week"], "off": sorted(wk["off"]), "from": "week_ranks",
             "rows": [r for pos in DEPTH if pos != "FLEX" for r in lists[pos]], "flex": lists["FLEX"]}
+
+
+def ranks_places(block):
+    """slug -> (rank, of): his place in his position's list as Ranks draws it and the list's length, the roster cards' rank.
+    None for the old cut (no week_ranks file), whose cards keep projections.position_ranks, ordered the same way."""
+    if not block or block.get("from") != "week_ranks":
+        return None
+    out = {}
+    for pos in DEPTH:
+        rows = [r for r in block["rows"] if r["pos"] == pos]
+        out.update({r["slug"]: (r["rank"], len(rows)) for r in rows})
+    return out

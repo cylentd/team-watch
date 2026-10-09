@@ -36,13 +36,14 @@ ALLEN = row("B Allen", "RB", 10, 2, 8.1, 14.5)
 COOK = row("J Cook", "RB", 11, 2, 14.1, 12.0)
 
 
-def test_a_row_shows_the_number_its_rank_is_built_on_and_keeps_ours_in_pts():
+def test_a_row_shows_our_points_and_never_the_books_number():
+    """(ledger #81, 2026-10-09; was: shows the number its rank is built on) rank_pts no longer orders or prints."""
     rows = cut({"RB": [row("A Ace", "RB", 1, 1, 8.1, 14.5), row("B Bee", "RB", 2, 1, 14.1, 12.04)]})["rows"]
-    assert [(r["slug"], r["shown"], r["pts"]) for r in rows] == [("a-ace", 14.5, 8.1), ("b-bee", 12.04, 14.1)]
+    assert [(r["slug"], r["shown"], r["pts"]) for r in rows] == [("b-bee", 14.1, 14.1), ("a-ace", 8.1, 8.1)]
 
 
 def test_shown_is_rounded_to_hundredths_like_pts():
-    assert cut({"QB": [row("A Ace", "QB", 1, 1, 9.0, 12.3456)]})["rows"][0]["shown"] == 12.35
+    assert cut({"QB": [row("A Ace", "QB", 1, 1, 9.1256, 12.3456)]})["rows"][0]["shown"] == 9.13
 
 
 def test_a_file_from_before_rank_pts_shows_pts():
@@ -50,24 +51,23 @@ def test_a_file_from_before_rank_pts_shows_pts():
     assert (got["shown"], got["pts"]) == (8.13, 8.13)
 
 
-def test_flex_rows_show_the_flex_lists_number():
+def test_flex_rows_show_the_same_number_as_the_position_list():
     lists = {"RB": [row("A Ace", "RB", 1, 1, 8.1, 14.5)], "FLEX": [row("A Ace", "RB", 1, 1, 8.1, 13.0)]}
     got = cut(lists)
-    assert (got["rows"][0]["shown"], got["flex"][0]["shown"]) == (14.5, 13.0)
+    assert (got["rows"][0]["shown"], got["flex"][0]["shown"]) == (8.1, 8.1)
 
 
 BAND = {"floor": 3.0, "ceil": 20.0, "matchup": {"pts": 1.4, "priced": 0.6}}
 
 
 OURS = (3.0, 20.0, 1.4, 0.6)
-NONE = (None, None, None, None)
 
 
-@pytest.mark.parametrize("rank_pts, kept", [(8.1, OURS), (8.14, OURS), (8.2, NONE), (8.0, NONE), (14.5, NONE)],
-                         ids=["same", "within a rounding", "a tenth over", "a tenth under", "books"])
-def test_the_band_and_the_matchup_stay_only_beside_our_own_number(rank_pts, kept):
+@pytest.mark.parametrize("rank_pts", [8.1, 8.14, 8.2, 8.0, 14.5], ids=["same", "within a rounding", "a tenth over", "a tenth under", "books"])
+def test_the_band_and_the_matchup_stay_whatever_the_books_price(rank_pts):
+    """(ledger #81) The number shown is always ours, so the band and the matchup always describe it."""
     got = cut({"RB": [row("A Ace", "RB", 1, 1, 8.1, rank_pts)]}, [player("A Ace", "RB", 8.1, **BAND)])["rows"][0]
-    assert (got["floor"], got["ceil"], got["mx"], got["mxp"]) == kept
+    assert (got["floor"], got["ceil"], got["mx"], got["mxp"]) == OURS
 
 
 def test_a_file_from_before_rank_pts_keeps_the_band_and_the_matchup():
@@ -119,7 +119,7 @@ def test_a_version_other_than_one_or_two_is_named():
     assert week_ranks.problems(doc({}, v=0)) == ["v: 0, expected 1 or 2"]
 
 
-def test_rank_pts_may_step_up_down_a_list_because_only_the_rank_orders_it():
+def test_rank_pts_may_step_up_down_a_file_list_and_the_page_still_prints_our_points_in_order():
     lists = {"WR": [row("A Ace", "WR", 1, 1, 12.0, 12.0), row("B Bee", "WR", 2, 1, 11.0, 13.0)]}
     assert week_ranks.problems(doc(lists)) == []
-    assert [(r["slug"], r["shown"]) for r in cut(lists)["rows"]] == [("a-ace", 12.0), ("b-bee", 13.0)]
+    assert [(r["slug"], r["shown"]) for r in cut(lists)["rows"]] == [("a-ace", 12.0), ("b-bee", 11.0)]
