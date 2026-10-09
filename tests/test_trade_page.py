@@ -121,21 +121,22 @@ def test_a_player_on_no_roster_in_your_league_says_so(mount):
 # ---- the pinned search, when ff-jarvis has written one ------------------------------------------------------------
 
 def _pins(get, send=None, offers=()):
-    return {"trade_pins/espn/purdy-big-in-japan.json": {"updated": "2026-10-08T05:50", "league": "espn", "owner": OWNER,
+    return {"trade_pins/index.json": {"leagues": {"espn": {OWNER: "espn/pp.json"}}},
+            "trade_pins/espn/pp.json": {"updated": "2026-10-08T05:50", "league": "espn", "owner": OWNER,
             "players": {}, "offers": list(offers), "get": get, "send": send or {}, "pairs": []}}
 
 
 @pytest.mark.req("Trade page", ac="the pinned search's reason when a player has no package")
 def test_with_a_pinned_file_a_player_with_nothing_says_its_reason(mount):
     tp, errors = trade_page(mount, ME, BIJAN, files=_pins({"bijan-robinson": {"reason": "no_gain_for_him"}}))
-    assert tp.pin_fetches() == ["trade_pins/espn/purdy-big-in-japan.json"]
+    assert tp.pin_fetches() == ["trade_pins/index.json", "trade_pins/espn/pp.json"]
     assert tp.rows() == [] and tp.why() == words("tradepage.why.heLoses").format(owner=PARTNER)
     assert errors == []
 
 
 def test_without_a_pinned_file_the_page_fills_from_todays_offers(mount):
     tp, errors = trade_page(mount, ME, BIJAN, files={})
-    assert tp.pin_fetches() == ["trade_pins/espn/purdy-big-in-japan.json"], "asked once, got a 404"
+    assert tp.pin_fetches() == ["trade_pins/index.json"], "asked for the index once, got a 404"
     assert len(tp.rows()) == 2
     assert errors == []
 

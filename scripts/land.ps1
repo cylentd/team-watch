@@ -87,10 +87,12 @@ function Timed($name, [scriptblock]$block) {
 # `avatars/` is each Yahoo team's avatar (design/avatars.py, 2026-10-06), copied the same way.
 # `trade_offers.json` is the trade builder's offers (design/trade_offers.py), rewritten whole by every build
 # like build.json, and fetched by the page on first open, so Vercel must serve it (.vercelignore).
+# `trade_pins/` is ff-jarvis's pinned trade files (design/trade_pins.py, ledger #65, 2026-10-08): an index and one file per
+# owner, written whole by every build and fetched by a player's trade page, so Vercel must serve it too (.vercelignore).
 # `preview_archive.json` is Preview's earlier weeks (design/preview_archive.py), the same kind of file.
 # `tests/.frozen.json` is the frozen tests' hashes (the testing skill's freeze.py, 2026-10-06), written below once
 # the gate has passed: a branch that carried it would conflict with every other branch, exactly like build.json.
-$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
+$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins", "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself

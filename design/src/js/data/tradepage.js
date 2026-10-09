@@ -101,3 +101,32 @@ function tpPinsFor(pins, lgKey, owner){
 /* An owner's file name: his team's name in lower case, letters and digits, words joined by "-". */
 const tpOwnerSlug = name => String(name).toLowerCase().replace(/'/g, "").replace(/[^a-z0-9]+/g, " ").trim().split(" ").join("-");
 const tpPinsUrl = (lgKey, owner) => `trade_pins/${lgKey}/${tpOwnerSlug(owner)}.json`;
+
+/* ledger #65 (2026-10-08): ff-jarvis's trade_pins/index.json {updated, rules, leagues: {league: {owner: "<league>/<name>.json"}}}
+   names each owner's file, so our slug never has to match theirs. `tpPinsUrl` above is the old guess, kept for the
+   test that pins it; the page asks the index. */
+const TP_PINS_DIR = "trade_pins";
+const TP_PINS_FILE = /^([a-z]+)\/([A-Za-z0-9][A-Za-z0-9._-]*)\.json$/;   // league folder, then one plain file name
+const tpHas = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const tpPinsKey = (lgKey, owner) => `${lgKey}/${owner}`;
+
+/* The owner's file path from the index, or null: no index, no such owner, or a path that is not <league>/<name>.json. */
+function tpPinsFile(index, lgKey, owner){
+  const obj = x => !!x && typeof x === "object" && !Array.isArray(x);
+  const owners = obj(index) && obj(index.leagues) && tpHas(index.leagues, lgKey) ? index.leagues[lgKey] : null;
+  const file = obj(owners) && tpHas(owners, owner) ? owners[owner] : null;
+  const m = typeof file === "string" ? TP_PINS_FILE.exec(file) : null;
+  return m && m[1] === lgKey && !file.includes("..") ? `${TP_PINS_DIR}/${file}` : null;
+}
+
+/* The pinned file with every player key of its offers replaced by the player object (the page draws objects; the file
+   stores each player once, in `players`). A player object already in an offer stays. Null when a key has no player, so
+   today's file serves instead of an offer with a hole in it. The given file is not changed. */
+function tpPinsResolve(pins){
+  if (!pins || typeof pins !== "object" || Array.isArray(pins) || !pins.players || typeof pins.players !== "object") return null;
+  const who = k => typeof k !== "string" ? k : tpHas(pins.players, k) ? pins.players[k] : null;
+  const list = ks => ks.map(who);
+  const offers = (pins.offers || []).map(o => ({...o, send: list(o.send), get: list(o.get), drop: list(o.drop), ir_moves: list(o.ir_moves),
+    their: {...o.their, ir_moves: list(o.their.ir_moves), drop: list(o.their.drop)}}));
+  return offers.some(o => [o.send, o.get, o.drop, o.ir_moves, o.their.ir_moves, o.their.drop].some(l => l.includes(null))) ? null : {...pins, offers};
+}

@@ -7,7 +7,7 @@
   ],
   "quiet": ["*.md", "tests/**", ".testing-backlog.json"],
   "dirty_ok": [
-    "index.html", "design/index.html", "build.json", "trade_offers.json",
+    "index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins",
     "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json"
   ],
   "pre_build": ["python", "design/sources.py", "--fetch"],

@@ -37,7 +37,7 @@ from archetype import (load_archetype, load_trenches, live_archetype, live_trenc
                        report_archetype, report_trenches)
 from startsit_blocks import add_start_sit                      # design/startsit_blocks.py: Start/Sit's three blocks
 from teams import add_teams                                    # design/teams.py: League > Teams
-import trade_offers, preview_archive                           # Teams > Find trades and Preview > Past games, each its own file
+import trade_offers, trade_pins, preview_archive               # Teams > Find trades, its pinned files and Preview > Past games, each its own file
 from mates import espn_rows, live_mates, slugs as mate_slugs, report as mates_report  # every team in David's leagues
 from digest import live_digest, report as digest_report        # design/digest.py: the Digest view
 from preview import live_preview, report as preview_report     # design/preview.py: This week > Preview
@@ -733,7 +733,7 @@ def main():
         written, skipped = pbp.write_games(pathlib.Path(DWR) / "cache", sched, REPO / "games")
         print(f"Games: {written} drive strips written to games/" +
               (f", {skipped} not played yet" if isinstance(skipped, int) else f" ({skipped})"))
-    print(trade_offers.build(REPO), preview_archive.write(REPO, slugify), sep="\n")   # files the page fetches, never injected
+    print(trade_offers.build(REPO), trade_pins.build(REPO), preview_archive.write(REPO, slugify), sep="\n")   # files the page fetches, never injected
     print(*b.report, sep="\n")
     warn_if_stale()
 
