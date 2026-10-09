@@ -72,6 +72,7 @@
     "surface/matchups/record.css": ["matchups"],
     "surface/matchups/matchups.css": ["matchups"],
     "surface/matchups/rows.css": ["matchups"],
+    "surface/matchups/lineup.css": ["matchups"],
     "surface/matchups/picker.css": ["matchups"],
     "surface/matchups/board.css": ["matchups"],
     "surface/news/ticker.css": ["news"],

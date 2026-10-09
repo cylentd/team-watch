@@ -95,6 +95,8 @@ surface/preview/dossier.css
 surface/preview/record.css
 surface/preview/handoff.css
 surface/matchups/rows.css
+# pin: lineup.css after rows.css -- a lineup row's call tag is rows.css's .mu-tag, padded wider here.
+surface/matchups/lineup.css
 # pin: picker.css and board.css after pool.css and matchups.css -- the board's position row is pool.css's
 #      .setrow and .chip, and both cards sit in .mu, the grid matchups.css lays out.
 surface/matchups/picker.css

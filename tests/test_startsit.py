@@ -43,6 +43,10 @@ def test_no_calls_file_is_no_block():
 BOARD = {"QB": ("DAL", "NYG"), "RB": ("CIN", "PIT"), "WR": ("DET", "CHI"), "TE": ("KC", "LV")}
 CLEAR_SSB = """
       if (typeof LIVE_SSB === 'object' && LIVE_SSB) { for (const k of Object.keys(LIVE_SSB)) delete LIVE_SSB[k]; }"""
+# No roster to read (2026-10-09, draft A): the lineup card asks for a team and carries Compare two (`[data-sscmp]`),
+# which opens the picker on the picks as they stand. With a roster, Compare the two opens it on the card's pair
+# (tests/test_matchups_view.py).
+NO_ROSTER = "; TEAMS[VIEW].roster = [];"
 
 
 def _board():
@@ -330,8 +334,13 @@ def test_a_board_row_has_a_bar_against_the_league_average(ss):
 
 @pytest.mark.render
 def test_a_missing_block_draws_no_board_and_no_error(ss):
-    """No board: the view still offers Compare two, and the picker opens from it."""
+    """No board: the view still offers the compare, from the lineup card with a roster and from its Compare two
+    without one, and the picker opens from either."""
     pg = ss(picks_js(12.0, 9.0, compare=False) + CLEAR_SSB)
+    assert pg.locator(".ssv-board").count() == 0 and pg.locator(".mu-lineup [data-mucmp]").count() == 1
+    pg.click("[data-mucmp]")
+    assert pg.locator(".ssv-pick").count() == 1
+    pg = ss(picks_js(12.0, 9.0, compare=False) + CLEAR_SSB + NO_ROSTER)
     assert pg.locator(".ssv-board").count() == 0 and pg.locator("[data-sscmp]").count() == 1
     pg.click("[data-sscmp]")
     assert pg.locator(".ssv-pick").count() == 1
@@ -344,7 +353,8 @@ def test_a_missing_block_draws_no_board_and_no_error(ss):
 def test_startsit_hash_opens_the_view_under_its_new_name(ss):
     """Start/Sit was renamed Matchups on 2026-10-06 (David); #startsit and #takes still land on it."""
     pg = ss(hash_="#startsit")
-    assert pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0 and pg.locator(".mu-rec").count() == 1
+    assert pg.locator("[data-testid='matchups-lineup']").count() == 1 and pg.locator(".ssv-pick").count() == 0
+    assert pg.locator("[data-testid='matchups-record']").count() == 1
     assert pg.evaluate("SURFACE") == "matchups"
     assert pg.inner_text(".mode-sub[aria-pressed='true']") == "Start/Sit"
 
@@ -435,23 +445,26 @@ def test_a_players_lane_links_to_his_row_in_the_usage_grid(ss):
 
 
 @pytest.mark.render
-def test_the_board_leads_and_the_calls_stay_under_it_with_no_picker_until_asked(ss):
+def test_the_lineup_leads_the_calls_follow_and_the_board_is_last_with_no_picker_until_asked(ss):
+    """Draft A (2026-10-09, ledger #94): the lineup answers first, the calls under it, the board last as research."""
     pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
     assert pg.evaluate("""() => { const q = s => document.querySelector(s);
-      return [!!(q('.ssv').compareDocumentPosition(q('.mu-rec')) & 4), !!(q('.ssv').compareDocumentPosition(q('.mu-calls')) & 4)]; }""") == [True, True]
-    assert pg.locator(".mu-calls [data-mukey^='t:']").count() == 9
-    assert pg.locator(".ssv-board [data-sscmp]").inner_text() == "Compare two"       # the link sits in the board's own head
+      return [!!(q('.mu-lineup').compareDocumentPosition(q('.mu-calls')) & 4), !!(q('.mu-calls').compareDocumentPosition(q('.ssv')) & 4)]; }""") == [True, True]
+    pg.click("[data-mukind='start']")
+    assert pg.locator(".mu-calls [data-mukey^='t:']").count() == 4
+    assert pg.locator(".ssv-board [data-sscmp], .ssv-board [data-mucmp]").count() == 0   # the board carries no way into the picker
+    assert pg.locator(".mu-lineup [data-mucmp]").count() == 1                         # the lineup card is the way in
     assert pg.locator(".ssv-pick").count() == 0 and pg.locator("[data-ssadd]").count() == 0
 
 
 @pytest.mark.render
 def test_compare_two_opens_the_picker_as_a_page_with_a_back_link(ss):
-    """David, 2026-10-06: Matchups leads with the board; the picker is reached from "Compare two" and opens as a
-    full page inside the view (no bottom sheet), with a back link that returns to the board where it was."""
-    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    """David, 2026-10-06: the picker is reached from "Compare two" and opens as a full page inside the view (no
+    bottom sheet), with a back link that returns to the view where it was."""
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + NO_ROSTER)
     pg.click("[data-sscmp]")
     assert pg.locator(".ssv-pick").count() == 1 and pg.locator(".ssv-who").count() == 2
-    assert pg.locator(".ssv-board, .mu-calls, .mu-rec, .mu-last, [data-sscmp]").count() == 0     # a page, not a card among the rest
+    assert pg.locator(".ssv-board, .mu-lineup, .mu-calls, .mu-last, [data-sscmp]").count() == 0     # a page, not a card among the rest
     assert pg.inner_text("[data-ssback]") == "‹ Start/Sit"
     assert pg.evaluate("SURFACE") == "matchups"
     pg.click("[data-ssback]")
@@ -461,7 +474,7 @@ def test_compare_two_opens_the_picker_as_a_page_with_a_back_link(ss):
 
 @pytest.mark.render
 def test_the_browsers_back_closes_the_compare_page_and_stays_on_the_view(ss):
-    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + NO_ROSTER)
     pg.click("[data-sscmp]")
     assert pg.locator(".ssv-pick").count() == 1
     pg.go_back()
@@ -475,7 +488,7 @@ def test_the_browsers_back_closes_the_compare_page_and_stays_on_the_view(ss):
 
 @pytest.mark.render
 def test_compare_two_keeps_the_picks_made_on_the_page_when_it_is_closed_and_reopened(ss):
-    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js())
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + NO_ROSTER)
     pg.click("[data-sscmp]")
     first = pg.evaluate("SS_PICKS[0]")
     pg.click(f"[data-ssx='{first}']")
@@ -521,7 +534,7 @@ def test_nothing_scrolls_sideways_at_360_with_three_players_and_every_row(ss):
     assert pg.evaluate("document.documentElement.scrollWidth") <= 360
     pg.evaluate("SS_PICKS.pop(); SS_OPEN = true; render()")
     assert pg.evaluate("document.documentElement.scrollWidth") <= 360
-    pg.evaluate("SS_CMP = false; SS_BTAB = 'TE'; render()")             # the board, with its Compare two link, fits too
+    pg.evaluate("SS_CMP = false; SS_BTAB = 'TE'; render()")             # the board fits too
     assert pg.locator(".ssv-board").count() == 1 and pg.evaluate("document.documentElement.scrollWidth") <= 360
 
 
@@ -529,7 +542,7 @@ def test_nothing_scrolls_sideways_at_360_with_three_players_and_every_row(ss):
 def test_desktop_gives_the_board_its_two_lists_and_the_picker_page_one_column(ss):
     """The picker left the board's side (2026-10-06): the board alone is as wide as a list, Best and Worst side by side;
     the Compare two page is one column too, never a half-width card stretched to the other's edge."""
-    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js(), w=1400, h=900)
+    pg = ss(picks_js(12.0, 9.0, compare=False) + ssb_js() + NO_ROSTER, w=1400, h=900)
     lists = pg.evaluate("[...document.querySelectorAll('.ssv-bl')].map(l => Math.round(l.getBoundingClientRect().left))")
     assert len(set(lists)) == 2                                   # Best and Worst side by side
     assert pg.evaluate("document.querySelector('.ssv-board').getBoundingClientRect().width") <= 1128

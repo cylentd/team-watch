@@ -80,7 +80,13 @@ def live_ss3(block, slugify, week=None):
                                      if str(r.get("call")).upper() in CALLS),
                                     key=lambda r: (CALLS.index(r["call"]), -r["margin_spots"]))
     return {"week": block.get("week"), "season": block.get("season"), "smash": smash, "takes": takes,
-            "record": _record(block.get("record"), slugify)}
+            "calls": _calls(smash, takes), "record": _record(block.get("record"), slugify)}
+
+
+def _calls(smash, takes):
+    """Each called player's one call, {slug: "SMASH" | "START" | "SIT"}, for the lineup card (ledger #94a): it marks
+    a reader's player without searching the lists. SMASH is the stronger call, so it wins a player on both."""
+    return {**{r["slug"]: r["call"] for r in takes}, **{r["slug"]: "SMASH" for r in smash}}
 
 
 def report(b):

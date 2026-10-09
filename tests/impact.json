@@ -85,8 +85,10 @@
     },
     "matchups": {
       "paths": ["design/src/js/surface/matchups/", "design/src/css/surface/matchups/", "design/src/js/data/startsit.js",
+                "design/src/js/data/lineup.js",
                 "design/startsit.py", "design/startsit_board.py", "design/startsit_v3.py", "design/startsit_blocks.py"],
-      "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py", "tests/test_js_startsit.py"],
+      "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py", "tests/test_js_startsit.py",
+                "tests/test_js_lineup.py", "tests/test_matchups_view.py", "tests/test_matchups_calls.py"],
       "render": ["matchups"]
     },
     "news": {

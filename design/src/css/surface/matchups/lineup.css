@@ -1,0 +1,86 @@
+/* ============================== START / SIT: THE LINEUP AND THE CALLS CARD ==============================
+   Draft A (ledger #94, 2026-10-09). The lineup card leads: our one swap on a filled box (--panel-2, a box
+   inside a card, never a card in a card), then one 52px row per player: slot, head, name over game, our
+   call, our points. On a swap the one we'd start is tinted green and the one he'd sit for dimmed; the line
+   above names both, so the tint needs no key. The calls card under it ends in its kind switch and pager, in
+   the thumb's reach on a phone. Green and red keep their one job, start and sit; lime is SMASH. */
+
+/* ---- the swap ---- */
+.mu-sw{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;margin:0 10px 10px;padding:12px;border-radius:10px;background:var(--panel-2)}
+.mu-sw-hd{width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 2px var(--line-2)}
+.mu-sw.swap .mu-sw-hd{box-shadow:0 0 0 2px var(--up)}
+.mu-sw.flip .mu-sw-hd{box-shadow:0 0 0 2px var(--amber)}
+.mu-sw-w{display:grid;gap:3px;min-width:0}
+.mu-sw-w b{font-family:var(--disp);font-size:var(--t-4);font-weight:800;line-height:1.15;color:var(--ink);text-wrap:balance}
+.mu-sw-w span{font-size:var(--t-2);line-height:1.3;color:var(--ink-2)}
+/* No pair to weigh (an empty bench): the words alone, no face. */
+.mu-sw[data-muswap="none"]{grid-template-columns:minmax(0,1fr) auto}
+.mu-sw-g{display:grid;justify-items:end;gap:3px;text-align:right;white-space:nowrap}
+.mu-sw-g b{font-family:var(--mono);font-size:var(--t-4);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--up)}
+.mu-sw.flip .mu-sw-g b{color:var(--amber)}
+.mu-sw.keep .mu-sw-g b{color:var(--ink-2)}
+.mu-sw-g span{font-size:var(--t-1);color:var(--ink-3)}
+.mu-sw-cmp,.mu-nt-pick{
+  appearance:none;font:inherit;cursor:pointer;min-height:44px;padding:0 14px;border-radius:10px;
+  font-size:var(--t-2);font-weight:600;transition:transform var(--dur-spring) var(--spring),background .2s var(--ease);
+}
+.mu-sw-cmp{grid-column:1 / -1;border:1px solid var(--line-2);background:none;color:var(--ink)}
+.mu-sw-cmp:active,.mu-nt-pick:active{transform:scale(var(--press))}
+.mu-sw-cmp:focus-visible,.mu-nt-pick:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+@media (hover:hover){ .mu-sw-cmp:hover{background:var(--panel-3)} }
+
+/* ---- the lineup rows ---- */
+.mu-lu-l{list-style:none;margin:0;padding:0}
+.mu-lu{
+  appearance:none;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;
+  width:100%;min-height:52px;display:grid;grid-template-columns:34px 32px minmax(0,1fr) 64px 44px;align-items:center;gap:8px;padding:6px 14px;
+  transition:background .2s var(--ease),transform var(--dur-spring) var(--spring);
+}
+.mu-lu:active{transform:scale(var(--press))}
+.mu-lu:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+@media (hover:hover){ .mu-lu:hover{background:var(--panel-2)} }
+.mu-lu-slot{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}
+.mu-lu-tag{display:flex;justify-content:flex-end}
+.mu-lu-tag .mu-tag{padding:5px 8px}
+.mu-lu-pts{font-family:var(--mono);font-size:var(--t-3);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.mu-lu-pts.dim{font-family:var(--ui);font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.mu-lu.in{background:rgb(var(--up-rgb) / .07)}
+.mu-lu.in .mu-lu-pts{color:var(--up)}
+.mu-lu.out .mu-nm b,.mu-lu.out .mu-lu-pts{color:var(--ink-3)}
+
+/* ---- no team picked ---- */
+.mu-nt{margin:0;padding:0 14px 12px;font-size:var(--t-3);line-height:1.45;color:var(--ink-2);text-wrap:pretty}
+.mu-nt-b{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 14px 14px}
+.mu-nt-pick{border:1px solid var(--lime);background:var(--lime);color:var(--on-lime)}
+.mu-nt-b .mu-sw-cmp{grid-column:auto}
+
+/* ---- the calls card: the record under its head, a page of rows, the switch and pager at its foot ---- */
+.mu-recl{display:grid;gap:4px;padding:0 14px 10px}
+.mu-recl p{margin:0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3)}
+.mu-recl-k b{font-family:var(--mono);font-weight:700;color:var(--ink)}
+.mu-recl-k.smash{color:var(--lime)}
+.mu-recl-k.start{color:var(--up)}
+.mu-recl-k.sit{color:var(--down)}
+/* A page's rows held open (--mu-rows, set by calls.js: six on a phone, what fits beside the lineup on a desktop), so a
+   short last page leaves the switch where the thumb already is. 53px is a row and its rule (MU_ROW_H). */
+.mu-cl{min-height:calc(var(--mu-rows) * 53px)}
+.mu-cl .mu-empty{margin:12px 14px}
+/* With no calls, the record stands under Blip's line. */
+.mu-blip .mu-recl{margin-top:8px;padding:0}
+.mu-kinds{display:grid;grid-template-columns:44px repeat(3,minmax(0,1fr)) 44px;gap:6px;padding:8px 10px 4px;border-top:1px solid var(--line)}
+.mu-kd,.mu-pg{
+  appearance:none;font:inherit;cursor:pointer;min-height:44px;border:1px solid var(--line-2);border-radius:10px;background:none;
+  font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-2);
+  transition:transform var(--dur-spring) var(--spring),background .2s var(--ease);
+}
+.mu-kd b{margin-left:6px;font-weight:500;color:var(--ink-3)}
+.mu-kd:active,.mu-pg:active{transform:scale(var(--press))}
+.mu-kd:focus-visible,.mu-pg:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.mu-kd.smash[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--on-lime)}
+.mu-kd.smash[aria-pressed="true"] b{color:var(--on-lime)}
+.mu-kd.start[aria-pressed="true"]{border-color:var(--up);color:var(--up)}
+.mu-kd.sit[aria-pressed="true"]{border-color:var(--down);color:var(--down)}
+.mu-pg{display:flex;align-items:center;justify-content:center;border-color:transparent}
+.mu-pg:disabled{opacity:.3;cursor:default}
+.mu-chev{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mu-pgn{margin:0;padding:0 14px 10px;text-align:center;font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3)}

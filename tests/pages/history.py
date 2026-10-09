@@ -30,8 +30,8 @@ class HistoryPage:
         self.page.wait_for_function("PV_OPEN")
 
     def open_compare(self):
-        """Start/Sit's Compare two page, a layer."""
-        self.page.locator("[data-sscmp]").first.click()
+        """Start/Sit's Compare page, a layer: the lineup card's Compare the two, or its Compare two with no team."""
+        self.page.locator("[data-mucmp], [data-sscmp]").first.click()
         self.page.wait_for_function("SS_CMP")
 
     def open_search_result(self, query):

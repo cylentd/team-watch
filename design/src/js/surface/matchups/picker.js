@@ -73,16 +73,11 @@ function ssPlayer(slug){
   const e = searchIndex().find(x => x.slug === slug);
   return e ? searchPlayer(e) : null;
 }
-/* His books number (rank_pts, running backs only): the Ranks row's own, else the projections' (rbrules.js). */
-function ssBooks(slug){
-  const r = ssRank(slug), row = r && typeof r.rank_pts === "number" ? r : rbProjRow(slug);
-  return row && typeof row.rank_pts === "number" ? row.rank_pts : null;
-}
-const ssCols = () => ssLoad().map(ssPlayer).filter(Boolean).map(p => ({p, pos: p.pos, rk: ssRank(p.slug), pts: ssPts(p.slug), rp: ssBooks(p.slug)}));
+/* The lanes for these slugs: the picks (ssCols), or the lineup card's pair (lineup.js). */
+const ssColsOf = slugs => slugs.map(ssPlayer).filter(Boolean).map(p => ({p, pos: p.pos, rk: ssRank(p.slug), pts: ssPts(p.slug)})), ssCols = () => ssColsOf(ssLoad());
 
-/* The higher projection starts; the top two inside SS_FLIP points of each other are a coin flip. Two or
-   more running backs the books all priced are called on the books' number instead (rbrules.js, ff-jarvis
-   METHODOLOGY 12.86); the points shown stay ours. */
+/* The higher projection starts, at every position (our own points, 2026-10-09, ledger #94); the top two inside
+   SS_FLIP points of each other are a coin flip. */
 const ssVerdict = cols => rbVerdict(cols, SS_FLIP);
 
 const ssVal = (val, sub, cls) => `<span class="ssv-v${cls ? " " + cls : ""}"><b>${val}</b>${sub ? `<small>${sub}</small>` : ""}</span>`;
@@ -159,7 +154,7 @@ function ssBandHTML(cols){
     <span class="lbl">${esc([c.p.pos, c.p.team].filter(Boolean).join(" · "))}</span></div>`).join("")}</div>`;
 }
 
-/* The gap is points, so a back the books put first on fewer points shows none (a negative gap is no gain). */
+/* The call and its gain in points. */
 function ssVerdictHTML(cols){
   const v = ssVerdict(cols);
   const gain = v && v.gap > 0 ? `<span class="ssv-gain">${t("startsit.pick.gap", {n: v.gap.toFixed(1)})}</span>` : "";

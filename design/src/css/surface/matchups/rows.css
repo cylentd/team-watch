@@ -1,6 +1,7 @@
 /* ============================== START / SIT: THE ROWS ==============================
-   A 52px-min line per call, inside its card. A SMASH row: head, name over game, the book's main
-   line over the TD price. A bold call: tag, head, name over game, our rank over his season average;
+   A 52px-min line per call, inside the calls card. A SMASH row: head, name over game, the book's main
+   line over the TD price. A bold call: head, name over game, our rank over his season average (the
+   card's kind switch says START or SIT, so the row wears no tag since 2026-10-09);
    it opens in place on the house spring (grid rows 0fr to 1fr, the same motion as a Digest row) to
    the reasons behind it and a link to his profile, the body indented to the name. The meta line
    wraps to a second line rather than cut the kickoff time; the name itself stays one line. */
@@ -10,7 +11,7 @@
   width:100%;min-height:52px;display:grid;align-items:center;gap:8px;padding:6px 14px;
   transition:background .2s var(--ease),transform var(--dur-spring) var(--spring);
 }
-.mu-call-h{grid-template-columns:48px 32px minmax(0,1fr) auto}
+.mu-call-h{grid-template-columns:32px minmax(0,1fr) auto}
 .mu-sm{grid-template-columns:32px minmax(0,1fr) auto;border-top:1px solid var(--line)}
 .mu-call-h:active,.mu-sm:active{transform:scale(var(--press))}
 .mu-call-h:focus-visible,.mu-sm:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
@@ -39,7 +40,7 @@
 .mu-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-spring) var(--spring)}
 .mu-call[data-open] .mu-b{grid-template-rows:1fr}
 .mu-in{overflow:hidden;min-height:0;background:var(--panel-2)}
-.mu-pad{display:grid;gap:8px;padding:4px 14px 8px 102px}
+.mu-pad{display:grid;gap:8px;padding:4px 14px 8px 54px}
 
 /* The reasons behind a call: each one argues it. */
 .mu-evs{display:flex;flex-wrap:wrap;gap:6px}
@@ -59,5 +60,5 @@
 
 @media (min-width:960px){
   .mu-call-h,.mu-sm{padding:6px 16px}
-  .mu-pad{padding:4px 16px 8px 104px}
+  .mu-pad{padding:4px 16px 8px 56px}
 }

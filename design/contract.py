@@ -280,7 +280,7 @@ CONTRACT = {
     # (`week` null, no rows, a zero record). A SMASH row's `line` and `td_price` may be null (no book prices him); a take's `reasons` may be [].
     # `record` counts from `since_week`; `weeks` is [] until one is graded; the nested counts are checked by its `problems`.
     "LIVE_SS3": {
-        "keys": ["week", "season", "smash", "takes", "record"],
+        "keys": ["week", "season", "smash", "takes", "calls", "record"],
         "rows": [("smash", ["slug", "name", "pos", "team", "opp", "home", "kick", "rank", "pts", "avg_rank", "line", "td_price"]),
                  ("takes", ["slug", "name", "pos", "team", "opp", "home", "kick", "rank", "pts", "avg_rank", "call", "line_pts", "margin_spots", "reasons"])],
         "objs": [("record", ["since_week", "smash", "start", "sit", "weeks", "fun", "last_week"])],

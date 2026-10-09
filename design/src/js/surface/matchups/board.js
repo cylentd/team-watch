@@ -1,5 +1,5 @@
 /* ============================== MATCHUPS: THE MATCHUP BOARD ==============================
-   The view's lead card (the middle one under the picker until 2026-10-06): for one position, the four offenses facing the defenses that give up
+   The view's last card (its lead from 2026-10-06 to 2026-10-09; the middle one under the picker before): for one position, the four offenses facing the defenses that give up
    the most to it this week (Best) and the four facing the ones that give up the least (Worst).
    A bar is points allowed per game at that position, a tick on it the league average, so a row reads
    against the middle of the league and not against the other rows. Every number is ff-jarvis's
@@ -44,7 +44,7 @@ function ssBoardInnerHTML(){
   if (!pos) return "";
   const b = ssSB().board[pos], rows = k => (b[k] || []).filter(r => typeof r.pts === "number");
   const scale = Math.max(b.avg, ...rows("best").map(r => r.pts), ...rows("worst").map(r => r.pts)) || 1;
-  return `<div class="ssv-h"><h3>${t("startsit.board.title", {pos})}</h3>${ssCmpLinkHTML()}</div>
+  return `<div class="ssv-h"><h3>${t("startsit.board.title", {pos})}</h3></div>
     <div class="setrow" role="group" aria-label="${t("startsit.board.tabs")}">${ssBoardTabs().map(p =>
       `<button type="button" class="chip" data-ssbpos="${p}" aria-pressed="${pos === p}">${p}</button>`).join("")}</div>
     ${ssSpotHTML(pos)}
@@ -52,14 +52,11 @@ function ssBoardInnerHTML(){
     <p class="ssv-key"><i aria-hidden="true"></i>${t("startsit.board.avg", {pts: b.avg.toFixed(1)})}</p>`;
 }
 
-/* The way into the picker (David, 2026-10-06): a button in the board's head, or, with no board to carry it
-   (no LIVE_SSB), a card of its own so the picker is never out of reach. matchups.js opens the page. */
-const ssCmpLinkHTML = () => `<button type="button" class="ssv-add ssv-cmp" data-sscmp>${t("matchups.compare.link")}</button>`;
-const ssCmpCardHTML = () => `<section class="ssv-card ssv-cmpcard" aria-label="${t("startsit.pick.title")}"><div class="ssv-h"><h3>${t("startsit.pick.title")}</h3>${ssCmpLinkHTML()}</div></section>`;
-
+/* The board is the view's last card since 2026-10-09 (draft A): the research behind the calls, after the lineup
+   and the calls that answer the reader. The way into the picker moved from its head to the lineup card. */
 function ssBoardHTML(){
   const inner = ssBoardInnerHTML();
-  return inner ? `<section class="ssv-card ssv-board" id="ssv-board" aria-label="${t("startsit.board.title", {pos: ssBoardPos()})}">${inner}</section>` : "";
+  return inner ? `<section class="ssv-card ssv-board" id="ssv-board" data-testid="matchups-board" aria-label="${t("startsit.board.title", {pos: ssBoardPos()})}">${inner}</section>` : "";
 }
 
 /* A tab repaints the card in place, so the page keeps its scroll and the Takes under it stay put. */

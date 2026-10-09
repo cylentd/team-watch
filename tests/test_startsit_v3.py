@@ -148,70 +148,102 @@ NO_GRADE = ("Object.assign(LIVE_SS3.record, {weeks: [], last_week: [], smash: {h
             " sit: {hit: 0, miss: 0, void: 0}, fun: {fantasypros: {hit: 0, miss: 0}, pitcherlist: {hit: 0, miss: 0}}})")
 
 
+RECORD = ".mu-calls [data-testid='matchups-record']"       # one line in the calls card's head since 2026-10-09 (draft A)
+# A page of calls on a phone, read from its constants file (design/src/js/data/lineup.js), never retyped.
+PAGE_ROWS = int(re.search(r"const MU_PAGE_ROWS = (\d+);", (REPO / "design/src/js/data/lineup.js").read_text(encoding="utf-8"))[1])
+CALL = {k: words(f"matchups.call.{k}") for k in ("smash", "start", "sit")}
+ROW_FITS = "[...document.querySelectorAll('.mu-calls .mu-call-h')].every(e => e.offsetHeight >= 52 && e.offsetHeight <= 66)"
+
+
+def smash_rows(pg):
+    return pg.evaluate("""() => [...document.querySelectorAll('.mu-calls .mu-sm')].map(r => [
+      r.querySelector('.mu-nm b').textContent, r.querySelector('.mu-nm span').textContent,
+      [...r.querySelectorAll('.mu-lg span')].map(s => s.textContent.trim())])""")
+
+
+def take_rows(pg):
+    return pg.evaluate("""() => [...document.querySelectorAll('.mu-calls .mu-call')].map(r => [
+      r.querySelector('.mu-nm b').textContent, r.querySelector('.mu-nm span').textContent,
+      r.querySelector('.mu-rk b').textContent, r.querySelector('.mu-rk span').textContent, !!r.querySelector('.mu-tag')])""")
+
+
 @pytest.mark.render
 def test_the_record_is_three_separate_hit_miss_counts_since_week_5(view):
     pg = view()
-    assert pg.inner_text(".mu-rec-l").lower() == "record" and pg.inner_text(".mu-rec-s") == "since week 5"
-    tiles = pg.evaluate("[...document.querySelectorAll('.mu-rt')].map(t => [t.querySelector('b').textContent, t.querySelector('span').textContent, (t.querySelector('small') || {}).textContent || ''])")
-    assert tiles == [["7-3", "SMASH", ""], ["2-2", "START", "1 void"], ["4-1", "SIT", ""]]     # void only when above zero
-    assert pg.inner_text(".mu-fun") == "For fun: FantasyPros 5-3 · Pitcher List 3-2"
+    head = f"{words('matchups.record.label')} {words('matchups.record.since').format(wk=5)}"
+    void = words("matchups.record.void").format(n=1)
+    want = f"{head}: 7-3 {CALL['smash']} · 2-2 {CALL['start']} {void} · 4-1 {CALL['sit']}"      # void only when above zero
+    assert pg.inner_text(RECORD + " p:first-child") == want
+    assert pg.inner_text(RECORD + " .mu-fun") == words("matchups.record.fun").format(fp="5-3", pl="3-2")
 
 
 @pytest.mark.render
 def test_before_any_graded_week_the_record_is_calm_not_zeros(view):
     pg = view(NO_GRADE)
-    assert pg.inner_text(".mu-rec.none .mu-rec-none") == words("matchups.record.none")
-    assert pg.locator(".mu-rt").count() == 0 and pg.locator(".mu-fun").count() == 0
-    assert pg.locator(".mu-last").count() == 0
-    assert pg.inner_text(".mu-rec-s") == "since week 5"
+    head = f"{words('matchups.record.label')} {words('matchups.record.since').format(wk=5)}"
+    assert pg.inner_text(RECORD) == f"{head}: {words('matchups.record.none')}"
+    assert pg.locator(".mu-fun").count() == 0 and pg.locator(".mu-last").count() == 0
 
 
 @pytest.mark.render
 def test_the_for_fun_line_is_not_drawn_until_someone_has_a_graded_call(view):
     pg = view("LIVE_SS3.record.fun = {fantasypros: {hit: 0, miss: 0}, pitcherlist: {hit: 0, miss: 0}}")
-    assert pg.locator(".mu-rt").count() == 3 and pg.locator(".mu-fun").count() == 0
+    assert pg.locator(RECORD + " .mu-recl-k").count() == 3 and pg.locator(".mu-fun").count() == 0
 
 
 @pytest.mark.render
 def test_smash_rows_lead_with_the_main_line_and_the_td_price(view):
+    """SMASH is the calls card's first kind, MU_PAGE_ROWS a page on a phone (draft A); the fixture's ten fill two."""
     pg = view()
-    rows = pg.evaluate("""() => [...document.querySelectorAll('.mu-smash .mu-sm')].map(r => [
-      r.querySelector('.mu-nm b').textContent, r.querySelector('.mu-nm span').textContent,
-      [...r.querySelectorAll('.mu-lg span')].map(s => s.textContent.trim())])""")
-    assert len(rows) == 10
+    first = smash_rows(pg)
+    assert len(first) == PAGE_ROWS
+    assert pg.evaluate("[...document.querySelectorAll('.mu-calls .mu-sm')].every(e => e.offsetHeight >= 52)")
+    pg.click("[data-mupg='1']")
+    second = smash_rows(pg)
+    rows = first + second
+    assert len(rows) == 10 and len(second) == 10 - PAGE_ROWS
     assert rows[0] == ["J. Allen", "QB1 · BUF vs MIA · Sun 10:00 AM", ["251.5 pass yds", "TD -105"]]
     assert rows[5] == ["P. Nacua", "WR2 · LA @ PHI · Sun 1:25 PM", ["72.0 rec yds", "TD +135"]]
     assert rows[6][0] == "A. St. Brown"                                   # initials, a two-word surname stays whole
     assert rows[9][2] == []                                               # no book prices Kittle: the row stands alone
-    assert pg.inner_text(".mu-smash .mu-tag.smash") == "SMASH"
-    assert pg.evaluate("[...document.querySelectorAll('.mu-smash .mu-sm')].every(e => e.offsetHeight >= 52)")
+    assert pg.locator(".mu-calls [data-mukind='smash'][aria-pressed='true']").count() == 1     # still SMASH's page
 
 
 @pytest.mark.render
 def test_the_smash_card_ends_in_a_link_to_slips(view):
     pg = view()
-    assert pg.inner_text(".mu-smash .mu-cf .mu-go").strip() == words("matchups.smash.build")
-    pg.click(".mu-smash [data-ssgo]")
+    assert pg.inner_text(".mu-calls .mu-cf .mu-go").strip() == words("matchups.smash.build")
+    pg.click("[data-mukind='start']")
+    assert pg.locator(".mu-calls .mu-cf").count() == 0                   # only SMASH's page builds a slip
+    pg.click("[data-mukind='smash']")
+    pg.click(".mu-calls [data-ssgo]")
     assert pg.evaluate("SURFACE") == "parlay"
 
 
 @pytest.mark.render
-def test_bold_calls_are_a_start_group_then_a_sit_group_ours_over_his_average(view):
+def test_bold_calls_are_a_start_page_then_a_sit_page_ours_over_his_average(view):
+    """The kind switch says START or SIT (its pressed button is the tag), so a row wears no tag of its own (draft A).
+    Each page: our rank over his season average; 52px, or a second meta line (the kickoff wraps), never taller."""
     pg = view()
-    assert pg.evaluate("[...document.querySelectorAll('.mu-takes .mu-grp')].map(h => h.textContent)") == ["Start", "Sit"]
-    rows = pg.evaluate("""() => [...document.querySelectorAll('.mu-takes .mu-call')].map(r => [
-      r.querySelector('.mu-tag').textContent, r.querySelector('.mu-nm b').textContent,
-      r.querySelector('.mu-nm span').textContent, r.querySelector('.mu-rk b').textContent, r.querySelector('.mu-rk span').textContent])""")
-    assert rows[0] == ["START", "R. Stevenson", "NE @ BUF · Sun 10:00 AM", "RB15", "avg RB36"]
-    assert rows[1][3:] == ["WR16", "avg WR41"]
-    assert [r[0] for r in rows] == ["START"] * 4 + ["SIT"] * 5
-    # 52px, or a second meta line (the kickoff wraps rather than being cut) -- never taller
-    assert pg.evaluate("[...document.querySelectorAll('.mu-takes .mu-call-h')].every(e => e.offsetHeight >= 52 && e.offsetHeight <= 66)")
+    pressed = lambda: pg.evaluate("document.querySelector('.mu-calls .mu-kd[aria-pressed=\"true\"]').firstChild.textContent.trim()")
+    pg.click("[data-mukind='start']")
+    rows = take_rows(pg)
+    assert pressed() == CALL["start"] and len(rows) == 4
+    assert rows[0] == ["R. Stevenson", "NE @ BUF · Sun 10:00 AM", "RB15", "avg RB36", False]
+    assert rows[1][2:4] == ["WR16", "avg WR41"]
+    assert pg.evaluate(ROW_FITS)
+    pg.click("[data-mukind='sit']")
+    rows = take_rows(pg)
+    assert pressed() == CALL["sit"] and len(rows) == 5
+    assert rows[1] == ["E. Engram", "DEN @ SF · Sun 1:25 PM", "TE20", "avg TE8", False]
+    assert [r[2:] for r in rows[2:]] == [["RB31", "avg RB8", False], ["QB19", "avg QB9", False], ["WR31", "avg WR18", False]]
+    assert pg.evaluate(ROW_FITS)
 
 
 @pytest.mark.render
 def test_a_take_opens_to_its_reasons_one_at_a_time_and_links_to_the_profile(view):
     pg = view()
+    pg.click("[data-mukind='start']")
     first, second = pg.locator(".mu-call-h").nth(0), pg.locator(".mu-call-h").nth(1)
     assert pg.locator(".mu-b").first.evaluate("e => e.inert") is True
     second.click()
@@ -224,10 +256,12 @@ def test_a_take_opens_to_its_reasons_one_at_a_time_and_links_to_the_profile(view
 
 
 @pytest.mark.render
-def test_no_call_is_close_or_expert_led_and_no_old_block_is_left(view):
-    pg = view()
+@pytest.mark.parametrize("kind, page", [("smash", 0), ("smash", 1), ("start", 0), ("sit", 0)])   # every page: 10, 4 and 5 calls
+def test_no_call_is_close_or_expert_led_and_no_old_block_is_left(view, kind, page):
+    pg = view("MU_KIND = %s; MU_PAGE = %d" % (json.dumps(kind), page))
     pg.evaluate("() => document.querySelectorAll('.mu-call').forEach(r => muSetOpen(r, true))")
-    text = " ".join(pg.locator(".mu-rec, .mu-calls, .mu-last").all_inner_texts())    # the picker above keeps its own coin flip
+    # the whole calls card (head, record, rows, kind switch, pager) and last week; the lineup and the picker keep their own coin flip
+    text = " ".join(pg.locator(".mu-calls, .mu-last").all_inner_texts())
     still_there = [gone for gone in ("Close call", "CLOSE", "Coin flip", "More takes", "Most confident", "Higher than", "Lower than", "Splits",
                                      "Backed", "Gut", "Pitcher List's column", "Claude's read") if gone in text]
     assert text != "" and still_there == []
@@ -236,22 +270,23 @@ def test_no_call_is_close_or_expert_led_and_no_old_block_is_left(view):
 
 
 @pytest.mark.render
-def test_an_empty_group_is_omitted_and_no_takes_at_all_is_one_quiet_line(view):
+def test_a_kind_with_no_calls_is_one_quiet_line_and_counts_zero(view):
     pg = view("LIVE_SS3.takes = LIVE_SS3.takes.filter(r => r.call === 'SIT')")
-    assert pg.evaluate("[...document.querySelectorAll('.mu-takes .mu-grp')].map(h => h.textContent)") == ["Sit"]
+    counts = pg.evaluate("Object.fromEntries([...document.querySelectorAll('[data-mukind]')].map(b => [b.dataset.mukind, b.querySelector('b').textContent]))")
+    assert counts == {"smash": "10", "start": "0", "sit": "5"}
+    pg.click("[data-mukind='start']")
+    assert pg.inner_text(".mu-calls .mu-empty") == words("matchups.calls.none").format(kind=words("matchups.call.start"))
     pg = view("LIVE_SS3.takes.length = 0")
-    assert pg.locator(".mu-takes").count() == 0
-    assert pg.inner_text(".mu-calls .mu-empty") == words("matchups.takes.none")
-    assert pg.locator(".mu-smash .mu-sm").count() == 10                    # SMASH stands
-    assert pg.locator(".mu-calls.two").count() == 0
+    assert pg.locator(".mu-calls .mu-sm").count() == PAGE_ROWS             # SMASH stands, its first page
 
 
 @pytest.mark.render
 def test_no_calls_at_all_is_blip_not_an_error(view):
     pg = view("LIVE_SS3.takes.length = 0; LIVE_SS3.smash.length = 0")
     assert pg.locator(".mu-blip q").inner_text() == words("matchups.blip.none")
-    assert pg.locator(".mu-smash, .mu-takes, .mu-empty").count() == 0
-    assert pg.locator(".mu-rec").count() == 1 and pg.locator("[data-sscmp]").count() == 1     # Compare two and the record stand
+    assert pg.locator(".mu-calls, .mu-empty").count() == 0
+    assert pg.locator(".mu-blip [data-testid='matchups-record']").count() == 1     # the record stands under Blip
+    assert pg.locator(".mu-lineup [data-mucmp]").count() == 1                         # and the lineup keeps its compare
 
 
 @pytest.mark.render
@@ -259,8 +294,9 @@ def test_a_missing_block_renders_the_empty_states(view):
     """The producer has not written startsit_v3: the build's empty week (week null, no rows, zero record)."""
     empty = startsit_v3.live_ss3(None, slugify)
     pg = view("for (const k of Object.keys(LIVE_SS3)) delete LIVE_SS3[k]; Object.assign(LIVE_SS3, %s)" % json.dumps(empty))
-    assert pg.locator(".mu-blip").count() == 1 and pg.locator(".mu-rec.none").count() == 1
-    assert pg.locator(".mu-last, .mu-smash, .mu-takes").count() == 0
+    assert pg.locator(".mu-blip").count() == 1
+    assert words("matchups.record.none") in pg.inner_text(".mu-blip [data-testid='matchups-record']")
+    assert pg.locator(".mu-last, .mu-calls").count() == 0
 
 
 @pytest.mark.render
@@ -278,16 +314,20 @@ def test_last_weeks_calls_are_a_list_of_hit_miss_and_void_under_the_calls(view):
 @pytest.mark.render
 def test_nothing_scrolls_sideways_at_360_with_every_row_open(view):
     pg = view()
+    pg.click("[data-mukind='start']")
     pg.evaluate("() => document.querySelectorAll('.mu-call').forEach(r => muSetOpen(r, true))")
     assert pg.evaluate("document.documentElement.scrollWidth") <= 360
 
 
 @pytest.mark.render
 def test_desktop_sets_the_two_cards_side_by_side_ending_level(view):
-    pg = view(w=1400, h=900)
+    """The lineup and the calls share a top edge and end level: beside a full lineup the calls card holds as many
+    rows as fit (muFitCalls). The fixture's own roster is short, so a 15-man one is planted."""
+    pg = view("TEAMS[VIEW].roster = Array.from({length: 15}, (_, i) => P('Test Player ' + i, ['QB', 'RB', 'WR', 'TE'][i % 4],"
+              " 'CIN', 'test-player-' + i, {slot: i < 8 ? 'RB' : 'BN', start: i < 8}))", w=1400, h=900)
     box = lambda sel: pg.evaluate("(s) => { const r = document.querySelector(s).getBoundingClientRect(); return [r.left, r.top + scrollY, r.bottom + scrollY, r.width]; }", sel)
-    a, b = box(".mu-smash"), box(".mu-takes")
-    assert abs(a[1] - b[1]) < 4 and a[0] < b[0]                            # one top edge, SMASH on the left
+    a, b = box(".mu-lineup"), box(".mu-calls")
+    assert abs(a[1] - b[1]) < 4 and a[0] < b[0]                            # one top edge, the lineup on the left
     assert abs(a[2] - b[2]) <= 150                                         # STYLE.md: sections side by side end within 150px
     assert a[3] <= 600 and b[3] <= 600                                     # a label stays within 560px of its value, give or take the card's own padding
     assert pg.evaluate("document.documentElement.scrollWidth") <= 1400
@@ -295,8 +335,8 @@ def test_desktop_sets_the_two_cards_side_by_side_ending_level(view):
 
 @pytest.mark.render
 @pytest.mark.parametrize("h", ["#matchups", "#startsit", "#takes"])
-def test_the_hash_still_opens_the_view_and_the_board_and_record_keep_their_place(view, h):
+def test_the_hash_still_opens_the_view_and_the_lineup_calls_and_board_keep_their_place(view, h):
     pg = view(hash_=h)
-    assert pg.evaluate("SURFACE") == "matchups" and pg.locator("[data-sscmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0
+    assert pg.evaluate("SURFACE") == "matchups" and pg.locator("[data-mucmp]").count() == 1 and pg.locator(".ssv-pick").count() == 0
     assert pg.evaluate("""() => { const q = s => document.querySelector(s);
-      return [q('.ssv').compareDocumentPosition(q('.mu-rec')) & 4, q('.mu-rec').compareDocumentPosition(q('.mu-calls')) & 4]; }""") == [4, 4]
+      return [q('.mu-lineup').compareDocumentPosition(q('.mu-calls')) & 4, q('.mu-calls').compareDocumentPosition(q('.ssv')) & 4]; }""") == [4, 4]

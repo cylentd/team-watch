@@ -32,6 +32,7 @@ RESET_JS = """() => {
   try { localStorage.clear(); } catch (e) {}
   %s
   SS_PICKS = null; SS_OPEN = false; SS_Q = ''; SS_BTAB = ''; SS_CMP = false;
+  MU_KIND = 'smash'; MU_PAGE = 0; MU_OPEN = '';
   window.scrollTo(0, 0);
   navGo('matchups');
 }""" % PICKED

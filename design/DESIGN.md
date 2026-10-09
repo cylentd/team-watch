@@ -1449,6 +1449,21 @@ else: the template call and box-line pills, as before. On a phone the Recap's fo
 
 ## Start/Sit (This week, 2026-10-03; was Takes; v3 2026-10-04; labelled Matchups since 2026-10-06)
 
+**Draft A, lineup first (2026-10-09, ledger #94; supersedes the board-first order below).** David: the first card
+did not answer the reader's question. Top down now: **Your lineup** (his skill starters and bench, each with the
+Ranks points and our call on him, SMASH / START / SIT, from `LIVE_SS3.calls`, the build's slug -> call map; on top
+our one swap, worded as our call, "We'd start A over B", "We'd keep your lineup" with the closest call, or "Coin
+flip"; it is the picker's own verdict on the pair the roster brief names, so the card and Compare the two agree, and
+it says the books' reason when they ordered two backs against their points), **Our calls** (SMASH, START, SIT one
+kind a page, 6 rows on a phone (`MU_PAGE_ROWS`) and, beside the lineup from 960px, as many as end the card level with
+it, measured in the browser (`muFitCalls`, never under 6); with no
+calls Blip stands in, the record under him; the record one line under the head; the kind switch and pager are the card's
+foot, in the thumb's reach), **last week**, then the **board** (research, last; it no longer carries Compare two).
+No team picked: the lineup card says what it would answer, with Pick your team (opens the team switch) and Compare
+two. Logic in `js/data/lineup.js` (Node: `tests/test_js_lineup.py`), the view in `surface/matchups/lineup.js` and
+`calls.js` (`tests/test_matchups_view.py`, `pages/matchups.py`). A bold call's row lost its START/SIT tag: the kind
+switch says it. Journey and drafts: storyboard round of 2026-10-09, branch `startsit-journey`.
+
 **Matchups (2026-10-06).** The tab reads Matchups; the leaf stays `matchups`, and `#startsit` and `#takes` still land.
 The board of best spots leads. The two-or-three player picker opens from the board's Compare two button as a full
 page with a back link, which Back closes (David: the picker is the compare tool with more steps).

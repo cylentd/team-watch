@@ -122,11 +122,14 @@ surface/role/role.js
 data/usage.js
 surface/usage/usage.js
 data/startsit.js
+data/lineup.js
 surface/matchups/record.js
 surface/matchups/smash.js
 surface/matchups/rows.js
 surface/matchups/picker.js
 surface/matchups/board.js
+surface/matchups/lineup.js
+surface/matchups/calls.js
 surface/matchups/matchups.js
 data/dst.js
 data/kdst.js

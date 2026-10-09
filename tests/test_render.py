@@ -430,13 +430,14 @@ STATES = [
     # reading sit in the panel the bar's last chip opens since 2026-09-25), a QB grid because its
     # columns are the ones with no counterpart anywhere else in the app, and the profile modal.
     # Start/Sit v3 (2026-10-04): the fixture week (tests/fixtures/data/startsit_v3.json) holds ten SMASH
-    # players, four bold STARTs and five bold SITs, and a record with week 5 graded. -open opens the
-    # first bold call to its reasons, the opened row's link opens the profile, and a week with nothing
-    # yet says each of those in its own place: no week graded (a calm record), no bold calls (one line),
-    # no calls at all (Blip). LIVE_SS3 is a const, so the missing block is pinned in tests/test_startsit_v3.py.
+    # players, four bold STARTs and five bold SITs, and a record with week 5 graded. Since 2026-10-09 (draft A)
+    # the lineup leads and the calls page one kind at a time: -open turns to START and opens the first bold
+    # call to its reasons, the opened row's link opens the profile, and a week with nothing yet says each of
+    # those in its own place: no week graded (a calm record), no bold calls (SMASH stands), no calls at all
+    # (Blip). LIVE_SS3 is a const, so the missing block is pinned in tests/test_startsit_v3.py.
     ("matchups", go("matchups")),
-    ("matchups-open", go("matchups") + [("click", "[data-mukey^='t:'] .mu-call-h")]),
-    ("matchups-modal", go("matchups") + [("click", "[data-mukey^='t:'] .mu-call-h"),
+    ("matchups-open", go("matchups") + [("click", "[data-mukind='start']"), ("click", "[data-mukey^='t:'] .mu-call-h")]),
+    ("matchups-modal", go("matchups") + [("click", "[data-mukind='start']"), ("click", "[data-mukey^='t:'] .mu-call-h"),
                                          ("click", ".mu-call[data-open] [data-muslug]")]),
     ("matchups-nograde", [("eval", "Object.assign(LIVE_SS3.record, {weeks: [], last_week: [], smash: {hit: 0, miss: 0, void: 0},"
                                    " start: {hit: 0, miss: 0, void: 0}, sit: {hit: 0, miss: 0, void: 0},"

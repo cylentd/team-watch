@@ -90,8 +90,7 @@
 .ssv-go:hover{text-decoration:underline;text-underline-offset:3px}
 .ssv-go:focus-visible{outline:2px solid var(--lime);outline-offset:2px;border-radius:4px}
 
-/* Compare two (2026-10-06): a quiet button in the board's head, and the picker as a page of its own under a back link. */
-.ssv-cmp{padding:0 12px;font-size:var(--t-2);white-space:nowrap}
+/* The Compare page (2026-10-06; opened from the lineup card since 2026-10-09): the picker as a page of its own under a back link. */
 .ssv-back{align-self:flex-start;justify-self:start;min-height:44px;margin:4px 14px 0;padding:0 8px 0 0;border:0;background:none;
   color:var(--ink-2);font-family:var(--ui);font-size:var(--t-2);font-weight:600;cursor:pointer}
 .ssv-back:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
