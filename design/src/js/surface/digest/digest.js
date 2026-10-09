@@ -64,6 +64,7 @@ function wireDigest(v){
   root?.addEventListener("click", dgLiveClick);
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => dgOpenSlug(el)));
   wireDigestTiers(root);
+  dgHeroFit(root);   // a headline that pushes the hero past its budget takes a size down (face.js)
 }
 
 /* A player's name or face: his profile, from the packet's own row or, for anyone else, search's index. */

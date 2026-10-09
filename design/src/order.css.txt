@@ -106,6 +106,7 @@ surface/digest/lead.css
 surface/digest/banner.css
 # pin: digest/hero.css after banner.css -- the hero restyles the banner's band, headline and game codes.
 surface/digest/hero.css
+surface/digest/face.css
 surface/digest/ticker.css
 surface/digest/bodies.css
 surface/digest/tonight.css

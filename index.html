@@ -5441,15 +5441,26 @@ body:has(.connect:not([hidden])){overflow:hidden}
    gets the end state at once. Under a screen at 360px, so the first card starts on the first screen. */
 
 .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:188px;padding:16px 16px 18px;isolation:isolate}
-.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt{gap:8px}
-.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-6);line-height:1.04;letter-spacing:-.025em}
-.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{font-size:var(--t-2)}
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt{z-index:2;gap:0;flex:1}
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-day{margin:0}
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{margin-top:8px;font-size:var(--t-6);line-height:1.04;letter-spacing:-.025em}
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{margin-top:8px;font-size:var(--t-2)}
+/* The words' free space goes under the headline: the tiles and the fact hold the band's floor, the headline its
+   top, so a short headline leaves the gap in the middle, never at the edge (STYLE.md Gaps). */
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{margin-bottom:auto}
+/* With a face or Blip on the floor at the right (face.css), the headline and the fact keep a column at the left,
+   a size down from the full-width headline, so the picture is the hero (David 2026-10-08, "hero v2"). */
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:78%}
+/* A headline that pushes the band past its budget (face.js dgHeroFit, measured) takes a size down: never cut. */
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-5)}
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{max-width:78%;margin-top:6px}
 
-/* The game's board: on a phone its own row under the job tag, so the headline below keeps the full width. */
+/* The game's board: a row of tiles in the words' flow, between the day's tag and the headline. */
 .dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *){padding-right:16px}
-.dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{margin-top:46px}
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-day{order:-2}
 .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs{
-  top:40px;left:16px;right:auto;transform:none;display:flex;align-items:center;gap:8px;perspective:600px;z-index:1;
+  order:-1;position:relative;top:auto;left:auto;right:auto;transform:none;margin-top:8px;
+  display:flex;align-items:center;gap:8px;perspective:600px;z-index:1;
 }
 .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs b{display:flex;gap:3px}
 .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs small{font:600 var(--t-1)/1 var(--mono);text-transform:uppercase}
@@ -5476,8 +5487,6 @@ body:has(.connect:not([hidden])){overflow:hidden}
 .dg-bn.q:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
 .dg-bn.sky:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}
 .dg-bn.team:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{-webkit-text-stroke:2px color-mix(in srgb,var(--team) 55%,var(--ink));opacity:.55}
-/* A face sits on the band's floor in front of the wall. */
-.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-face{z-index:1}
 @media (hover:hover){
   .dg-bn.hero:hover:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost i{transform:rotateX(360deg);color:rgb(var(--ink-rgb) / .06)}
 }
@@ -5495,15 +5504,70 @@ body:has(.connect:not([hidden])){overflow:hidden}
 }
 
 @media (min-width:960px){
-  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:260px;padding:32px 40px}
+  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:300px;padding:32px 40px}
   .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
-  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{font-size:var(--t-4)}
-  .dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *){padding-right:300px}
-  .dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{margin-top:0}
-  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs{top:50%;left:auto;right:40px;transform:translateY(-50%)}
+  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{font-size:var(--t-4);margin-top:12px}
+  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the face's. */
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt{padding-right:420px}
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-hero);line-height:1;max-width:20ch}
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{max-width:none}
+  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs{margin-top:20px}
   .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs i{width:40px;height:54px;font-size:var(--t-6)}
   .dg-bn-ghost:where(#view[data-view="digest"], #view[data-view="digest"] *){font-size:var(--t-ghost);right:0;bottom:-40px}
-  .dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{right:auto;left:46%}
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{right:-12px}
+}
+/* ── css/surface/digest/face.css ── */
+/* ============================== HOME: THE HERO'S FACE ==============================
+   Ledger #63 (David 2026-10-08, "hero v2"; face.js dgHeroFaceParts). The hero's subject, a poster: the player's
+   cut-out stands on the band's floor, bigger than the words and bleeding off the band's right edge, its chest
+   cropped by the floor and its left side faded under the words, over a glow in his club's colour and in front of
+   the ghost wall. The day's tag and the tiles sit above the headline, which keeps a column at the left (hero.css).
+   On a Blip day, Blip stands on the same floor, twice his old size, on a contact shadow, leaning into the
+   headline. A phone's band stays inside a third of the screen (tests/pages/digest_day.py hero_fits). The face
+   rises from the floor as the tiles finish turning; reduced motion gets it at rest. */
+
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *),.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:232px}
+.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){
+  position:absolute;right:var(--dg-face-right);bottom:0;z-index:1;margin:0;
+  width:var(--dg-face-w);height:var(--dg-face-w);
+  transform:translateY(var(--dg-face-crop));transform-origin:50% 100%;
+  animation:dg-face-rise var(--dur-flap) var(--ease) var(--dur-flap) both;
+}
+@keyframes dg-face-rise{from{transform:translateY(100%);opacity:0}}
+
+/* His head: the cut-out, its chest below the band's edge, its left side faded where the words run. */
+img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:184px;--dg-face-right:-40px;--dg-face-crop:24px;object-fit:contain;object-position:bottom;
+  filter:drop-shadow(0 12px 14px rgb(var(--shadow-rgb) / .55));
+  mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%);
+  -webkit-mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%)}
+/* The glow: his club's colour (data/teamcolors.js --team) pooled where he stands, behind the wall's letters. */
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{
+  content:"";position:absolute;z-index:0;right:-90px;bottom:-80px;width:360px;height:320px;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--team,var(--panel-3)) 78%,transparent),transparent);
+  pointer-events:none;
+}
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{z-index:0}
+
+/* Blip: feet on the floor (his legs end 10 of 120 viewBox units above his box), a contact shadow under them, the
+   lean toward the words on the figure's own box so the shadow stays flat. */
+.dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:140px;--dg-face-right:-14px;--dg-face-crop:8.3%;--br-d:var(--dur-flap)}
+.dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *) svg{display:block;width:100%;height:100%;transform:rotate(-10deg);transform-origin:50% 92%}
+.dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{
+  content:"";position:absolute;left:12%;right:12%;bottom:var(--dg-face-crop);height:14px;border-radius:50%;
+  background:radial-gradient(closest-side,rgb(var(--shadow-rgb) / .7),transparent);
+}
+
+/* A face lifts a little under a pointer when the band opens his profile. */
+.dg-bn.opens:where(#view[data-view="digest"], #view[data-view="digest"] *) img.dg-hface{transition:transform var(--dur-spring) var(--spring)}
+@media (hover:hover){ .dg-bn.opens:hover:where(#view[data-view="digest"], #view[data-view="digest"] *) img.dg-hface{transform:translateY(var(--dg-face-crop)) scale(1.03)} }
+
+@media (prefers-reduced-motion:reduce){ .dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){animation:none} }
+
+@media (min-width:960px){
+  img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:352px;--dg-face-right:-48px;--dg-face-crop:48px}
+  .dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:224px;--dg-face-right:0}
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{right:-80px;bottom:-160px;width:640px;height:560px}
 }
 /* ── css/surface/digest/ticker.css ── */
 /* ============================== DIGEST: SHARED PARTS ==============================
@@ -6324,40 +6388,40 @@ button.dg-r-b:active:where(#view[data-view="digest"], #view[data-view="digest"] 
    blipReactSVG). Each rule below draws a pose's end state, which is all a reader sees at rest, on a
    revisit or under reduced motion. The reaction plays once, when the week arrives (.bp-in, the same
    arrival that slams the stamp; STYLE.md motion rule 1: data arriving, never a loop). */
-.bp2-blip:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) svg{position:relative;width:100%;height:auto}
-.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-bod,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-ekg,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-pup,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-drop{transform-box:view-box}
-.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-bod{transform-origin:60px 110px}
-.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-star{transform-box:fill-box;transform-origin:center;fill:var(--amber)}
-.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-f0{opacity:0}
-.br-wince:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-bod{transform:rotate(-2deg)}
-.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-ekg{transform-origin:60px 50px;transform:scaleY(.05)}
-.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-ekg path{vector-effect:non-scaling-stroke;stroke-dasharray:100;stroke-dashoffset:0}
-.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .blip-bulb{fill:var(--ink-3)}
-.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-bod{transform:translateY(2px)}
-.br-nosig:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *){font:700 7px var(--mono);fill:var(--ink-3);letter-spacing:.08em;text-anchor:middle}
-.br-ko:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-bod{transform-origin:84px 110px;transform:rotate(14deg)}
-.br-sweat:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-drop{fill:var(--sky);transform:translateY(5px)}
+.bp2-blip:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) svg{position:relative;width:100%;height:auto}
+.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-bod,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-ekg,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-pup,.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-drop{transform-box:view-box}
+.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-bod{transform-origin:60px 110px}
+.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-star{transform-box:fill-box;transform-origin:center;fill:var(--amber)}
+.br:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-f0{opacity:0}
+.br-wince:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-bod{transform:rotate(-2deg)}
+.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-ekg{transform-origin:60px 50px;transform:scaleY(.05)}
+.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-ekg path{vector-effect:non-scaling-stroke;stroke-dasharray:100;stroke-dashoffset:0}
+.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .blip-bulb{fill:var(--ink-3)}
+.br-flatline:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-bod{transform:translateY(2px)}
+.br-nosig:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *){font:700 7px var(--mono);fill:var(--ink-3);letter-spacing:.08em;text-anchor:middle}
+.br-ko:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-bod{transform-origin:84px 110px;transform:rotate(14deg)}
+.br-sweat:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-drop{fill:var(--sky);transform:translateY(5px)}
 
 /* The reaction: the awake face until ~30%, then the pose's own move. A stamped game waits for the stamp. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .bp2-blip{--br-d:.3s}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .bp2-blip.late{--br-d:.8s}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br .br-f0{animation:br-f0 1.2s linear var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br .br-f1{animation:br-f1 1.2s linear var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-f0,.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-f1{animation-duration:1.6s}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .bp2-blip{--br-d:.3s}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .bp2-blip.late{--br-d:.8s}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br .br-f0{animation:br-f0 1.2s linear var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br .br-f1{animation:br-f1 1.2s linear var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-f0,.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-f1{animation-duration:1.6s}
 @keyframes br-f0{0%,30%{opacity:1}31%,100%{opacity:0}}
 @keyframes br-f1{0%,30%{opacity:0}31%,100%{opacity:1}}
 
 /* Wince: recoils from the screen, shudders, keeps a slight lean away. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-wince .br-bod{animation:br-wince 1.1s ease-out var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-wince .br-bod{animation:br-wince 1.1s ease-out var(--br-d) both}
 @keyframes br-wince{0%,28%{transform:none}38%{transform:translateX(-4px) rotate(-6deg) scale(.96)}50%{transform:translateX(2px) rotate(1.5deg)}
   62%{transform:translateX(-1.5px) rotate(-3deg)}76%{transform:translateX(.5px) rotate(-1.5deg)}100%{transform:rotate(-2deg)}}
 
 /* Flatline: the pulse draws across the screen and flattens; the bulb flickers out; NO SIGNAL. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-ekg path{animation:br-draw 1.6s linear var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-ekg{animation:br-flat 1.6s ease-in var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .blip-bulb{animation:br-bulb 1.6s linear var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-nosig{animation:br-late 1.6s linear var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-flatline .br-bod{animation:br-slump 1.6s ease-in-out var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-ekg path{animation:br-draw 1.6s linear var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-ekg{animation:br-flat 1.6s ease-in var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .blip-bulb{animation:br-bulb 1.6s linear var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-nosig{animation:br-late 1.6s linear var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-flatline .br-bod{animation:br-slump 1.6s ease-in-out var(--br-d) both}
 @keyframes br-draw{0%,30%{stroke-dashoffset:100}60%,100%{stroke-dashoffset:0}}
 @keyframes br-flat{0%,62%{transform:scaleY(1)}90%,100%{transform:scaleY(.05)}}
 @keyframes br-bulb{0%,80%{fill:var(--lime)}81%,86%{fill:var(--ink-3)}87%,90%{fill:var(--lime)}91%,100%{fill:var(--ink-3)}}
@@ -6365,19 +6429,19 @@ button.dg-r-b:active:where(#view[data-view="digest"], #view[data-view="digest"] 
 @keyframes br-slump{0%,85%{transform:none}100%{transform:translateY(2px)}}
 
 /* KO: tips over on its right foot, bounces once, stays down; the stars pop and stay. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-ko .br-bod{animation:br-ko 1.3s ease-out var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-ko .br-star{animation:br-pop 1.3s var(--spring-pop) var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-ko .br-bod{animation:br-ko 1.3s ease-out var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-ko .br-star{animation:br-pop 1.3s var(--spring-pop) var(--br-d) both}
 @keyframes br-ko{0%,28%{transform:none}36%{transform:rotate(-5deg)}62%{transform:rotate(19deg)}76%{transform:rotate(11deg)}88%{transform:rotate(15deg)}100%{transform:rotate(14deg)}}
 @keyframes br-pop{0%,55%{opacity:0;transform:scale(0)}80%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
 
 /* Sweat: the eyes dart left, right, back; a drop runs down the case and stays. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-sweat .br-pup{animation:br-dart 1.4s ease-in-out var(--br-d) both}
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-sweat .br-drop{animation:br-run 1.4s ease-in var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-sweat .br-pup{animation:br-dart 1.4s ease-in-out var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-sweat .br-drop{animation:br-run 1.4s ease-in var(--br-d) both}
 @keyframes br-dart{0%,32%{transform:none}42%,52%{transform:translateX(-3px)}62%,72%{transform:translateX(3px)}84%,100%{transform:none}}
 @keyframes br-run{0%,60%{opacity:0;transform:translateY(-4px)}70%{opacity:1;transform:translateY(-2px)}100%{opacity:1;transform:translateY(5px)}}
 
 /* Laugh: squeezes its eyes into ^ ^ and bounces twice. */
-.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *) .br-laugh .br-bod{animation:br-laugh 1.2s ease-in-out var(--br-d) both}
+.bp-in:where(#view[data-view="league"], #view[data-view="myrecap"], #view[data-view="recap"], #view[data-view="records"], #view[data-view="digest"], #view[data-view="league"] *, #view[data-view="myrecap"] *, #view[data-view="recap"] *, #view[data-view="records"] *, #view[data-view="digest"] *) .br-laugh .br-bod{animation:br-laugh 1.2s ease-in-out var(--br-d) both}
 @keyframes br-laugh{0%,30%{transform:none}42%{transform:translateY(-6px) rotate(-2deg)}54%{transform:none}66%{transform:translateY(-4px) rotate(2deg)}
   78%{transform:none}88%{transform:translateY(-1.5px)}100%{transform:none}}
 /* ── css/surface/league/share.css ── */
@@ -21086,6 +21150,62 @@ function dgHeroGhost(lead, week){
 /* A string as split-flap cells: [{c, i}] one per character, a space kept as a gap (c " ", no tile). `i` counts every
    cell, so the flip runs left to right. An HTML entity (&amp;) is one cell. */
 const dgFlapCells = s => (String(s || "").match(/&[^;\s]+;|\s|./gu) || []).map((c, i) => ({c, i, gap: !c.trim()}));
+
+/* ---------------------------------------------------------------- the hero's face (ledger #63, David 2026-10-08 "face a")
+   A headline about one player shows his head beside the tiles; any other headline shows Blip reacting to the day.
+   {slug, src} or {pose}; the pose is one of League's (lib/blip.js BLIP_REACT, surface/league/lead.js LG_BLIP_LABEL). */
+const DG_HERO_CLOSE = 3;    // Claude's score inside a field goal: a game to sweat
+const DG_HERO_ROUT = 14;    // two touchdowns or more between the sides: a rout, Blip laughs
+const DG_HERO_TONE = {quiet: "flatline", out: "ko", q: "wince", sky: "wince"};   // a hurt or weather lead outranks the call
+const DG_HERO_JOB = {adds: "laugh", usage: "laugh", smash: "laugh", status: "wince",   // DG_PLAN's banner kinds
+  tnf: "sweat", tonight: "sweat", kickoff: "sweat"};
+
+/* The words a headline would name him by: his full name and his surname (a Jr. or II dropped). */
+function dgHeroNames(n){
+  const full = String(n || "").trim(), bare = full.replace(/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i, "").split(/\s+/);
+  return [full, bare[bare.length - 1]].filter(Boolean);
+}
+const dgHeroSays = (head, word) => new RegExp(`(^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}])`, "u").test(head);
+
+/* The one player the headline is about: the lead's own (unless it is about several), else the one player of Claude's
+   take whose name the take's head says. Two named is a game, not a player. */
+function dgHeroSlug(lead){
+  if (lead.slug) return (lead.slugs || []).length > 1 ? "" : lead.slug;
+  const tk = lead.take, head = (tk && tk.head) || "";
+  const named = [...new Set(((tk && tk.players) || []).filter(p => dgHeroNames(p.n).some(w => dgHeroSays(head, w))).map(p => p.slug))];
+  return named.length === 1 ? named[0] : "";
+}
+
+/* Claude's margin from his pick's score, or null without one. */
+function dgHeroMargin(pick){
+  const s = (pick && pick.score) || {}, v = Object.values(s);
+  return v.length === 2 ? Math.abs(v[0] - v[1]) : null;
+}
+
+function dgHeroPose(lead, job){
+  const tone = String(lead.tone || "").split(" ").find(x => DG_HERO_TONE[x]);
+  if (tone) return DG_HERO_TONE[tone];
+  const m = dgHeroMargin(lead.take && lead.take.pick);
+  if (m != null && m <= DG_HERO_CLOSE) return "sweat";
+  if (m != null && m >= DG_HERO_ROUT) return "laugh";
+  return DG_HERO_JOB[job] || "flatline";
+}
+
+/* `lg` and `sm`: slug -> head path, the 256px ones and the 96px ones (HEADS_LG, HEADS). */
+function dgHeroFace(lead, job, lg, sm){
+  const L = lead || {}, slug = dgHeroSlug(L), src = slug && ((lg || {})[slug] || (sm || {})[slug]);
+  return src ? {slug, src} : {pose: dgHeroPose(L, job)};
+}
+
+/* The face's club, for the glow behind him (face.css): the lead's own club, a live scorer's, else the club of
+   the take's row for him. The raw code as the data spells it; the view maps it to the colour table. */
+function dgHeroTeam(lead, slug){
+  const L = lead || {};
+  if (L.team) return String(L.team);
+  if (L.live && L.live.team) return String(L.live.team);
+  const row = (((L.take || {}).players) || []).find(p => p.slug === slug);
+  return row && row.team ? String(row.team) : "";
+}
 /* ── js/data/dayplan.js ── */
 /* The Digest's day plan (split from data/digest.js 2026-10-06, which hit its line budget): which job each Pacific
    weekday does, and the pickers that choose the subject the day's banner is about. surface/digest/day.js and the
@@ -22365,7 +22485,7 @@ function dgBoxPills(r){
 
 /* Rule 3: the headline itself, a size down because it is a sentence, not a name. */
 function dgLeadNews(it){
-  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], name: it.n,
+  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], slugs: [].concat(it.slugs || []), name: it.n,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
 }
 
@@ -22376,6 +22496,8 @@ function dgLeadNews(it){
    Claude's and number-checked upstream, so they are drawn as they come, escaped. The stamps are Pacific
    wall clock both ("YYYY-MM-DD HH:MM[:SS]"), so a string compare orders them. */
 const dgStamp = s => { const x = String(s || "").replace("T", " ").slice(0, 19); return x.length === 16 ? x + ":00" : x; };
+/* A club as the colour table spells it: Sleeper's code (LAR, WSH) is not always the table's (LA, WAS). */
+const dgTeamCode = club => club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
 const DG_STORY_TONE = {result: "go", injury: "out"};
 
 /* The story, or null when it is not newer than the packet (a leftover of an earlier run). */
@@ -22391,9 +22513,7 @@ const dgRecapBlock = () => (typeof LIVE_RECAP !== "undefined" ? LIVE_RECAP : nul
 function dgLeadStory(d){
   const s = lspDigestStory(dgStoryFresh(d), d.week, dgRecapBlock());
   if (!s) return null;
-  const p = s.player, club = (p && p.team) || s.club || "";
-  // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
-  const team = club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
+  const p = s.player, team = dgTeamCode((p && p.team) || s.club || "");
   const photo = p ? dgPhotoHTML(p.slug) : "";
   const base = DG_STORY_TONE[s.kind] || "";
   const tone = team ? `${base} team`.trim() : base || (photo ? "" : "quiet");
@@ -22426,19 +22546,16 @@ function dgLeadPacket(d){
 const dgGhostChars = s => (s.match(/&[^;\s]+;|\s|./gu) || [])
   .map((c, i) => c.trim() ? `<i style="--i:${i}">${c}</i>` : c).join("");
 
-/* The band's right edge: Weather's mark, the game's two codes ("TB at DAL"), or his 96px face
-   (heads/<slug>.webp); nothing when he has no head file, never a broken image. */
 /* Split-flap tiles (Home's hero, 2026-10-08): one tile per character, each knowing its place (--i), so they flip
    in turn as the page lands, a scoreboard turning over (digest/hero.css). `from` offsets the count, so a second
    word keeps flipping after the first. */
 const dgFlapHTML = (s, from = 0) => dgFlapCells(s).map(x => x.gap ? " " : `<i style="--i:${x.i + from}">${x.c}</i>`).join("");
 
+/* The game's two codes ("TB at DAL") as tiles. Weather's mark and the 96px face left the band's edge on 2026-10-08
+   (ledger #63): the hero's face (face.js) is the player or Blip, and the wind is in the headline and the ghost. */
 function dgBnSide(L){
-  if (L.glyph) return `<span class="dg-bn-glyph" aria-hidden="true">${L.glyph}</span>`;
-  if (L.vs) return `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${dgFlapHTML(esc(L.vs[0]))}</b><small>${t("digest.day.at")}</small><b>${
-    dgFlapHTML(esc(L.vs[1]), String(L.vs[0]).length)}</b></span>`;
-  const src = L.slug && typeof HEADS !== "undefined" ? HEADS[L.slug] : "";
-  return src ? `<img class="dg-bn-face" data-testid="digest-lead-face" src="${src}" alt="" decoding="async" onerror="this.remove()">` : "";
+  return L.vs ? `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${dgFlapHTML(esc(L.vs[0]))}</b><small>${t("digest.day.at")}</small><b>${
+    dgFlapHTML(esc(L.vs[1]), String(L.vs[0]).length)}</b></span>` : "";
 }
 
 function dgLeadHTML(){
@@ -22455,12 +22572,46 @@ function dgLeadHTML(){
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
-  return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+  // The subject (face.js): a player's cut-out over a glow in his club's colour, or Blip; the tiles sit under the
+  // headline, in the words' flow, so the headline keeps the full width above the face (face.css).
+  const face = dgHeroFaceParts(L, plan), team = L.team || face.team;
+  return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
+      face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>
     ${wall}${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
-      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>
+      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>${side}
       <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
-    ${side}
+    ${face.html}
   </article>`;
+}
+/* ── js/surface/digest/face.js ── */
+/* ============================== HOME: THE HERO'S FACE ==============================
+   Ledger #63 (David 2026-10-08, "face a"; the subject since the same evening: "flashy and cool... the first thing
+   people see"): the hero's subject. A headline about one player shows his 256px cut-out (heads/lg/ where
+   ff-jarvis cut one, else heads/), cropped at the chest and standing on the band's floor at the right, over a
+   glow in his club's colour; any other headline shows Blip, twice his old size, standing on the same floor and
+   leaning into the headline. The pose is League's set (surface/league/lead.js LG_BLIP_LABEL, lib/blip.js
+   blipReactSVG), picked by data/hero.js dgHeroFace from the day's job and Claude's call. The face sits outside
+   the words (digest/face.css), so the headline keeps its full width and is never cut. Blip is drawn without a
+   label: the headline beside him says what the day is about. His reaction plays once as the page lands
+   (`bp-in`, league/blip-lead.css), still under reduced motion. */
+/* The band's budget on a phone: a third of the screen (tests/pages/digest_day.py hero_fits), so the first card
+   starts on the first screen. A headline that pushes the band past it takes a size down (hero.css `long`),
+   measured in the reader's browser after the render, never guessed from its length (STYLE.md Layout). */
+const DG_HERO_BUDGET = 3;
+function dgHeroFit(root){
+  const bn = root && root.querySelector(".dg-bn.hero"), h = bn && bn.querySelector(".dg-bn-h");
+  if (!h || h.classList.contains("long")) return;
+  if (bn.getBoundingClientRect().height > window.innerHeight / DG_HERO_BUDGET) h.classList.add("long");
+}
+
+function dgHeroFaceParts(L, plan){
+  const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG : {}, sm = typeof HEADS !== "undefined" ? HEADS : {};
+  const f = dgHeroFace(L, plan && plan.banner, lg, sm);
+  if (f.slug) return {kind: "has-face", team: dgTeamCode(dgHeroTeam(L, f.slug)),
+    html: `<img class="dg-hface" data-testid="digest-lead-face" src="${esc(f.src)}" alt="" decoding="async" onerror="this.remove()">`};
+  if (!LG_BLIP_LABEL[f.pose]) return {kind: "", team: "", html: ""};
+  return {kind: "has-blip", team: "", html: `<figure class="dg-hface dg-hblip bp-in" data-testid="digest-lead-blip" data-pose="${f.pose}">${
+    blipReactSVG("", f.pose)}</figure>`};
 }
 /* ── js/surface/digest/day.js ── */
 /* ============================== DIGEST: THE DAY'S BANNER ==============================
@@ -22517,7 +22668,7 @@ function dgDayTnf(now){
   const g = dgPickTnf(dgBlock("LIVE_PREVIEW"), now);
   if (!g) return null;
   const time = esc(kickTime(g.kickoff)), pick = dgTakePick(g.take);
-  return {tone: "", vs: [g.away, g.home], head: esc(g.take.head), factMark: t("preview.call.mark"),
+  return {tone: "", vs: [g.away, g.home], head: esc(g.take.head), factMark: t("preview.call.mark"), take: g.take,
           fact: pick ? t("digest.day.thu.fact", {time, pick: esc(pick)}) : t("digest.day.thu.factTime", {time})};
 }
 
@@ -22535,17 +22686,24 @@ function dgDaySmash(){
 
 const dgSchedGames = () => { const s = dgBlock("LIVE_SCHEDULE"); return (s && s.games) || []; };
 
+/* Claude's call on a scheduled game, from Preview's slate, for the hero's Blip to react to. Only the pick: this
+   banner's headline is the kickoff, not the take, so the take's players are not what it is about. */
+function dgTakeFor(g){
+  const p = dgBlock("LIVE_PREVIEW"), m = ((p && p.games) || []).find(x => x.away === g.away && x.home === g.home);
+  return m && m.take ? {pick: m.take.pick} : undefined;
+}
+
 /* Sunday: the first kickoff still to come today. */
 function dgDayKickoff(now){
   const g = dgPickKickoff(dgSchedGames(), now);
-  return g ? {tone: "", vs: [g.away, g.home], head: t("digest.day.sun.head", {time: esc(kickTime(g.kickoff))}),
+  return g ? {tone: "", vs: [g.away, g.home], take: dgTakeFor(g), head: t("digest.day.sun.head", {time: esc(kickTime(g.kickoff))}),
               fact: t("digest.day.sun.fact", {game: dgGame(g)})} : null;
 }
 
 /* Monday: tonight's game. */
 function dgDayTonight(now){
   const g = dgPickTonight(dgSchedGames(), now);
-  return g ? {tone: "", vs: [g.away, g.home], head: t("digest.day.mon.head", {game: dgGame(g)}),
+  return g ? {tone: "", vs: [g.away, g.home], take: dgTakeFor(g), head: t("digest.day.mon.head", {game: dgGame(g)}),
               fact: t("digest.day.mon.fact", {time: esc(kickTime(g.kickoff))})} : null;
 }
 
@@ -23764,6 +23922,7 @@ function paintDigestLive(){
     return;
   }
   dgSwap(host.querySelector(":scope > .dg-bn"), "lead", dgLeadHTML());
+  dgHeroFit(host);
   dgSwap(host.querySelector("[data-dgnow]"), "now", dgNowHTML());
   // Each game's block (the last game's card, or Tonight's once it is on) repaints on its own, by its home club.
   const games = gdWeekGames();
@@ -23935,6 +24094,7 @@ function wireDigest(v){
   root?.addEventListener("click", dgLiveClick);
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => dgOpenSlug(el)));
   wireDigestTiers(root);
+  dgHeroFit(root);   // a headline that pushes the hero past its budget takes a size down (face.js)
 }
 
 /* A player's name or face: his profile, from the packet's own row or, for anyone else, search's index. */

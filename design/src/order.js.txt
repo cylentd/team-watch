@@ -162,6 +162,7 @@ data/gameday/tdclips.js
 data/gameday/tdcmatch.js
 data/gameday/strip.js
 surface/digest/lead.js
+surface/digest/face.js
 surface/digest/day.js
 surface/digest/parts.js
 surface/digest/rows.js

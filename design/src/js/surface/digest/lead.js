@@ -125,7 +125,7 @@ function dgBoxPills(r){
 
 /* Rule 3: the headline itself, a size down because it is a sentence, not a name. */
 function dgLeadNews(it){
-  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], name: it.n,
+  return {tone: it.kind === "out" ? "out" : it.kind === "injury" ? "q" : "", photo: dgPhotoHTML(it.slugs), long: true, slug: [].concat(it.slugs || [])[0], slugs: [].concat(it.slugs || []), name: it.n,
           head: esc(it.headline), fact: it.when ? t("digest.lead.news.fact", {when: esc(it.when)}) : t("digest.lead.news.src")};
 }
 
@@ -136,6 +136,8 @@ function dgLeadNews(it){
    Claude's and number-checked upstream, so they are drawn as they come, escaped. The stamps are Pacific
    wall clock both ("YYYY-MM-DD HH:MM[:SS]"), so a string compare orders them. */
 const dgStamp = s => { const x = String(s || "").replace("T", " ").slice(0, 19); return x.length === 16 ? x + ":00" : x; };
+/* A club as the colour table spells it: Sleeper's code (LAR, WSH) is not always the table's (LA, WAS). */
+const dgTeamCode = club => club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
 const DG_STORY_TONE = {result: "go", injury: "out"};
 
 /* The story, or null when it is not newer than the packet (a leftover of an earlier run). */
@@ -151,9 +153,7 @@ const dgRecapBlock = () => (typeof LIVE_RECAP !== "undefined" ? LIVE_RECAP : nul
 function dgLeadStory(d){
   const s = lspDigestStory(dgStoryFresh(d), d.week, dgRecapBlock());
   if (!s) return null;
-  const p = s.player, club = (p && p.team) || s.club || "";
-  // Sleeper's code (LAR, WSH) is not always the colour table's (LA, WAS): take whichever spelling it has.
-  const team = club ? gdCodes(club).find(c => TEAM_COLOURS[c]) || "" : "";
+  const p = s.player, team = dgTeamCode((p && p.team) || s.club || "");
   const photo = p ? dgPhotoHTML(p.slug) : "";
   const base = DG_STORY_TONE[s.kind] || "";
   const tone = team ? `${base} team`.trim() : base || (photo ? "" : "quiet");
@@ -186,19 +186,16 @@ function dgLeadPacket(d){
 const dgGhostChars = s => (s.match(/&[^;\s]+;|\s|./gu) || [])
   .map((c, i) => c.trim() ? `<i style="--i:${i}">${c}</i>` : c).join("");
 
-/* The band's right edge: Weather's mark, the game's two codes ("TB at DAL"), or his 96px face
-   (heads/<slug>.webp); nothing when he has no head file, never a broken image. */
 /* Split-flap tiles (Home's hero, 2026-10-08): one tile per character, each knowing its place (--i), so they flip
    in turn as the page lands, a scoreboard turning over (digest/hero.css). `from` offsets the count, so a second
    word keeps flipping after the first. */
 const dgFlapHTML = (s, from = 0) => dgFlapCells(s).map(x => x.gap ? " " : `<i style="--i:${x.i + from}">${x.c}</i>`).join("");
 
+/* The game's two codes ("TB at DAL") as tiles. Weather's mark and the 96px face left the band's edge on 2026-10-08
+   (ledger #63): the hero's face (face.js) is the player or Blip, and the wind is in the headline and the ghost. */
 function dgBnSide(L){
-  if (L.glyph) return `<span class="dg-bn-glyph" aria-hidden="true">${L.glyph}</span>`;
-  if (L.vs) return `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${dgFlapHTML(esc(L.vs[0]))}</b><small>${t("digest.day.at")}</small><b>${
-    dgFlapHTML(esc(L.vs[1]), String(L.vs[0]).length)}</b></span>`;
-  const src = L.slug && typeof HEADS !== "undefined" ? HEADS[L.slug] : "";
-  return src ? `<img class="dg-bn-face" data-testid="digest-lead-face" src="${src}" alt="" decoding="async" onerror="this.remove()">` : "";
+  return L.vs ? `<span class="dg-bn-vs" data-testid="digest-lead-vs"><b>${dgFlapHTML(esc(L.vs[0]))}</b><small>${t("digest.day.at")}</small><b>${
+    dgFlapHTML(esc(L.vs[1]), String(L.vs[0]).length)}</b></span>` : "";
 }
 
 function dgLeadHTML(){
@@ -215,10 +212,14 @@ function dgLeadHTML(){
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
-  return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${L.team ? " " + teamColourStyle(L.team) : ""}>
+  // The subject (face.js): a player's cut-out over a glow in his club's colour, or Blip; the tiles sit under the
+  // headline, in the words' flow, so the headline keeps the full width above the face (face.css).
+  const face = dgHeroFaceParts(L, plan), team = L.team || face.team;
+  return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
+      face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>
     ${wall}${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
-      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>
+      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>${side}
       <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
-    ${side}
+    ${face.html}
   </article>`;
 }

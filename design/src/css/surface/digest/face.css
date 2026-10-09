@@ -1,0 +1,51 @@
+/* ============================== HOME: THE HERO'S FACE ==============================
+   Ledger #63 (David 2026-10-08, "hero v2"; face.js dgHeroFaceParts). The hero's subject, a poster: the player's
+   cut-out stands on the band's floor, bigger than the words and bleeding off the band's right edge, its chest
+   cropped by the floor and its left side faded under the words, over a glow in his club's colour and in front of
+   the ghost wall. The day's tag and the tiles sit above the headline, which keeps a column at the left (hero.css).
+   On a Blip day, Blip stands on the same floor, twice his old size, on a contact shadow, leaning into the
+   headline. A phone's band stays inside a third of the screen (tests/pages/digest_day.py hero_fits). The face
+   rises from the floor as the tiles finish turning; reduced motion gets it at rest. */
+
+.dg-bn.hero.has-face,.dg-bn.hero.has-blip{min-height:232px}
+.dg-hface{
+  position:absolute;right:var(--dg-face-right);bottom:0;z-index:1;margin:0;
+  width:var(--dg-face-w);height:var(--dg-face-w);
+  transform:translateY(var(--dg-face-crop));transform-origin:50% 100%;
+  animation:dg-face-rise var(--dur-flap) var(--ease) var(--dur-flap) both;
+}
+@keyframes dg-face-rise{from{transform:translateY(100%);opacity:0}}
+
+/* His head: the cut-out, its chest below the band's edge, its left side faded where the words run. */
+img.dg-hface{--dg-face-w:184px;--dg-face-right:-40px;--dg-face-crop:24px;object-fit:contain;object-position:bottom;
+  filter:drop-shadow(0 12px 14px rgb(var(--shadow-rgb) / .55));
+  mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%);
+  -webkit-mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%)}
+/* The glow: his club's colour (data/teamcolors.js --team) pooled where he stands, behind the wall's letters. */
+.dg-bn.hero.has-face::after{
+  content:"";position:absolute;z-index:0;right:-90px;bottom:-80px;width:360px;height:320px;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--team,var(--panel-3)) 78%,transparent),transparent);
+  pointer-events:none;
+}
+.dg-bn.hero.has-face .dg-bn-ghost{z-index:0}
+
+/* Blip: feet on the floor (his legs end 10 of 120 viewBox units above his box), a contact shadow under them, the
+   lean toward the words on the figure's own box so the shadow stays flat. */
+.dg-hblip{--dg-face-w:140px;--dg-face-right:-14px;--dg-face-crop:8.3%;--br-d:var(--dur-flap)}
+.dg-hblip svg{display:block;width:100%;height:100%;transform:rotate(-10deg);transform-origin:50% 92%}
+.dg-hblip::after{
+  content:"";position:absolute;left:12%;right:12%;bottom:var(--dg-face-crop);height:14px;border-radius:50%;
+  background:radial-gradient(closest-side,rgb(var(--shadow-rgb) / .7),transparent);
+}
+
+/* A face lifts a little under a pointer when the band opens his profile. */
+.dg-bn.opens img.dg-hface{transition:transform var(--dur-spring) var(--spring)}
+@media (hover:hover){ .dg-bn.opens:hover img.dg-hface{transform:translateY(var(--dg-face-crop)) scale(1.03)} }
+
+@media (prefers-reduced-motion:reduce){ .dg-hface{animation:none} }
+
+@media (min-width:960px){
+  img.dg-hface{--dg-face-w:352px;--dg-face-right:-48px;--dg-face-crop:48px}
+  .dg-hblip{--dg-face-w:224px;--dg-face-right:0}
+  .dg-bn.hero.has-face::after{right:-80px;bottom:-160px;width:640px;height:560px}
+}

@@ -12,3 +12,59 @@ function dgHeroGhost(lead, week){
 /* A string as split-flap cells: [{c, i}] one per character, a space kept as a gap (c " ", no tile). `i` counts every
    cell, so the flip runs left to right. An HTML entity (&amp;) is one cell. */
 const dgFlapCells = s => (String(s || "").match(/&[^;\s]+;|\s|./gu) || []).map((c, i) => ({c, i, gap: !c.trim()}));
+
+/* ---------------------------------------------------------------- the hero's face (ledger #63, David 2026-10-08 "face a")
+   A headline about one player shows his head beside the tiles; any other headline shows Blip reacting to the day.
+   {slug, src} or {pose}; the pose is one of League's (lib/blip.js BLIP_REACT, surface/league/lead.js LG_BLIP_LABEL). */
+const DG_HERO_CLOSE = 3;    // Claude's score inside a field goal: a game to sweat
+const DG_HERO_ROUT = 14;    // two touchdowns or more between the sides: a rout, Blip laughs
+const DG_HERO_TONE = {quiet: "flatline", out: "ko", q: "wince", sky: "wince"};   // a hurt or weather lead outranks the call
+const DG_HERO_JOB = {adds: "laugh", usage: "laugh", smash: "laugh", status: "wince",   // DG_PLAN's banner kinds
+  tnf: "sweat", tonight: "sweat", kickoff: "sweat"};
+
+/* The words a headline would name him by: his full name and his surname (a Jr. or II dropped). */
+function dgHeroNames(n){
+  const full = String(n || "").trim(), bare = full.replace(/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i, "").split(/\s+/);
+  return [full, bare[bare.length - 1]].filter(Boolean);
+}
+const dgHeroSays = (head, word) => new RegExp(`(^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}])`, "u").test(head);
+
+/* The one player the headline is about: the lead's own (unless it is about several), else the one player of Claude's
+   take whose name the take's head says. Two named is a game, not a player. */
+function dgHeroSlug(lead){
+  if (lead.slug) return (lead.slugs || []).length > 1 ? "" : lead.slug;
+  const tk = lead.take, head = (tk && tk.head) || "";
+  const named = [...new Set(((tk && tk.players) || []).filter(p => dgHeroNames(p.n).some(w => dgHeroSays(head, w))).map(p => p.slug))];
+  return named.length === 1 ? named[0] : "";
+}
+
+/* Claude's margin from his pick's score, or null without one. */
+function dgHeroMargin(pick){
+  const s = (pick && pick.score) || {}, v = Object.values(s);
+  return v.length === 2 ? Math.abs(v[0] - v[1]) : null;
+}
+
+function dgHeroPose(lead, job){
+  const tone = String(lead.tone || "").split(" ").find(x => DG_HERO_TONE[x]);
+  if (tone) return DG_HERO_TONE[tone];
+  const m = dgHeroMargin(lead.take && lead.take.pick);
+  if (m != null && m <= DG_HERO_CLOSE) return "sweat";
+  if (m != null && m >= DG_HERO_ROUT) return "laugh";
+  return DG_HERO_JOB[job] || "flatline";
+}
+
+/* `lg` and `sm`: slug -> head path, the 256px ones and the 96px ones (HEADS_LG, HEADS). */
+function dgHeroFace(lead, job, lg, sm){
+  const L = lead || {}, slug = dgHeroSlug(L), src = slug && ((lg || {})[slug] || (sm || {})[slug]);
+  return src ? {slug, src} : {pose: dgHeroPose(L, job)};
+}
+
+/* The face's club, for the glow behind him (face.css): the lead's own club, a live scorer's, else the club of
+   the take's row for him. The raw code as the data spells it; the view maps it to the colour table. */
+function dgHeroTeam(lead, slug){
+  const L = lead || {};
+  if (L.team) return String(L.team);
+  if (L.live && L.live.team) return String(L.live.team);
+  const row = (((L.take || {}).players) || []).find(p => p.slug === slug);
+  return row && row.team ? String(row.team) : "";
+}

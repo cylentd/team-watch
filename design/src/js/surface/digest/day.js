@@ -52,7 +52,7 @@ function dgDayTnf(now){
   const g = dgPickTnf(dgBlock("LIVE_PREVIEW"), now);
   if (!g) return null;
   const time = esc(kickTime(g.kickoff)), pick = dgTakePick(g.take);
-  return {tone: "", vs: [g.away, g.home], head: esc(g.take.head), factMark: t("preview.call.mark"),
+  return {tone: "", vs: [g.away, g.home], head: esc(g.take.head), factMark: t("preview.call.mark"), take: g.take,
           fact: pick ? t("digest.day.thu.fact", {time, pick: esc(pick)}) : t("digest.day.thu.factTime", {time})};
 }
 
@@ -70,17 +70,24 @@ function dgDaySmash(){
 
 const dgSchedGames = () => { const s = dgBlock("LIVE_SCHEDULE"); return (s && s.games) || []; };
 
+/* Claude's call on a scheduled game, from Preview's slate, for the hero's Blip to react to. Only the pick: this
+   banner's headline is the kickoff, not the take, so the take's players are not what it is about. */
+function dgTakeFor(g){
+  const p = dgBlock("LIVE_PREVIEW"), m = ((p && p.games) || []).find(x => x.away === g.away && x.home === g.home);
+  return m && m.take ? {pick: m.take.pick} : undefined;
+}
+
 /* Sunday: the first kickoff still to come today. */
 function dgDayKickoff(now){
   const g = dgPickKickoff(dgSchedGames(), now);
-  return g ? {tone: "", vs: [g.away, g.home], head: t("digest.day.sun.head", {time: esc(kickTime(g.kickoff))}),
+  return g ? {tone: "", vs: [g.away, g.home], take: dgTakeFor(g), head: t("digest.day.sun.head", {time: esc(kickTime(g.kickoff))}),
               fact: t("digest.day.sun.fact", {game: dgGame(g)})} : null;
 }
 
 /* Monday: tonight's game. */
 function dgDayTonight(now){
   const g = dgPickTonight(dgSchedGames(), now);
-  return g ? {tone: "", vs: [g.away, g.home], head: t("digest.day.mon.head", {game: dgGame(g)}),
+  return g ? {tone: "", vs: [g.away, g.home], take: dgTakeFor(g), head: t("digest.day.mon.head", {game: dgGame(g)}),
               fact: t("digest.day.mon.fact", {time: esc(kickTime(g.kickoff))})} : null;
 }
 

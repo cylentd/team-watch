@@ -6,15 +6,26 @@
    gets the end state at once. Under a screen at 360px, so the first card starts on the first screen. */
 
 .dg-bn.hero{min-height:188px;padding:16px 16px 18px;isolation:isolate}
-.dg-bn.hero .dg-bn-txt{gap:8px}
-.dg-bn.hero .dg-bn-h{font-size:var(--t-6);line-height:1.04;letter-spacing:-.025em}
-.dg-bn.hero .dg-bn-fact{font-size:var(--t-2)}
+.dg-bn.hero .dg-bn-txt{z-index:2;gap:0;flex:1}
+.dg-bn.hero .dg-bn-day{margin:0}
+.dg-bn.hero .dg-bn-h{margin-top:8px;font-size:var(--t-6);line-height:1.04;letter-spacing:-.025em}
+.dg-bn.hero .dg-bn-fact{margin-top:8px;font-size:var(--t-2)}
+/* The words' free space goes under the headline: the tiles and the fact hold the band's floor, the headline its
+   top, so a short headline leaves the gap in the middle, never at the edge (STYLE.md Gaps). */
+.dg-bn.hero .dg-bn-h{margin-bottom:auto}
+/* With a face or Blip on the floor at the right (face.css), the headline and the fact keep a column at the left,
+   a size down from the full-width headline, so the picture is the hero (David 2026-10-08, "hero v2"). */
+.dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:78%}
+/* A headline that pushes the band past its budget (face.js dgHeroFit, measured) takes a size down: never cut. */
+.dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-5)}
+.dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:78%;margin-top:6px}
 
-/* The game's board: on a phone its own row under the job tag, so the headline below keeps the full width. */
+/* The game's board: a row of tiles in the words' flow, between the day's tag and the headline. */
 .dg-bn.hero.has-vs{padding-right:16px}
-.dg-bn.hero.has-vs .dg-bn-h{margin-top:46px}
+.dg-bn.hero .dg-bn-day{order:-2}
 .dg-bn.hero .dg-bn-vs{
-  top:40px;left:16px;right:auto;transform:none;display:flex;align-items:center;gap:8px;perspective:600px;z-index:1;
+  order:-1;position:relative;top:auto;left:auto;right:auto;transform:none;margin-top:8px;
+  display:flex;align-items:center;gap:8px;perspective:600px;z-index:1;
 }
 .dg-bn.hero .dg-bn-vs b{display:flex;gap:3px}
 .dg-bn.hero .dg-bn-vs small{font:600 var(--t-1)/1 var(--mono);text-transform:uppercase}
@@ -41,8 +52,6 @@
 .dg-bn.q .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--amber-rgb) / .3)}
 .dg-bn.sky .dg-bn-ghost{-webkit-text-stroke-color:rgb(var(--sky-rgb) / .3)}
 .dg-bn.team .dg-bn-ghost{-webkit-text-stroke:2px color-mix(in srgb,var(--team) 55%,var(--ink));opacity:.55}
-/* A face sits on the band's floor in front of the wall. */
-.dg-bn.hero .dg-bn-face{z-index:1}
 @media (hover:hover){
   .dg-bn.hero:hover .dg-bn-ghost i{transform:rotateX(360deg);color:rgb(var(--ink-rgb) / .06)}
 }
@@ -60,13 +69,16 @@
 }
 
 @media (min-width:960px){
-  .dg-bn.hero{min-height:260px;padding:32px 40px}
+  .dg-bn.hero{min-height:300px;padding:32px 40px}
   .dg-bn.hero .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
-  .dg-bn.hero .dg-bn-fact{font-size:var(--t-4)}
-  .dg-bn.hero.has-vs{padding-right:300px}
-  .dg-bn.hero.has-vs .dg-bn-h{margin-top:0}
-  .dg-bn.hero .dg-bn-vs{top:50%;left:auto;right:40px;transform:translateY(-50%)}
+  .dg-bn.hero .dg-bn-fact{font-size:var(--t-4);margin-top:12px}
+  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the face's. */
+  .dg-bn.hero.has-face .dg-bn-txt,.dg-bn.hero.has-blip .dg-bn-txt{padding-right:420px}
+  .dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h,
+  .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-hero);line-height:1;max-width:20ch}
+  .dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:none}
+  .dg-bn.hero .dg-bn-vs{margin-top:20px}
   .dg-bn.hero .dg-bn-vs i{width:40px;height:54px;font-size:var(--t-6)}
   .dg-bn-ghost{font-size:var(--t-ghost);right:0;bottom:-40px}
-  .dg-bn.hero.has-vs .dg-bn-ghost{right:auto;left:46%}
+  .dg-bn.hero.has-face .dg-bn-ghost,.dg-bn.hero.has-blip .dg-bn-ghost{right:-12px}
 }

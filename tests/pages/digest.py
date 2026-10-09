@@ -141,7 +141,8 @@ class DigestPage:
         return self.page.locator(".dg-fact, [data-dgfact]").count()
 
     def retired_wait_card(self):
-        return self.page.locator(".dg-wait").count() + self.page.locator(".dg svg.blip").count()
+        # The old wait card only: the hero's Blip (surface/digest/face.js, 2026-10-08) is not it.
+        return self.page.locator(".dg-wait").count() + self.page.locator(".dg .dg-wait svg.blip").count()
 
     def fits(self):
         """Nothing wider than the screen."""
