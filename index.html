@@ -264,6 +264,7 @@
   --dur-flash:1.8s;     /* a Breaking row new since the last visit, lit once */
   --dur-flap:.8s;       /* one split-flap tile of Home's hero turning over as the page lands */
   --flap-step:75ms;     /* the gap between two tiles of the flip, so it runs left to right like a scoreboard */
+  --flap-depth:500px;   /* the viewer's distance for a headline word turning over: near enough that the hinge reads */
 /* ── css/base/newsprint.css ── */
   /* Newsprint type (2026-09-29, Preview only, surface/preview/): cream for Preview's section and story
      heads, a warm grey for its headlines, on the site's own slate ground. The warmth is in the type, not
@@ -5470,6 +5471,20 @@ body:has(.connect:not([hidden])){overflow:hidden}
   transform-origin:50% 50%;animation:dg-flap var(--dur-flap) var(--ease) both;animation-delay:calc(var(--i) * var(--flap-step));
 }
 
+/* The headline's split-flap words (lead.js dgFlapWords; David 2026-10-08, "I also want the scoreboard animation back"):
+   each word turns down onto its hinge in turn, left to right, once as the band lands, like a departure board. The
+   perspective rides in the keyframes because a word inside an <em> is not a child of the headline. */
+.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-hw{
+  display:inline-block;font-style:inherit;transform-origin:50% 0;backface-visibility:hidden;
+  animation:dg-flip-word var(--dur-flap) var(--ease) both;animation-delay:calc(var(--i) * var(--flap-step));
+}
+@keyframes dg-flip-word{
+  0%{transform:perspective(var(--flap-depth)) rotateX(-90deg);opacity:0}
+  55%{transform:perspective(var(--flap-depth)) rotateX(14deg);opacity:1}
+  80%{transform:perspective(var(--flap-depth)) rotateX(-5deg)}
+  100%{transform:none;opacity:1}
+}
+
 /* The ghost wall. */
 .dg-bn-ghost:where(#view[data-view="digest"], #view[data-view="digest"] *){
   position:absolute;right:-4px;bottom:-14px;z-index:0;perspective:900px;
@@ -5499,7 +5514,7 @@ body:has(.connect:not([hidden])){overflow:hidden}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs i,.dg-bn-ghost:where(#view[data-view="digest"], #view[data-view="digest"] *) i{animation:none;transition:none}
+  .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-vs i,.dg-bn-ghost:where(#view[data-view="digest"], #view[data-view="digest"] *) i,.dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-hw{animation:none;transition:none}
   .dg-bn.hero:hover:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost i{transform:none}
 }
 
@@ -21161,6 +21176,26 @@ function dgHeroGhost(lead, week){
    cell, so the flip runs left to right. An HTML entity (&amp;) is one cell. */
 const dgFlapCells = s => (String(s || "").match(/&[^;\s]+;|\s|./gu) || []).map((c, i) => ({c, i, gap: !c.trim()}));
 
+/* The headline as split-flap words (David 2026-10-08, "I also want the scoreboard animation back"): each word one tile
+   knowing its place (--i), so the headline turns over left to right as the band lands (digest/hero.css). The headline
+   arrives as HTML: a tag passes through whole, a space stays plain text, an entity stays inside its word, so the words
+   read exactly as before. */
+const dgFlapWords = html => {
+  let i = 0;
+  return String(html || "").split(/(<[^>]*>)/).map(part => part.startsWith("<") ? part
+    : part.split(/(\s+)/).map(w => w && !/^\s+$/.test(w) ? `<i class="dg-hw" style="--i:${i++}">${w}</i>` : w).join("")).join("");
+};
+
+/* The face's cuts as a srcset (David 2026-10-08, "the headshot is not clear. looks pixelated"): the pane draws the
+   square head at its larger side, 232-300px on a phone, so a 2x screen needs ~460-600 device px and the 256px cut
+   blurred there. `cuts` is [[slug -> path, px], ...] smallest first; the browser takes the smallest sharp at the
+   drawn size, and `src`, for a browser without srcset, is the largest. Null when no cut has him. */
+function dgHeroCuts(slug, cuts){
+  const have = (cuts || []).filter(([m]) => m && m[slug]);
+  if (!have.length) return null;
+  return {src: have[have.length - 1][0][slug], srcset: have.map(([m, w]) => `${m[slug]} ${w}w`).join(", ")};
+}
+
 /* ---------------------------------------------------------------- the hero's face (ledger #63, David 2026-10-08 "face a")
    A headline about one player shows his head beside the tiles; any other headline shows Blip reacting to the day.
    {slug, src} or {pose}; the pose is one of League's (lib/blip.js BLIP_REACT, surface/league/lead.js LG_BLIP_LABEL). */
@@ -22579,6 +22614,8 @@ function dgLeadHTML(){
   const side = dgBnSide(L);
   // An untested call (Saturday's SMASH, Thursday's pick) says so on hover, as every flag does (tests/test_flag_marks.py).
   const mark = s => s ? ` title="${esc(s)}"` : "";
+  // The headline turns over word by word as the band lands (dgFlapWords, data/hero.js; David 2026-10-08, "I also want
+  // the scoreboard animation back": V2 hid the ghost behind the face, so a day without a game's tiles flipped nothing).
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
@@ -22588,7 +22625,7 @@ function dgLeadHTML(){
   return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
       face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>
     ${wall}${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
-      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>${side}
+      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${dgFlapWords(L.head)}</h2>${side}
       <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
     ${face.html}
   </article>`;
@@ -22613,18 +22650,38 @@ function dgHeroFit(root){
   if (bn.getBoundingClientRect().height > window.innerHeight / DG_HERO_BUDGET) h.classList.add("long");
 }
 
+/* The face asks for the side it is drawn at (David 2026-10-08, "looks pixelated"): object-fit cover draws the square
+   head at the pane's larger side, which the band's height sets on a phone and the pane's width on a desktop, so it is
+   measured after the render, never guessed. The browser then takes the smallest cut sharp at that side on its screen. */
+function dgHeroSharp(root){
+  const img = root && root.querySelector("img.dg-hface");
+  if (!img) return;
+  const r = img.getBoundingClientRect();
+  img.sizes = `${Math.ceil(Math.max(r.width, r.height))}px`;
+}
+
 /* Hero v3, "the spread" (David 2026-10-08, ledger #70): the subject sits in a pane at the band's right (face.css),
    his club's code on the pane's outer edge when the lead knows his club. */
 const dgHeroPane = (inner, club) => `<div class="dg-hpane" data-testid="digest-lead-pane" aria-hidden="true">${inner}${
   club ? `<span class="dg-hclub" data-testid="digest-lead-club">${esc(club)}</span>` : ""}</div>`;
 
+/* The cuts ff-jarvis makes of every head (model/draft/headshots.py SIZES), smallest first, as srcset widths. */
+const DG_HERO_CUT_PX = [96, 256, 512];
+/* The side the pane draws the head at before the band is measured (face.css: a phone's band is 232px tall, a
+   desktop's pane ~40% of the band), so the first request is about right; dgHeroSharp then sets the measured side. */
+const DG_HERO_SIZES = "(min-width:960px) 480px, 240px";
+
 function dgHeroFaceParts(L, plan){
   const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG : {}, sm = typeof HEADS !== "undefined" ? HEADS : {};  // nomutate: a null HEADS_LG passes either way, dgHeroFace reads it as (lg || {})
+  const xl = typeof HEADS_XL !== "undefined" && HEADS_XL ? HEADS_XL : {};   // nomutate: a null HEADS_XL is no cut either way
   const f = dgHeroFace(L, plan && plan.banner, lg, sm);
   if (f.slug){
     const team = dgTeamCode(dgHeroTeam(L, f.slug));
+    // dgHeroFace found him in these same maps, so he has a cut.
+    const cut = dgHeroCuts(f.slug, [[sm, DG_HERO_CUT_PX[0]], [lg, DG_HERO_CUT_PX[1]], [xl, DG_HERO_CUT_PX[2]]]);
     return {kind: "has-face", team,
-      html: dgHeroPane(`<img class="dg-hface" data-testid="digest-lead-face" src="${esc(f.src)}" alt="" decoding="async" onerror="this.remove()">`, team)};
+      html: dgHeroPane(`<img class="dg-hface" data-testid="digest-lead-face" src="${esc(cut.src)}" srcset="${esc(cut.srcset)}" sizes="${
+        DG_HERO_SIZES}" alt="" decoding="async" onerror="this.remove()">`, team)};
   }
   if (!LG_BLIP_LABEL[f.pose]) return {kind: "", team: "", html: ""};
   return {kind: "has-blip", team: "", html: dgHeroPane(`<figure class="dg-hblip bp-in" data-testid="digest-lead-blip" data-pose="${f.pose}">${
@@ -23940,6 +23997,7 @@ function paintDigestLive(){
   }
   dgSwap(host.querySelector(":scope > .dg-bn"), "lead", dgLeadHTML());
   dgHeroFit(host);
+  dgHeroSharp(host);
   dgSwap(host.querySelector("[data-dgnow]"), "now", dgNowHTML());
   // Each game's block (the last game's card, or Tonight's once it is on) repaints on its own, by its home club.
   const games = gdWeekGames();
@@ -24112,6 +24170,7 @@ function wireDigest(v){
   v.querySelectorAll("[data-dgslug]").forEach(el => el.addEventListener("click", () => dgOpenSlug(el)));
   wireDigestTiers(root);
   dgHeroFit(root);   // a headline that pushes the hero past its budget takes a size down (face.js)
+  dgHeroSharp(root); // then the face asks for a cut as large as the side it is drawn at (face.js)
 }
 
 /* A player's name or face: his profile, from the packet's own row or, for anyone else, search's index. */

@@ -209,6 +209,8 @@ function dgLeadHTML(){
   const side = dgBnSide(L);
   // An untested call (Saturday's SMASH, Thursday's pick) says so on hover, as every flag does (tests/test_flag_marks.py).
   const mark = s => s ? ` title="${esc(s)}"` : "";
+  // The headline turns over word by word as the band lands (dgFlapWords, data/hero.js; David 2026-10-08, "I also want
+  // the scoreboard animation back": V2 hid the ghost behind the face, so a day without a game's tiles flipped nothing).
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
@@ -218,7 +220,7 @@ function dgLeadHTML(){
   return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
       face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>
     ${wall}${go}<div class="dg-bn-txt"><p class="dg-bn-day" data-testid="digest-day">${dgDayLabel(plan.key)}</p>
-      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${L.head}</h2>${side}
+      <h2 class="dg-bn-h" data-testid="digest-lead-head"${mark(L.headMark)}>${dgFlapWords(L.head)}</h2>${side}
       <div class="dg-bn-fact" data-testid="digest-lead-fact"${mark(L.factMark)}>${L.fact}</div></div>
     ${face.html}
   </article>`;

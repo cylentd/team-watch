@@ -1125,6 +1125,10 @@ holds one view, today's Digest (leaf `digest`, hash `#digest`), so it draws no t
   2026-10-08: David chose C, spread: face in a slanted pane, club code on its edge, over a card and a medallion,
   because the sign behind the face was awkward wide and the bottom rise looked like whack-a-mole (ledger #70;
   `digest/face.css`, `face.js` `dgHeroPane`; superseding V2's cut-out on the band's floor over a club glow).
+  2026-10-08 (David: "looks pixelated", "I want the scoreboard animation back"): the face names every cut (96, 256,
+  512px) as a srcset and asks for the side the pane draws it at, measured (`dgHeroSharp`); the headline turns over
+  word by word as split-flap tiles (`dgFlapWords`, `--flap-depth`), at rest under reduced motion. A 2x desktop draws
+  the face ~950 device px, so it stays soft there until ff-jarvis cuts a 1024px head.
 - **Desktop:** the cards flow in balanced columns (CSS columns), so no column leaves a hole.
 - **Right now** takes Weather's place from the first kickoff (`DG_TAKES_PLACE`).
 

@@ -245,3 +245,4 @@
   --dur-flash:1.8s;     /* a Breaking row new since the last visit, lit once */
   --dur-flap:.8s;       /* one split-flap tile of Home's hero turning over as the page lands */
   --flap-step:75ms;     /* the gap between two tiles of the flip, so it runs left to right like a scoreboard */
+  --flap-depth:500px;   /* the viewer's distance for a headline word turning over: near enough that the hinge reads */

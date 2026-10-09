@@ -192,6 +192,7 @@ function paintDigestLive(){
   }
   dgSwap(host.querySelector(":scope > .dg-bn"), "lead", dgLeadHTML());
   dgHeroFit(host);
+  dgHeroSharp(host);
   dgSwap(host.querySelector("[data-dgnow]"), "now", dgNowHTML());
   // Each game's block (the last game's card, or Tonight's once it is on) repaints on its own, by its home club.
   const games = gdWeekGames();

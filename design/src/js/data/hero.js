@@ -13,6 +13,26 @@ function dgHeroGhost(lead, week){
    cell, so the flip runs left to right. An HTML entity (&amp;) is one cell. */
 const dgFlapCells = s => (String(s || "").match(/&[^;\s]+;|\s|./gu) || []).map((c, i) => ({c, i, gap: !c.trim()}));
 
+/* The headline as split-flap words (David 2026-10-08, "I also want the scoreboard animation back"): each word one tile
+   knowing its place (--i), so the headline turns over left to right as the band lands (digest/hero.css). The headline
+   arrives as HTML: a tag passes through whole, a space stays plain text, an entity stays inside its word, so the words
+   read exactly as before. */
+const dgFlapWords = html => {
+  let i = 0;
+  return String(html || "").split(/(<[^>]*>)/).map(part => part.startsWith("<") ? part
+    : part.split(/(\s+)/).map(w => w && !/^\s+$/.test(w) ? `<i class="dg-hw" style="--i:${i++}">${w}</i>` : w).join("")).join("");
+};
+
+/* The face's cuts as a srcset (David 2026-10-08, "the headshot is not clear. looks pixelated"): the pane draws the
+   square head at its larger side, 232-300px on a phone, so a 2x screen needs ~460-600 device px and the 256px cut
+   blurred there. `cuts` is [[slug -> path, px], ...] smallest first; the browser takes the smallest sharp at the
+   drawn size, and `src`, for a browser without srcset, is the largest. Null when no cut has him. */
+function dgHeroCuts(slug, cuts){
+  const have = (cuts || []).filter(([m]) => m && m[slug]);
+  if (!have.length) return null;
+  return {src: have[have.length - 1][0][slug], srcset: have.map(([m, w]) => `${m[slug]} ${w}w`).join(", ")};
+}
+
 /* ---------------------------------------------------------------- the hero's face (ledger #63, David 2026-10-08 "face a")
    A headline about one player shows his head beside the tiles; any other headline shows Blip reacting to the day.
    {slug, src} or {pose}; the pose is one of League's (lib/blip.js BLIP_REACT, surface/league/lead.js LG_BLIP_LABEL). */

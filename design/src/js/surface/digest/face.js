@@ -17,18 +17,38 @@ function dgHeroFit(root){
   if (bn.getBoundingClientRect().height > window.innerHeight / DG_HERO_BUDGET) h.classList.add("long");
 }
 
+/* The face asks for the side it is drawn at (David 2026-10-08, "looks pixelated"): object-fit cover draws the square
+   head at the pane's larger side, which the band's height sets on a phone and the pane's width on a desktop, so it is
+   measured after the render, never guessed. The browser then takes the smallest cut sharp at that side on its screen. */
+function dgHeroSharp(root){
+  const img = root && root.querySelector("img.dg-hface");
+  if (!img) return;
+  const r = img.getBoundingClientRect();
+  img.sizes = `${Math.ceil(Math.max(r.width, r.height))}px`;
+}
+
 /* Hero v3, "the spread" (David 2026-10-08, ledger #70): the subject sits in a pane at the band's right (face.css),
    his club's code on the pane's outer edge when the lead knows his club. */
 const dgHeroPane = (inner, club) => `<div class="dg-hpane" data-testid="digest-lead-pane" aria-hidden="true">${inner}${
   club ? `<span class="dg-hclub" data-testid="digest-lead-club">${esc(club)}</span>` : ""}</div>`;
 
+/* The cuts ff-jarvis makes of every head (model/draft/headshots.py SIZES), smallest first, as srcset widths. */
+const DG_HERO_CUT_PX = [96, 256, 512];
+/* The side the pane draws the head at before the band is measured (face.css: a phone's band is 232px tall, a
+   desktop's pane ~40% of the band), so the first request is about right; dgHeroSharp then sets the measured side. */
+const DG_HERO_SIZES = "(min-width:960px) 480px, 240px";
+
 function dgHeroFaceParts(L, plan){
   const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG : {}, sm = typeof HEADS !== "undefined" ? HEADS : {};  // nomutate: a null HEADS_LG passes either way, dgHeroFace reads it as (lg || {})
+  const xl = typeof HEADS_XL !== "undefined" && HEADS_XL ? HEADS_XL : {};   // nomutate: a null HEADS_XL is no cut either way
   const f = dgHeroFace(L, plan && plan.banner, lg, sm);
   if (f.slug){
     const team = dgTeamCode(dgHeroTeam(L, f.slug));
+    // dgHeroFace found him in these same maps, so he has a cut.
+    const cut = dgHeroCuts(f.slug, [[sm, DG_HERO_CUT_PX[0]], [lg, DG_HERO_CUT_PX[1]], [xl, DG_HERO_CUT_PX[2]]]);
     return {kind: "has-face", team,
-      html: dgHeroPane(`<img class="dg-hface" data-testid="digest-lead-face" src="${esc(f.src)}" alt="" decoding="async" onerror="this.remove()">`, team)};
+      html: dgHeroPane(`<img class="dg-hface" data-testid="digest-lead-face" src="${esc(cut.src)}" srcset="${esc(cut.srcset)}" sizes="${
+        DG_HERO_SIZES}" alt="" decoding="async" onerror="this.remove()">`, team)};
   }
   if (!LG_BLIP_LABEL[f.pose]) return {kind: "", team: "", html: ""};
   return {kind: "has-blip", team: "", html: dgHeroPane(`<figure class="dg-hblip bp-in" data-testid="digest-lead-blip" data-pose="${f.pose}">${
