@@ -1848,7 +1848,8 @@ tabs below; the NFL now card (`nflnow.js`) above the matchup went with it).
   (2026-10-06: left as the picked team first, then the followed ones, on purpose. `gdMine` picks the one
   matchup Live draws, and the same team's lineup is what the sheet, the tiles and the TD Mine chip tag, so
   unfollowing the picked team does not change Live. Ranks, Usage and D/ST tag every followed team instead.)
-- **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`), never the hash, so another view
+- **The choice** is `tw-live-tab` in `localStorage` (`tabs.js`; forgotten on leaving Live and at a new visit's
+  load since 2026-10-09, so a visit opens My league; a reload keeps it), never the hash, so another view
   sends the reader to a tab by setting it, then opening `#live` (the Digest's touchdown count does).
   Switching repaints in place (`paintLive`), never through `render()`. NFL and TDs are NFL-wide; the
   league chips that sat above Matchup and League are gone (superseded 2026-10-05, see "The league follows

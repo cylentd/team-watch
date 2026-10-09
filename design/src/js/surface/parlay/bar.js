@@ -43,6 +43,8 @@ function kickChipLabel(w){ return kickInDay(w) ? kickPart(w) : kickDay(w); }
 /* On a phone the kickoffs are the Slips pill's segments in the tab row (2026-10-05, data/tabrow.js), and
    the row above keeps only the book chip (.view-tabs hides these tabs there, chrome/phonenav.css). The
    page holds its place, as a tap on the tabs here does (flight.js wireBets). */
+// Slips' kickoff chip is not remembered either (2026-10-09, ledger #91): a visit opens the first window still to come.
+navForget("parlay", () => { GAL_WIN = "ALL"; });
 navModes("parlay", () => ({ids: KICK_CHIPS.map(w => w.k), cur: (slWin() || {}).k, attr: "gwin", name: t("parlay.filter.kickoff"),
   label: k => esc(kickChipLabel(KICK_CHIPS.find(w => w.k === k))),
   select: k => { GAL_WIN = k; MKT_PAGE = 1; const y = window.scrollY; render(); window.scrollTo(0, y); }}));

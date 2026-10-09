@@ -20,6 +20,9 @@ const rosPos = () => ROS_POSITIONS.includes(RK_POS) ? RK_POS : "RB";
 /* ESPN's numbers for a team picked in the ESPN league, half-PPR for everyone else (data/ros.js rosScoring). */
 const rosReaderScoring = block => rosScoring(!!lgMine(), lgFocusKey(), block);
 
+/* Forgotten when the reader leaves Ranks (2026-10-09, ledger #91): a visit opens This week. */
+navForget("ranks", () => { RK_VIEW = "week"; });
+
 function rkSelectView(id){
   if (id === rkView() || !rkViews().includes(id)) return;
   RK_VIEW = id;

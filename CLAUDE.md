@@ -160,8 +160,15 @@ Leaders keeps the leaf and hash `board`. Role has its own surface (`js/surface/r
 Every part shares one script scope, so a view's function names must be unique
 (`test_js_syntax.py::test_no_top_level_function_is_declared_twice`).
 
-A group click (phone `#tabbar` or desktop bar, the same `#nav` buttons) opens the group's first leaf in the
-row, every time, Tuesday too (since 2026-10-07; it returned to the last leaf seen there before, and on a Tuesday it led with Waivers). A hash still wins.
+A group click (phone `#tabbar` or desktop bar, the same `#nav` buttons) opens the same view every time, Tuesday
+too (since 2026-10-07; it returned to the last leaf seen there before, and on a Tuesday it led with Waivers). The
+view is `landingLeaf` in `js/data/landing.js` (pure, Node-tested, since 2026-10-09, ledger #91): the row's first
+leaf, except **Matchup opens Preview** (Live while any NFL game is in progress, and on Sunday from the first
+kickoff to the last game's end; a game is on for `LANDING_GAME_MS`, 4 h, after its kickoff) and **Players opens
+Ranks**. The row's order is unchanged (Live still first in Matchup's). A view's own tab is not remembered between
+visits either (`navForget`/`navLeft` in `data/tabrow.js`): leaving Live (My league / NFL / TDs and the TD feed),
+Recap, Ranks (This week / Rest of season) or Slips (kickoff) forgets it, and a new visit's load clears the stored
+Live and Recap tabs, so a visit opens the first tab; a reload or Back keeps it. A hash still wins.
 
 With no hash, `navDefaultLeaf` in `js/chrome/nav.js` opens the Digest (the week league-wide; it was
 Leaders, then briefly Ranks, on 2026-09-26) except on a Tuesday, when Waivers still leads.

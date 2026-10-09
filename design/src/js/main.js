@@ -2,6 +2,7 @@
    all arrive this way, and all three should land where they point. Without one, the day picks
    (nav.js navDefaultLeaf: Waivers on a Tuesday, the Board otherwise). */
 SURFACE = navFromHash() || navDefaultLeaf();
+if (navVisit()) tdForgetMode();   // a visit opens the TDs tab on the Feed (a reload keeps it; ledger #91, 2026-10-09)
 
 buildFeed();
 buildNav();

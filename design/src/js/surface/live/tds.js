@@ -46,6 +46,13 @@ function tdSetMode(v){
   try { localStorage.setItem(TD_MODE_KEY, v); } catch (e) {}
 }
 
+/* Forgotten with Live's tab (tabs.js): a visit opens the Feed (2026-10-09, ledger #91). */
+function tdForgetMode(){
+  TD_MODE_MEM = null;
+  try { localStorage.removeItem(TD_MODE_KEY); } catch (e) {}
+}
+/* On leaving Live, tabs.js calls it; at a visit's load, main.js does (this file also loads in Node, without navVisit). */
+
 /* The TD types the chips ask for; none on is the anytime TDs. */
 function tdKinds(){
   const on = ["rush", "rec", "pass"].filter(k => TD_ON[k]);

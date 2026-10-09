@@ -24,6 +24,7 @@ data/waiver.js
 data/wire.js
 data/navmap.js
 data/navrow.js
+data/landing.js
 # pin: data/tabrow.js before every surface file: Live, Recap and Slips call navModes() at load.
 data/tabrow.js
 data/swipestep.js

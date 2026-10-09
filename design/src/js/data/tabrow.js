@@ -20,6 +20,22 @@ const NAV_MODES = {};
 function navModes(leaf, declare){ NAV_MODES[leaf] = declare; }
 const navModesOf = leaf => (NAV_MODES[leaf] ? NAV_MODES[leaf]() : null);
 
+/* A view's own tab is not remembered between visits (2026-10-09, David, ledger #91: "it takes you to where you
+   were last at. this is confusing"). A view with a tab it keeps declares how to forget it with
+   navForget(leaf, fn); chrome/nav.js navGo calls navLeft(leaf) when the reader moves off the view, so the next
+   visit opens the first tab. A link that sets the tab and then opens the view (the Digest's TDs
+   link) still wins: it sets the tab of a view that is not the one being left. */
+const NAV_FORGET = {};
+function navForget(leaf, fn){ (NAV_FORGET[leaf] = NAV_FORGET[leaf] || []).push(fn); }
+const navLeft = leaf => (NAV_FORGET[leaf] || []).forEach(fn => fn());
+/* True when this load is a visit (typing the address, a link, a bookmark), false for a reload or Back/Forward,
+   which restore the tab the reader had. Where the browser cannot say, it is a visit. */
+const navVisitOf = type => !type || type === "navigate";
+function navVisit(){
+  try { return navVisitOf((performance.getEntriesByType("navigation")[0] || {}).type); }   // nomutate: reads the browser; navVisitOf holds the rule
+  catch (e) { return true; }   // nomutate: a browser that cannot say is a visit
+}
+
 /* tabRowPlan(tabs, leaf, modes, phone) -> {shown, pills: [{leaf, on, segs}]}
    tabs: the group's leaves in the row; leaf: the view open (SURFACE); modes: its declaration or null.
    segs is null except on the open pill, on a phone, when its view has two tabs or more: then

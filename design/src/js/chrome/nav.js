@@ -164,6 +164,7 @@ function navGo(leaf, fromHash){
   if (!fromHash && LAYERS.length){ layersUnwind(() => navGo(leaf)); return; }
   leaf = navLeafOf(leaf) || leaf;      // an old name (`myrecap`, `pool`) opens its successor
   if (leaf !== "trades" && TB_EDIT) tfLeft();   // the trade finder's edit page left open by a tap on another view (finder/page.js)
+  if (leaf !== SURFACE) navLeft(SURFACE);   // the view just left forgets its tab: a fresh visit opens the first (ledger #91)
   SURFACE = leaf;
   const active = navGroupOf(leaf);
   document.querySelectorAll("#nav .navitem")
@@ -215,11 +216,10 @@ function buildNav(){
   n.querySelectorAll(".navitem").forEach(b => b.addEventListener("click", () => {
     const g = b.dataset.s;
     if (navGroupOf(SURFACE) !== g) morphLogo();
-    // A group click opens the group's first view, every time and on every day (2026-10-07, David: Team ->
-    // Roster, Matchup -> Today, as Yahoo, ESPN and Sleeper do). It returned to the last view seen there
-    // until then. The first leaf in the normal order (waiverDay false), so a Tuesday's Waivers-first row
-    // does not lead; navLeavesFor still drops a leaf the league lacks. The hash still restores a leaf.
-    navGo(navLeavesFor(g, navFacts(), false)[0]);
+    // A group click opens the same view every time, any day (2026-10-07, David; it returned to the last view seen
+    // until then). Row's first in the normal order (waiverDay false), but Matchup opens Preview (Live while a game
+    // is on) and Players Ranks (data/landing.js, 2026-10-09, ledger #91). The hash still restores a leaf.
+    navGo(landingLeaf(g, Date.now(), schedOk() ? LIVE_SCHEDULE.games : [], navLeavesFor(g, navFacts(), false)));
     window.scrollTo({top: 0, behavior: "smooth"});
   }));
 

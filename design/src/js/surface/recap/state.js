@@ -49,6 +49,14 @@ function wrTab(d){
   const open = wrAvail(d);
   return open.includes(v) ? v : open[0];
 }
+/* Forgotten when the reader leaves Recap and at a visit's load, not a reload (2026-10-09, ledger #91): a visit opens the first tab. This
+   runs before the `#accuracy` check below, which sets Accuracy after it. */
+function wrForgetTab(){
+  WR_TAB_MEM = null;
+  try { localStorage.removeItem(WR_TAB_KEY); } catch (e) {}
+}
+navForget("weekrecap", wrForgetTab);
+if (navVisit()) wrForgetTab();
 function wrSetTab(v){
   if (!WR_TABS.includes(v)) return;
   WR_TAB_MEM = v;

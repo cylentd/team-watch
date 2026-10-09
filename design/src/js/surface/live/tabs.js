@@ -1,7 +1,8 @@
 /* ============================== LIVE: THE TABS ==============================
    My league, NFL, TDs (2026-10-05, storyboard https://claude.ai/artifact/ArF53Lvh12QV8fbL3mr9KP,
    option 2A; four tabs from 2026-10-04 until Matchup and League merged into My league). One segmented
-   control at the top; the choice is `tw-live-tab` in localStorage, never the hash, so another view
+   control at the top; the choice is `tw-live-tab` in localStorage for the visit (cleared on leaving Live and at
+   load, 2026-10-09), never the hash, so another view
    sends the reader to a tab by setting it and then opening #live. Switching repaints in place
    (paintLive), never through render(). The ids stay "league" and "games" so a stored value and every
    link from another view keep working; a stored "matchup" maps to My league (data/gameday/strip.js).
@@ -24,6 +25,14 @@ function gdSetTab(v){
   GD_TAB_MEM = v;
   try { localStorage.setItem(GD_TAB_KEY, v); } catch (e) {}
 }
+
+/* Forgotten when the reader leaves Live and at a visit's load, not a reload (2026-10-09, ledger #91): a visit opens My league. */
+function gdForgetTab(){
+  GD_TAB_MEM = null;
+  try { localStorage.removeItem(GD_TAB_KEY); } catch (e) {}
+}
+navForget("live", () => { gdForgetTab(); tdForgetMode(); });   // tdForgetMode: tds.js, the TDs tab's Feed / By game
+if (navVisit()) gdForgetTab();
 
 /* Every key spelled out: assemble.py --check finds unused copy by scanning for literal lookups. */
 const gdTabName = k => ({league: t("live.tab.myleague"), games: t("live.tab.nfl"), tds: t("live.tab.tds")})[k];
