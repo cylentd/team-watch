@@ -46,7 +46,7 @@ def test_the_fixture_file_meets_its_own_contract():
 
 
 @pytest.mark.parametrize("doc, where", [
-    (edited(("v",), 2), "v"),
+    (edited(("v",), 3), "v"),
     (edited(("weekly", "scoring"), "ppr"), "weekly.scoring"),
     (edited(("weekly", "lists", "RB", 1, "rank"), 5), "weekly.lists.RB[1].rank"),
     (edited(("weekly", "lists", "RB", 1, "tier"), 3), "weekly.lists.RB[1].tier"),
@@ -98,7 +98,7 @@ def test_a_row_keeps_what_only_the_projections_know():
     by = {r["slug"]: r for r in rows(live_ranks(PROJ, slug, None, None, DOC), "RB")}
     brown = by["chase-brown"]
     assert (brown["home"], brown["inj"], brown["mx"], brown["mxp"]) == (False, "Q", 1.4, 0.6)
-    assert (by["breece-hall"]["floor"], by["breece-hall"]["ceil"]) == (6.4, 26.0)
+    assert (by["breece-hall"]["floor"], by["breece-hall"]["ceil"]) == (None, None), "his rank_pts (17.0) is not our 15.0: no band beside it"
     assert brown["mu"] == {"RUSH": 75, "REC": 20, "TD": 0.4}
     assert (brown["team"], brown["opp"], brown["kick"]) == ("CIN", "NYJ", "2026-09-13T17:00:00Z"), "the game is the list's own"
 

@@ -20,7 +20,10 @@ from week_ranks import load_week_ranks   # noqa: F401  (build.py loads the file 
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
 FLEX = ("RB", "WR", "TE")
 SCORING_WORD = {"half": "half-PPR"}   # week_ranks says "half"; the heading says the scoring the way the projections do
-FALLBACK_WORDS = "Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order)"
+# A row's band and matchup are ours: next to a rank_pts further than this from our own number (the one decimal the page
+# prints, so half of it) they would describe a different number, and the row drops them.
+SAME_NUMBER = 0.05
+FALLBACK_WORDS ="Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order)"
 
 
 def report(ranks):
@@ -166,7 +169,8 @@ def _row(p, slug):
     return {"slug": slug, "n": p.get("name"), "pos": p.get("pos"), "team": p.get("team"),
             "opp": p.get("opp"), "home": _home(p), "kick": kick_iso(p), "inj": INJ.get(p.get("injury")),
             "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
-            "pts": round(p["pts"], 2) if p.get("pts") is not None else None, "floor": p.get("floor"), "ceil": p.get("ceil"),
+            "pts": round(p["pts"], 2) if p.get("pts") is not None else None,
+            "shown": round(p["pts"], 2) if p.get("pts") is not None else None, "floor": p.get("floor"), "ceil": p.get("ceil"),
             "rank_pts": p.get("rank_pts") if p.get("pos") == "RB" else None,
             "unlined_backup": (p.get("unlined_backup") or None) if p.get("pos") == "RB" else None,
             "pts_before_unlined": p.get("pts_before_unlined") if p.get("pos") == "RB" else None,
@@ -174,9 +178,11 @@ def _row(p, slug):
 
 
 def _from_lists(doc, players, slugify):
-    """LIVE_RANKS from ff-jarvis's week_ranks lists: their order, rank and tier, their `pts`, their game. What only the
-    projections hold (home, injury tag, the points' makeup, the matchup, the band) is read off his projections row by
-    slug, null when he has none. The producer's `val` and `src` stay behind, and so do the books' back fields: the
+    """LIVE_RANKS from ff-jarvis's week_ranks lists: their order, rank and tier, their `pts`, their game, and the
+    number they rank by as `shown` (v2 `rank_pts`, else `pts`; `pts` stays our projection for the other readers of
+    the block). What only the projections hold (home, injury tag, the points' makeup, the matchup, the band) is read
+    off his projections row by slug, null when he has none; the band and the matchup are ours, so they are dropped
+    from a row whose `shown` is not our number (SAME_NUMBER). The producer's `val` and `src` stay behind, and so do the books' back fields: the
     list already holds the books' order, and a reader sees one rank."""
     wk = doc["weekly"]
     held = {}
@@ -189,9 +195,13 @@ def _from_lists(doc, players, slugify):
         lists[pos] = []
         for r in wk["lists"][pos]:
             slug = slugify(r["name"])
+            number = r.get("rank_pts", r["pts"])   # v1 files carry none: their points are the number
             row = {**_row(held.get(slug, {}), slug), "n": r["name"], "pos": r["pos"], "team": r["team"], "opp": r["opp"],
-                   "kick": r["kickoff"], "pts": round(r["pts"], 2), "rank_pts": None, "unlined_backup": None,
-                   "pts_before_unlined": None, "rank": r["rank"] if pos != "FLEX" else place.get(slug), "tier": r["tier"]}
+                   "kick": r["kickoff"], "pts": round(r["pts"], 2), "shown": round(number, 2), "rank_pts": None,
+                   "unlined_backup": None, "pts_before_unlined": None,
+                   "rank": r["rank"] if pos != "FLEX" else place.get(slug), "tier": r["tier"]}
+            if abs(number - r["pts"]) >= SAME_NUMBER:   # nomutate: >= vs >, a difference of exactly 0.05 is not representable in floats
+                row.update(floor=None, ceil=None, mx=None, mxp=None)
             if pos != "FLEX":
                 place[slug] = r["rank"]
             lists[pos].append(row)

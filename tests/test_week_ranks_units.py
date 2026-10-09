@@ -183,7 +183,7 @@ def test_the_loader_reads_the_file_returns_it_whole_and_names_every_problem(tmp_
 
 def test_the_check_says_what_is_wrong_in_its_own_words():
     assert week_ranks.problems({}) == ["week_ranks: needs v, generated, weekly"]
-    assert week_ranks.problems({**doc(), "v": 2}) == ["v: 2, expected 1"]
+    assert week_ranks.problems({**doc(), "v": 3}) == ["v: 3, expected 1 or 2"]
     assert week_ranks.problems(doc(scoring="ppr")) == ["weekly.scoring: 'ppr', expected 'half'"]
     assert week_ranks.problems(doc({"QB": [{"x": 1}, row("A A", "QB", 2, 1, 1.0)]}))[0].startswith("weekly.lists.QB[0]: keys ['x'], expected")
     notnum = doc({"QB": [row("A A", "QB", 1, 1, 1.0, val="x")]})

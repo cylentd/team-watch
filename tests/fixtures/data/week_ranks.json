@@ -1,5 +1,5 @@
 {
- "v": 1,
+ "v": 2,
  "generated": "2026-09-10T07:35:00Z",
  "weekly": {
   "season": 2026, "week": 2, "scoring": "half", "trial": "12.116",
@@ -9,32 +9,32 @@
   "off": [],
   "lists": {
    "QB": [
-    {"key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 19.4, "src": "books"},
-    {"key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 2, "tier": 2, "val": -2.0, "pts": 18.1, "src": "books"}
+    {"key": "joe burrow", "name": "Joe Burrow", "pos": "QB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 19.4, "src": "books", "rank_pts": 19.4},
+    {"key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 2, "tier": 2, "val": -2.0, "pts": 18.1, "src": "books", "rank_pts": 18.1}
    ],
    "RB": [
-    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 15.0, "src": "books"},
-    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": -2.0, "pts": 16.2, "src": "books"},
-    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 3, "tier": 2, "val": -3.0, "pts": 3.1, "src": "ours"}
+    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 15.0, "src": "books", "rank_pts": 17.0},
+    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": -2.0, "pts": 16.2, "src": "books", "rank_pts": 16.2},
+    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 3, "tier": 2, "val": -3.0, "pts": 3.1, "src": "ours", "rank_pts": 3.1}
    ],
    "WR": [
-    {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "GB", "kickoff": "2026-09-15T00:15:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 17.3, "src": "blend"}
+    {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "GB", "kickoff": "2026-09-15T00:15:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 17.3, "src": "blend", "rank_pts": 17.3}
    ],
    "TE": [
-    {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 13.6, "src": "books"}
+    {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 13.6, "src": "books", "rank_pts": 13.6}
    ],
    "FLEX": [
-    {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "GB", "kickoff": "2026-09-15T00:15:00Z", "rank": 1, "tier": 1, "val": 17.3, "pts": 17.3, "src": "blend"},
-    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": 16.2, "pts": 16.2, "src": "books"},
-    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 3, "tier": 2, "val": 15.0, "pts": 15.0, "src": "books"},
-    {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 4, "tier": 2, "val": 13.6, "pts": 13.6, "src": "books"},
-    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 5, "tier": 3, "val": 3.1, "pts": 3.1, "src": "ours"}
+    {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "GB", "kickoff": "2026-09-15T00:15:00Z", "rank": 1, "tier": 1, "val": 17.3, "pts": 17.3, "src": "blend", "rank_pts": 17.3},
+    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": 16.2, "pts": 16.2, "src": "books", "rank_pts": 16.2},
+    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 3, "tier": 2, "val": 15.0, "pts": 15.0, "src": "books", "rank_pts": 15.0},
+    {"key": "george kittle", "name": "George Kittle", "pos": "TE", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 4, "tier": 2, "val": 13.6, "pts": 13.6, "src": "books", "rank_pts": 13.6},
+    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 5, "tier": 3, "val": 3.1, "pts": 3.1, "src": "ours", "rank_pts": 3.1}
    ],
    "K": [
-    {"key": "cin-k", "name": "CIN K", "pos": "K", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": 8.1, "pts": 8.1, "src": "ours"}
+    {"key": "cin-k", "name": "CIN K", "pos": "K", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": 8.1, "pts": 8.1, "src": "ours", "rank_pts": 8.1}
    ],
    "DST": [
-    {"key": "sf-dst", "name": "SF D/ST", "pos": "DST", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 1, "tier": 1, "val": 9.0, "pts": 9.0, "src": "ours"}
+    {"key": "sf-dst", "name": "SF D/ST", "pos": "DST", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 1, "tier": 1, "val": 9.0, "pts": 9.0, "src": "ours", "rank_pts": 9.0}
    ]
   }
  },

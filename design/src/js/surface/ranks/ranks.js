@@ -3,7 +3,7 @@
 
    A glance page, not a research page: most readers come here and to Matchups and nowhere else.
    So a row carries only what moves a start/sit call -- the face, the game and when it kicks off,
-   an injury tag, the projected points -- and the profile is one tap away for the rest. A desktop
+   an injury tag, the points its rank is built on (`shown`, 2026-10-08) -- and the profile is one tap away for the rest. A desktop
    adds one column, what the points are made of, because it has the width and nothing else on the
    row says it.
 
@@ -66,6 +66,9 @@ function rkRangeHTML(r){
   return g ? `<small class="rk-rng" title="${t("range.tip", {floor: g.floor.toFixed(1), ceil: g.ceil.toFixed(1)})}">${g.text}</small>` : "";
 }
 
+/* The number a row prints: `shown` from the build; a row planted without one (a test's, an older block) shows its points. */
+const rkShown = r => typeof r.shown === "number" ? r.shown : r.pts;
+
 function rkRowHTML(r, place, mine, flex){
   const inj = r.inj ? `<span class="rk-inj ${r.inj.toLowerCase()}">${r.inj === "Q" ? t("ranks.inj.q") : t("ranks.inj.d")}</span>` : "";
   // On FLEX the position and its own rank lead the game line, the card's "RB3".
@@ -76,7 +79,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-who"><span class="rk-nm"><span class="rk-nmt">${esc(nameInitial(r.n))}</span>${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}${tagRowHTML(r, "ranks-row")}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}${rbNoLineHTML(r, "rk-noline")}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
-    <span class="rk-pts" data-testid="ranks-pts">${r.pts.toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
+    <span class="rk-pts" data-testid="ranks-pts">${rkShown(r).toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
   </button>`;
 }
 
@@ -89,7 +92,7 @@ function rkTiersHTML(list, flex){
     groups[groups.length - 1].rows.push([r, i + 1]);
   });
   return groups.map(g => {
-    const {hi, lo} = rbTierSpan(g.rows.map(([r]) => r));   // a back's tier follows the books, so its edge rows need not hold its extremes
+    const {hi, lo} = rbTierSpan(g.rows.map(([r]) => ({pts: rkShown(r)})));   // a tier follows the shown number, which does not step down the list, so its edge rows need not hold its extremes
     const k = last > 1 ? ((g.tier - 1) / (last - 1)).toFixed(2) : "0";
     return `<section class="rk-group" style="--k:${k}">
       <div class="rk-tier"><b data-testid="ranks-tier">${t("ranks.tier", {n: g.tier})}</b><span>${hi === lo ? t("ranks.tier.one", {pts: hi}) : t("ranks.tier.range", {hi, lo})}</span></div>

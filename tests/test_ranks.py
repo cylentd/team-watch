@@ -259,7 +259,7 @@ def test_the_back_list_is_the_lists_order_and_says_nothing_about_whose_number_it
     page, errors = mount("ranks")
     ranks = RanksPage(page)
     rows = ranks.rows()
-    assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "15.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
+    assert [[r["slug"], r["pts"]] for r in rows] == [["breece-hall", "17.0"], ["chase-brown", "16.2"], ["kendre-miller", "3.1"]]
     assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2"], "tiers are the file's: Hall and Brown, then Miller"
     sub = ranks.sub()
     assert NOTE not in sub and words("ranks.noline.word") not in sub
