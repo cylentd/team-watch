@@ -1,88 +1,66 @@
-/* ============================== NEWS ============================== */
-/* The My Teams ticker that shared this file went on 2026-09-24: a crawl moves content the reader
-   is trying to read, and the News tab already leads with the same stories. */
+/* ============================== NEWS ==============================
+   Players > News as an injury report (ledger #95, 2026-10-09; DESIGN.md "News"): a row per player the reader
+   follows, his Sunday word as a pill, Wednesday to Friday in three cells that name their day, his newest story,
+   then the next man up. The file kept its name from the ticker it once held, so scope.json and the order stay.
+   Colour carries the word only: red cannot play, amber in doubt, green cleared, neutral routine. */
+.nrwrap{max-width:var(--list-w)}
+.nr-group{padding-top:18px;scroll-margin-top:calc(var(--hdr-top, 0px) + var(--nav-h))}   /* below the header and the tab row */
+.nr-group:last-child{padding-bottom:24px}
+.nr-h{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;font-family:var(--tab);font-size:var(--t-5);font-weight:900;
+  letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.nr-h small{font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3);letter-spacing:.06em}
+.nr-list{display:flex;flex-direction:column}
 
-/* News tab: a wire bulletin -- timestamp/team/category on their own line, then the headline,
-   then the scanner's own read on what it means (.nimpact). Severity is the kind word's colour
-   and icon; the red and amber side stripes that repeated it went on 2026-09-24. */
-.newslist,.newslead{max-width:var(--list-w)}
-.newslist{border:1px solid var(--line);background:var(--panel)}
-.newsrow{display:block;position:relative;padding:15px 16px;border-bottom:1px solid var(--line);
-  text-decoration:none;color:inherit;transition:background .15s var(--ease)}
-.newslist .newsrow{opacity:0;animation:news-in .38s var(--ease) forwards}
-@keyframes news-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.nr-row{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.nr-row:last-child{border-bottom:0}
+.nr-row .nhead{position:relative;width:40px;height:40px;border-radius:99px;overflow:hidden;border:1px solid var(--line-2);background:var(--panel-3)}
+.nr-row .nhead img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none;object-fit:cover}
+.nr-row .nhead .fallback{display:grid;place-items:center;width:100%;height:100%;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.nr-l1{display:flex;align-items:center;gap:8px;min-width:0}
+.nr-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--t-3);font-weight:800;color:var(--ink)}
 
-/* Kind tag and filter chips: icon + word, colored by severity only (red out, amber caution). */
-.nkind{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.nkind svg,.nchip svg{width:13px;height:13px;flex-shrink:0}
-.nkind.out{color:var(--down)}
-.nkind.injury{color:var(--amber)}
-.nchip{display:inline-flex;align-items:center;gap:6px}
-.nchip.out{color:var(--down)}
-.nchip.injury{color:var(--amber)}
-/* The player's head leads the row, beside the kind line, so a scan finds "my guy" by face before
-   reading. A row with no player keeps the slot empty, so every row's text starts on one edge. */
-/* 56px and cropped to the head (2026-09-29, David: "super small right now and i cant make it out"):
-   the files are chest-up, so a 40px circle held a face a third its size. The circle clips an image
-   drawn at 150%, as the Digest's faces are. */
-.newsrow{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:start}
-.nhead{position:relative;width:56px;height:56px;border-radius:99px;overflow:hidden;border:1px solid var(--line-2);background:var(--panel-3)}
-.nhead:empty{border:0;background:none}
-.nhead img{position:absolute;left:-25%;top:-6%;width:150%;height:150%;max-width:none;object-fit:cover}
-.nhead .fallback{width:100%;height:100%}
-.nhead .fallback{display:grid;place-items:center;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
-.newsrow:last-child{border-bottom:0}
-.newsrow:hover{background:var(--panel-2)}
-.newsrow:hover .ntitle{text-decoration:underline;text-decoration-color:var(--line-2)}
-.newstop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
-.newstop .when{font-family:var(--mono);font-size:var(--t-1);letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
-.nteam{font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.08em;color:var(--ink-2);
-  border:1px solid var(--line-2);padding:1px 6px;border-radius:2px}
-/* The player's name is the bright, heavy part of the headline, the rest a step quieter, so a scan down
-   the cards reads names first (2026-09-30). */
-.ntitle{font-size:var(--t-3);font-weight:600;color:var(--ink-2);line-height:1.4}
-.nname{font-weight:800;color:var(--ink)}
-.newsrow[hidden],.newslead[hidden]{display:none}
+/* The Sunday word: the row's answer, at its right end. */
+.nr-st{flex:none;display:inline-flex;align-items:center;gap:5px;margin-left:auto;height:26px;padding:0 10px;border-radius:99px;
+  border:1px solid currentColor;font-size:var(--t-2);font-weight:700;white-space:nowrap;color:var(--ink-2)}
+.nr-st svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.nr-st.out{color:var(--down);background:rgb(var(--down-rgb) / .12)}
+.nr-st.doubtful,.nr-st.questionable,.nr-st.dnp{color:var(--amber);background:rgb(var(--amber-rgb) / .1)}
+.nr-st.cleared,.nr-st.full{color:var(--up);background:rgb(var(--up-rgb) / .1)}
+.nr-st.limited,.nr-st.none{border-color:var(--line-2)}
 
-/* The search: a box at the end of the filter row that narrows the stories to a player, team or word. */
-.nsearch{
-  display:flex;align-items:center;gap:8px;flex:1 1 220px;max-width:320px;margin-left:auto;min-height:36px;padding:0 12px;
-  border:1px solid var(--line-2);border-radius:99px;background:var(--panel);color:var(--ink-3);
-}
-.nsearch:focus-within{border-color:var(--lime);color:var(--ink-2)}
-.nsearch svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
-.nsearch input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--ink);font:inherit;font-size:var(--t-2)}
-.nsearch input::placeholder{color:var(--ink-3)}
-.ndesc{margin-top:4px;font-size:var(--t-2);color:var(--ink-2);line-height:1.5}
-.nimpact{margin-top:9px;font-size:var(--t-2);color:var(--ink-2);line-height:1.55}
+/* Wednesday to Friday: each cell names its day, so no header row is needed and a cell reads alone. */
+.nr-days{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:8px}
+.nr-cell{display:flex;align-items:center;justify-content:center;gap:6px;height:28px;border-radius:6px;border:1px dashed var(--line-2);
+  font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.nr-cell i{font-style:normal;font-weight:500;color:var(--ink-3)}
+.nr-cell.dnp{border:0;background:rgb(var(--amber-rgb) / .16);color:var(--amber)}
+.nr-cell.limited{border:0;background:var(--panel-3);color:var(--ink)}
+.nr-cell.full{border:0;background:rgb(var(--up-rgb) / .16);color:var(--up)}
+.nr-cell.dnp i,.nr-cell.limited i,.nr-cell.full i{color:inherit;opacity:.75}
 
-/* The lead story: today's freshest Out item, on its own above the filter row -- bigger type and
-   a live pulse instead of a plain dot. The pulse and the red Out word say it is breaking. It
-   pulses three times as the story arrives, then holds (STYLE.md motion rule 1: only data
-   arriving moves on its own). */
-.newslead{border:1px solid var(--line);background:var(--panel)}
-.newslead .ntitle{font-family:var(--disp);font-size:var(--t-5);font-weight:800;letter-spacing:-.01em;line-height:1.25}
-.newslead .ndesc{font-size:var(--t-2)}
-.newslead .nimpact{font-size:var(--t-2)}
-.livedot{width:7px;height:7px;border-radius:99px;background:var(--down);flex-shrink:0;
-  box-shadow:0 0 8px rgb(var(--down-rgb) / .8);animation:livedot 1.4s var(--ease) 3}
-@keyframes livedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.nr-noreport{margin:8px 0 0;font-size:var(--t-1);color:var(--ink-3)}
+.nr-story{display:block;margin-top:8px;font-size:var(--t-2);line-height:1.4;color:var(--ink-2);text-decoration:none}
+.nr-story:hover{text-decoration:underline;text-decoration-color:var(--line-2)}
+.nr-when{display:block;margin-top:2px;font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.nr-next{margin:8px 0 0;font-size:var(--t-2);color:var(--ink-2)}
+.nr-next b{color:var(--lime);font-weight:700}
+.nr-more{display:inline-flex;align-items:center;min-height:32px;margin-top:4px;padding:0;border:0;background:none;cursor:pointer;
+  font:inherit;font-size:var(--t-1);font-weight:700;color:var(--ink-3)}
+.nr-more[aria-expanded="true"]{color:var(--ink-2)}
+.nr-earlier{border-left:1px solid var(--line-2);padding-left:10px}
+.nr-earlier[hidden]{display:none}
 
-/* The wall (2026-09-29, David: "the news section lands weirdly on desktop"): one 1,128px column
-   pinned left left a quarter of a 1,440px screen empty, and each story was a short line in a wide
-   box. From 1100px the page frame's whole width holds a story per card, as the Digest's News
-   panel lays them out, read row by row, newest first; a row of cards shares its height. The lead
-   stays a full-width band above the filter, its text held to a readable measure. */
+.nr-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.nr-pager span{font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.nr-pager button{min-height:44px;padding:0 16px;border:1px solid var(--line-2);border-radius:99px;background:var(--panel);cursor:pointer;
+  font:inherit;font-size:var(--t-2);font-weight:600;color:var(--ink-2)}
+.nr-pager button[disabled]{opacity:.35;cursor:default}
+
+/* A desktop lays each group's rows out as cards, three or four across, so a name and its word sit inside one
+   card's width (STYLE.md: a label within 560px of its value) and the page fills its frame. */
 @media (min-width:1100px){
-  .newslist,.newslead{max-width:none}
-  .newslead{border-radius:16px}
-  .newslead .nbody{max-width:76ch}
-  .newslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;border:0;background:none}
-  .newslist .newsrow{border:1px solid var(--line);border-radius:12px;background:var(--panel)}
-  .newslist .newsrow:last-child{border-bottom:1px solid var(--line)}
-  /* A card is its own column, so a story with no face needs no empty slot to line up with. */
-  .newslist .newsrow:has(.nhead:empty){grid-template-columns:minmax(0,1fr)}
-  .newslist .nhead:empty{display:none}
+  .nrwrap{max-width:none}
+  .nr-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+  .nr-row,.nr-row:last-child{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .nr-pager{max-width:560px}
 }
-

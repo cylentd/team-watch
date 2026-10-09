@@ -16,7 +16,7 @@ import contract                # design/contract.py: the shape each LIVE_* block
 import pbp                      # design/pbp.py: nflverse play-by-play -> games/<id>.json
 import lint_css                 # design/lint_css.py: theme rules; an error fails the build
 from assemble import assemble   # design/assemble.py: design/src/** -> the page template
-from news import load_news      # design/news.py: breaking news, split out to stay in budget
+from news import load_news, news_report      # design/news.py: breaking news, split out to stay in budget
 from signals import live_signals, load_usage, report as signals_report  # My Teams trend and news
 from waiver import live_waiver, live_waiver_teams, slugs as waiver_slugs, report as waiver_report  # the Waivers sub-tab
 from wire_watch import live_wire, report as wire_report                          # its Breaking rail
@@ -54,7 +54,7 @@ from myteams import (live_yahoo, roster_file, roster_index, yahoo_rosters,  # no
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
-    load_player_proj, load_wrcb, load_profiles, load_dfs_pool, load_gamelog_weekly,
+    load_player_proj, load_wrcb, load_profiles, load_practice_report, load_dfs_pool, load_gamelog_weekly,
     load_draft_pedigree, load_weather, load_weather_history, load_weather_backtest, load_routes, load_digest, load_digest_headline, load_game_preview, load_preview_record, load_league, load_role_board, load_clips, load_player_names, load_slip_reasons, load_props_record, load_claude_props, load_claude_record, load_defense, load_kickers, load_recaps,
 )
 from audit_blocks import add_audit_blocks  # design/audit_blocks.py: accuracy receipts, D/ST + K, schedule (2026-10-05)
@@ -618,7 +618,7 @@ def render():
     yr = yahoo_rosters()          # {yahoo: file, ayo: file}: the first is live_mates' own argument, the rest `more`
     mates = live_mates(roster_file(ESPN_ROSTERS), yr.pop("yahoo"), available, status_badge(), slugify, **yr)
     liveDfsYahoo = live_dfs_yahoo(available, schedule=load_schedule(DWR))
-    news = load_news(FEED, DWR)
+    news = news_report(load_news(FEED, DWR), load_status(), slugify, load_practice_report())   # the injury report (ledger #95, #100)
 
     props = live_props(available, roster_index(*mine))
 

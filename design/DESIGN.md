@@ -2433,6 +2433,38 @@ on a phone each week becomes a block of labelled chips rather than a sideways dr
 2026-09-28 by the Season table: one line per week on a phone, no sticky head.) Verified
 against a fabricated 18-week season at 360px and 1400px — `tableScrolls: false` at both.
 
+## News (Players, an injury report since 2026-10-09, ledger #95)
+
+David, 2026-10-09: "there's too much noise. most players on there arent that relevant", then "95 i like C. I dont
+like the Bench him because we are not linked to their fantasy app. Consider blending it with B for Tuesday."
+Measured that day (`design/drafts/news/NOISE.md`): 200 stories in 44.7 h, 46% about no QB/RB/WR/TE at all, 34%
+about a starter, a wire player or David's own. Players still opens on Ranks.
+
+- **Who is on it.** A player the page follows for the reader: the rosters of the teams they follow
+  (`tsFollowed()`), then their wire (each followed team's own `waiverBlock`, only where `wvOwn`), then anyone in a
+  starting slot on any team in those leagues. With no team followed, the starters of every league on the page.
+  Everyone else is left out: linemen, defenders, coaches, benches of other teams.
+- **A row** is one player, never one story: face, name, the Sunday word as a pill (Out red; Doubtful, Questionable,
+  Missed practice amber; Playing green), then three cells, Wed Thu Fri, each naming its day and what he did
+  (Missed, Limited, Full), then the newest headline with its time, then "Next up" when the read names a teammate
+  free in one of the reader's leagues. Facts only: no instruction, since the page is not linked to the reader's
+  fantasy app (no "Bench him").
+- **Where each word comes from.** `design/news.py` `news_report` reads each headline once: `status` (the game-day
+  word), `day` (a practice line's day), `slug` (the QB/RB/WR/TE it leads with, from Sleeper's names), `next` (the
+  teammates a ruled-out story's read names). The Sunday word is the newest story's game-day word, else the
+  designation ff-jarvis's practice report gives (else Sleeper's), `players[slug].injury`.
+- **The practice report** (ff-jarvis feed block `practice_report`, its #100, 2026-10-09; `sources.load_practice_report`,
+  shape-checked by `news.check_practice_report`, so a bad block fails the build): each listed QB/RB/WR/TE's
+  `days` (DNP, LP, FP as Missed, Limited, Full) fill the cells, and he has a row even with no story. A headline's
+  practice line fills a day the report left empty, only this week's (since the Tuesday on or before today,
+  Pacific). While the report carries a `note` (Sleeper had no practice word for any player on 2026-10-09, so
+  every day is null), a row with no mark shows "No practice report yet" in place of the three cells; the Sunday
+  word stays.
+- **Tuesday** (Pacific) is the blend with draft B: no practice has happened, so the cells go and the rows group
+  under Your players, On your wire and Starting around your leagues, each leading with its newest story and
+  opening the rest of his stories in place.
+- **Paging.** The starters' group shows `NR_PAGE` rows with Previous and Next at its end; no endless scroll.
+
 ## News severity (2026-09-16)
 
 FantasyPros tags almost no story, so `design/news.py` reads each headline into a `kind`: **out**

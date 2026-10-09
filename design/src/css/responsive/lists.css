@@ -62,25 +62,6 @@
      the right edge already says there is more; the fade stays. */
   .rail::after{display:none}
 
-  /* News on a phone: filters first, the lead story as the first row rather than a framed card,
-     and each row the kind line plus headline plus the scanner's read, clamped to two lines. The
-     wire's own description is on the far side of the link. */
-  .newswrap{display:flex;flex-direction:column}
-  /* Its five chips carry counts and need ~590px, so they wrap to two lines rather than scroll a
-     third of themselves off the edge (STYLE.md, 2026-09-25): two short rows, every kind in view. */
-  .newswrap > .filters{order:-1;margin-top:4px!important;flex-wrap:wrap;overflow:visible;row-gap:8px}
-  /* The search takes the filter row's first line, full width, above the chips. */
-  .newswrap .nsearch{flex:1 1 100%;max-width:none;margin-left:0;order:-1;min-height:44px}
-  .newswrap > .newslead{margin-top:10px}
-  .newswrap > .newslist{margin-top:0!important}
-  .newslead,.newslist{border:0;background:none;box-shadow:none}
-  .newsrow,.newslead .newsrow{padding:14px 0;border-bottom:1px solid var(--line)}
-  .newslead .ntitle{font-size:var(--t-4)}
-  .newsrow .ndesc{display:none}
-  .nimpact{border-left:0;padding-left:0;margin-top:6px;color:var(--ink-3);
-    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .hero.slim:has(+ .newswrap){display:none}
-
   /* A Movers row on a phone (2026-09-25): head, then the name over the verdict chip, then the
      number the list is sorted on. Snaps, share and who can have him are the drawer's (tap the
      row); the table stops scrolling sideways. The chip takes the name's second row rather than a

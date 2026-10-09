@@ -1,0 +1,20 @@
+{
+  "generated": "2026-09-12T06:00:00-07:00",
+  "season": 2026,
+  "week": 2,
+  "dates": {"wed": "2026-09-09", "thu": "2026-09-10", "fri": "2026-09-11"},
+  "source": {"status_file": "sleeper_status.json", "marks": {"wed": 4, "thu": 4, "fri": 3}},
+  "note": null,
+  "players": [
+    {"name": "Tee Higgins", "slug": "tee-higgins", "team": "CIN", "pos": "WR",
+     "days": {"wed": "DNP", "thu": "DNP", "fri": "DNP"}, "status": "Out", "status_set": "2026-09-11", "injury": "hamstring"},
+    {"name": "Chase Brown", "slug": "chase-brown", "team": "CIN", "pos": "RB",
+     "days": {"wed": "LP", "thu": "DNP", "fri": "LP"}, "status": "Questionable", "status_set": "2026-09-11", "injury": "hamstring"},
+    {"name": "Brock Purdy", "slug": "brock-purdy", "team": "SF", "pos": "QB",
+     "days": {"wed": "LP", "thu": "FP", "fri": "FP"}, "status": null, "status_set": null, "injury": "toe"},
+    {"name": "Jahmyr Gibbs", "slug": "jahmyr-gibbs", "team": "DET", "pos": "RB",
+     "days": {"wed": "FP", "thu": null, "fri": null}, "status": null, "status_set": null, "injury": null},
+    {"name": "Harrison Butker", "slug": "harrison-butker", "team": "KC", "pos": "K",
+     "days": {"wed": "DNP", "thu": "LP", "fri": "FP"}, "status": null, "status_set": null, "injury": "knee"}
+  ]
+}

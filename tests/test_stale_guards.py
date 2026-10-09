@@ -1,5 +1,6 @@
-"""Stale-news guards (2026-10-04): Preview re-reads Sleeper's status, the News lead pin skips a story a
-later one undoes, and Waivers flag a must/worth card whose player is now out. No browser."""
+"""Stale-news guards (2026-10-04): Preview re-reads Sleeper's status, News's Sunday word follows the story that
+undoes an earlier one (the lead pin until 2026-10-09), and Waivers flag a must/worth card whose player is now out.
+No browser."""
 import json
 import pathlib
 import re
@@ -109,9 +110,20 @@ def test_a_headline_that_is_not_a_return_is_not_one(title):
     assert not is_return({"title": title})
 
 
-def test_the_lead_pin_skips_a_superseded_story():
-    js = (ROOT / "design/src/js/surface/news/news.js").read_text(encoding="utf-8")
-    assert re.search(r'newsKind\(it\) === "out" && !it\.superseded', js)
+def test_a_later_return_story_sets_the_sunday_word_over_the_out_it_undoes(node_js):
+    """News is an injury report since 2026-10-09 (ledger #95): no lead pin. A player's Sunday word is his newest
+    story's, so a later cleared story stands over the out story it undoes (data/newsreport.js nrRows)."""
+    nr = node_js("data/dayplan.js", "data/newsreport.js")
+    team = {"espn": {"key": "espn", "roster": [{"n": "Cooper Kupp", "slug": "cooper-kupp", "start": True}]}}
+    items = [   # newest first, as load_news sorts them
+        {"id": 2, "title": "Kupp cleared for Sunday", "at": "2026-10-09T18:00:00Z", "slug": "cooper-kupp",
+         "status": "cleared", "day": None, "next": []},
+        {"id": 1, "title": "Kupp ruled out", "at": "2026-10-08T18:00:00Z", "slug": "cooper-kupp",
+         "status": "out", "day": None, "next": [], "superseded": True},
+    ]
+    news = {"items": items, "players": {"cooper-kupp": {"n": "Cooper Kupp", "injury": None}}}
+    rows = nr("nrRows", news, nr("nrScope", team, ["espn"]), [], 1791572400000)   # 2026-10-09T19:00:00Z
+    assert [(r["slug"], r["sunday"]) for r in rows] == [("cooper-kupp", "cleared")]
 
 
 # ---- Waivers ----------------------------------------------------------------------------------------

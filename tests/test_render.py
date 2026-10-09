@@ -478,8 +478,12 @@ STATES = [
     ("dfs-dk", go("dfs") + [("click", "[data-dfspanel]"), ("click", "[data-dfssite='dk']")]),
     ("dfs-contrarian", go("dfs") + [("click", "[data-topmode='contrarian']")]),
     ("dfs-explain", go("dfs") + [("click", "[data-dfspanel]"), ("click", "[data-explain]")]),   # the drawer
-    ("news-injury", go("news") + [("click", "[data-newscat='injury']")]),
+    # News is an injury report since 2026-10-09 (ledger #95): the practice week (the suite's Saturday), Tuesday's
+    # player rows with no cells, and ff-jarvis's report with no marks yet (its `note`), which says so per row.
     ("news", go("news")),
+    ("news-tuesday", [("eval", 'Date.now = () => Date.parse("2026-09-15T19:00:00Z")')] + go("news")),
+    ("news-noreport", go("news") + [("eval", "LIVE_NEWS.practice = {note: 'no marks'}; Object.values(LIVE_NEWS.players)"
+                                    ".forEach(p => { if (p.days) p.days = {Wed: null, Thu: null, Fri: null}; }); render()")]),
     # A fresh browser has no saved passphrase, so this is the locked state: the form, not just
     # the composer. Deterministic because the day's counter starts at 0 in empty localStorage.
     ("chat-open", [("click", "#chatfab")]),

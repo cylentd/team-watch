@@ -53,6 +53,137 @@ NOT_BACK_RE = re.compile(r"\bruled out\b|\bwon't play\b|\bwill not play\b|\bnot 
                          r"\bdoubtful\b|\bunlikely to play\b|\bnot cleared\b|\bsuspended\b|\bplaced on\b", re.I)
 
 
+# The game-day word a headline states (ledger #95, 2026-10-09: News as an injury report), most final first;
+# the first match wins. "Not ruled out" is not Out. A practice line gives that day's participation: dnp,
+# limited or full. Read off the headline only: the desc and the read restate it or speculate.
+GAME_WORDS = [
+    ("out", r"(?<!not )\bruled out\b|\bwill not play\b|\bwon't play\b|\bout (?:sunday|monday|thursday|against|for)\b|"
+            r"\bnot expected to play\b|\bplaced on\b|\bexpected to return in week\b"),
+    ("doubtful", r"\bdoubtful\b"),
+    ("questionable", r"\bquestionable\b|\bgame-time decision\b"),
+    ("cleared", r"\boff (?:the )?injury report\b|\bwill play\b|\bready to go\b|\bwill start\b|\bexpected to play\b|"
+                r"\bfull go\b|\bremoved from\b"),
+    ("dnp", r"\bdoes(?:n't| not) practice\b|\bnot practicing\b|\bnon-participant\b|\bdnp\b|\bmiss(?:es|ed)? practice\b|"
+            r"\bnot (?:seen|spotted) (?:at )?practic|\babsent from practice\b|\bnot at practice\b|\bmisses another\b"),
+    ("limited", r"\blimited\b|\bworking to side\b|\bin pads\b"),
+    ("full", r"\bfull\b|\bpractices\b|\bpracticing\b|\bat practice\b|\breturns to practice\b|\bparticipating\b|"
+             r"\bback at practice\b"),
+]
+GAME_RE = [(k, re.compile(p, re.I)) for k, p in GAME_WORDS]
+PRACTICE_WORDS = ("dnp", "limited", "full")
+PRACTICE_DAY_RE = re.compile(r"\b(Wed|Thu|Fri)(?:nesday|rsday|day)\b")
+# Sleeper's injury designation as a game-day word: what the page shows when no story states one.
+SLEEPER_WORD = {"Out": "out", "IR": "out", "PUP": "out", "DNR": "out", "Doubtful": "doubtful",
+                "Questionable": "questionable"}
+REPORT_POS = ("QB", "RB", "WR", "TE")   # the positions the leagues start and the report follows
+NEXT_UP_MAX = 2                         # teammates a ruled-out story names as next up; the scanner's read names two at most in practice
+
+
+def game_status(title):
+    """out | doubtful | questionable | cleared | dnp | limited | full | None, from the headline's words."""
+    for word, rx in GAME_RE:
+        if rx.search(title or ""):
+            return word
+    return None
+
+
+def practice_day(title, status):
+    """Wed | Thu | Fri for a practice line (status dnp, limited or full), else None."""
+    m = PRACTICE_DAY_RE.search(title or "") if status in PRACTICE_WORDS else None
+    return m.group(1) if m else None
+
+
+def news_people(status, slugify):
+    """slug -> {n, pos, team, injury} for every QB, RB, WR and TE Sleeper tracks; injury is SLEEPER_WORD's word."""
+    return {slugify(p["name"]): {"n": p["name"], "pos": p.get("pos"), "team": p.get("team"),
+                                 "injury": SLEEPER_WORD.get(p.get("injury"))}
+            for p in (status or {}).values() if p.get("name") and p.get("pos") in REPORT_POS}
+
+
+def _about(item, people, names):
+    for s in item.get("slugs") or []:
+        if s in people:
+            return s
+    title = (item.get("title") or "").lower()
+    return next((s for n, s in names if title.startswith(n + " ") or title.startswith(n + "'")), None)
+
+
+def _next_up(item, own, people, names):
+    """The teammates the scanner's read names, in its order: the next man up when his starter is out."""
+    if not own or game_status(item.get("title")) != "out":
+        return []
+    text, team = (item.get("impact") or "").lower(), people[own]["team"]
+    hits = sorted((text.find(n), s) for n, s in names
+                  if s != own and people[s]["team"] == team and text.find(n) >= 0)
+    seen = []
+    for _, s in hits:
+        if s not in seen:
+            seen.append(s)
+    return seen[:NEXT_UP_MAX]
+
+
+# ff-jarvis's practice report (feed block `practice_report`, its `model.season.practice_report`, 2026-10-09).
+PRACTICE_KEYS = ("generated", "season", "week", "dates", "source", "note", "players")
+PRACTICE_ROW = ("name", "slug", "team", "pos", "days", "status", "injury")
+PRACTICE_MARK = {"DNP": "dnp", "LP": "limited", "FP": "full", None: None}   # its marks in the page's words
+PRACTICE_DAYS = {"wed": "Wed", "thu": "Thu", "fri": "Fri"}
+
+
+def check_practice_report(raw):
+    """Raise ValueError naming the first field the report lacks or gets wrong: the build fails, not the page."""
+    missing = [k for k in PRACTICE_KEYS if k not in raw]
+    if missing:
+        raise ValueError(f"practice_report: missing {missing}")
+    for i, r in enumerate(raw["players"]):
+        lacks = [k for k in PRACTICE_ROW if k not in r]
+        if lacks:
+            raise ValueError(f"practice_report: players[{i}] missing {lacks}")
+        days = r["days"] or {}
+        if set(days) != set(PRACTICE_DAYS):
+            raise ValueError(f"practice_report: players[{i}] days {sorted(days)}, wants {sorted(PRACTICE_DAYS)}")
+        bad = [m for m in days.values() if m not in PRACTICE_MARK]
+        if bad:
+            raise ValueError(f"practice_report: players[{i}] marks {bad}")
+    return raw
+
+
+def _with_practice(people, practice, slugify):
+    """people with each reported QB/RB/WR/TE's days and status: `days` {Wed, Thu, Fri: dnp|limited|full|None},
+    `injury` the report's status as a game-day word (else Sleeper's), `report` True."""
+    for r in practice["players"]:
+        if r.get("pos") not in REPORT_POS:
+            continue
+        s = slugify(r["name"])
+        base = people.get(s) or {"n": r["name"], "pos": r["pos"], "team": r["team"], "injury": None}
+        people[s] = {**base, "injury": SLEEPER_WORD.get(r["status"]) or base["injury"],
+                     "days": {PRACTICE_DAYS[d]: PRACTICE_MARK[m] for d, m in r["days"].items()}, "report": True}
+    return people
+
+
+def news_report(news, status, slugify, practice=None):
+    """LIVE_NEWS with the report's fields: each item's `slug` (the fantasy player it is about, or None),
+    `status` (game_status), `day` (practice_day) and `next` (teammates named as next up), and `players`,
+    the facts the page draws for each slug named and for each player ff-jarvis's practice report lists
+    (`practice`, checked by check_practice_report; its `note` passes through). None without news."""
+    if not news:
+        return None
+    people = news_people(status, slugify)
+    if practice:
+        people = _with_practice(people, check_practice_report(practice), slugify)
+    names = sorted(((p["n"].lower(), s) for s, p in people.items()), key=lambda x: -len(x[0]))  # nomutate: longest name first; a slug is the same name less punctuation, so its length orders them alike
+    items = []
+    for it in news["items"]:
+        own = _about(it, people, names)
+        word = game_status(it.get("title"))
+        items.append({**it, "slug": own, "status": word, "day": practice_day(it.get("title"), word),
+                      "next": _next_up(it, own, people, names)})
+    named = {s for it in items for s in [it["slug"], *it["next"]] if s} | {s for s, p in people.items() if p.get("report")}
+    out = {**news, "items": items, "players": {s: people[s] for s in sorted(named)}}
+    if practice:
+        out["practice"] = {"note": practice["note"]}
+    return out
+
+
 def news_kind(it):
     """out | injury | move | practice | news, from the title first, then the desc and impact."""
     for text in (it.get("title") or "", " ".join(filter(None, (it.get("desc"), it.get("impact"))))):

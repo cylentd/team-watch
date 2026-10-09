@@ -69,9 +69,12 @@ CONTRACT = {
     "LIVE_FEED": {
         "keys": ["generated", "steps", "usage_ready", "pool_size", "fetched"],
     },
+    # design/news.py news_report (ledger #95): each story's player, game-day word, practice day and next up,
+    # and `players`, the facts the report draws per player.
     "LIVE_NEWS": {
-        "keys": ["items"],
-        "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when", "kind"]),
+        "keys": ["items", "players"],
+        "rows": ("items", ["id", "title", "desc", "impact", "team", "categories", "link", "when", "kind",
+                           "slug", "status", "day", "next"]),
     },
     # Live reads kickoff times to decide whether it may poll at all. A row missing one would look
     # like a game that never starts, and the gate would sit idle straight through it. The drive

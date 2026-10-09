@@ -31,5 +31,7 @@ const NEWS_KINDS = [
 ];
 const NEWS_KIND = Object.fromEntries(NEWS_KINDS.map(k => [k.k, k]));
 const newsKind = it => NEWS_KIND[it.kind] ? it.kind : "news";
-let NEWS_CAT = "all";
-let NEWS_Q = "";   // the News search box's text, kept across a chip's re-render (surface/news/news.js)
+/* The report's own state (surface/news/news.js, ledger #95): the starters' page, and the players whose earlier
+   stories are open on a Tuesday. */
+let NEWS_AT = 0;
+const NEWS_OPEN = new Set();

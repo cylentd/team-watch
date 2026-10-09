@@ -90,8 +90,11 @@
       "render": ["matchups"]
     },
     "news": {
-      "paths": ["design/src/js/surface/news/", "design/src/css/surface/news/", "design/src/js/data/news.js", "design/news.py"],
-      "tests": ["tests/test_news_kind.py", "tests/test_news_tab.py", "tests/test_stale_guards.py"],
+      "paths": ["design/src/js/surface/news/", "design/src/css/surface/news/", "design/src/js/data/news.js", "design/news.py",
+                "design/src/js/data/newsreport.js"],
+      "tests": ["tests/test_news_kind.py", "tests/test_news_tab.py", "tests/test_stale_guards.py",
+                "tests/test_news_report.py", "tests/test_news_report_build.py", "tests/test_js_newsreport.py",
+                "tests/test_news_report_view.py"],
       "render": ["news"]
     },
     "statspos": {

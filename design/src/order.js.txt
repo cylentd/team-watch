@@ -18,6 +18,7 @@ data/hydrate.js
 data/connect.js
 data/mates.js
 data/news.js
+data/newsreport.js
 data/stock.js
 data/owner.js
 data/waiver.js

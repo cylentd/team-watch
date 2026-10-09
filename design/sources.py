@@ -374,6 +374,12 @@ def load_trade_offers():
     return feed_block(("trade_offers",), "leagues") or read_first(DWR / "trade_offers.json")
 
 
+def load_practice_report(dwr=None):
+    """ff-jarvis's practice report for News (feed block `practice_report`, its model.season.practice_report, ledger
+    #100, 2026-10-09), feed first, then the file; None before ff-jarvis writes one. design/news.py checks its shape."""
+    return feed_block(["practice_report"], "players") or read_first(pathlib.Path(dwr or DWR) / "practice_report.json")
+
+
 def load_waiver_teams(dwr=None):
     """Every other team's Waivers (ff-jarvis waiver_teams.json; a file, no feed block), cut by design/waiver.py."""
     return read_first(pathlib.Path(dwr or DWR) / "waiver_teams.json")

@@ -1,127 +1,108 @@
-/* A story's kind leads its row as an icon and a word, in that kind's color, so severity reads
-   before the headline does -- and a colorblind reader still gets the icon and the word. */
-function newsKindTag(kind){
-  const k = NEWS_KIND[kind];
-  return `<span class="nkind ${kind}">${k.icon}${k.label()}</span>`;
+/* Players > News as an injury report (ledger #95, 2026-10-09; DESIGN.md "News"). A row per player the reader
+   follows (data/newsreport.js picks and orders them): his Sunday word, Wednesday to Friday, his newest story,
+   and the next man up when the read names one free in the reader's leagues. Facts only: the page is not linked
+   to the reader's fantasy app, so it never says what to do with a lineup. On a Tuesday no practice has happened:
+   the cells go, and each row opens the rest of his stories in place (the blend with draft B). */
+const newsSvg = body => `<svg viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
+const NEWS_ST_ICON = {
+  out: newsSvg(`<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>`),
+  doubtful: newsSvg(`<path d="M12 4 3 20h18z"/><path d="M12 10v4"/>`),
+  questionable: newsSvg(`<path d="M12 4 3 20h18z"/><path d="M12 10v4"/>`),
+  dnp: newsSvg(`<path d="M12 4 3 20h18z"/><path d="M12 10v4"/>`),
+  cleared: newsSvg(`<path d="m5 12.5 4.5 4.5L19 7"/>`),
+  full: newsSvg(`<path d="m5 12.5 4.5 4.5L19 7"/>`),
+};
+/* Every word spelled out, so assemble.py --check sees each key. */
+const NEWS_ST = {
+  out: () => t("news.st.out"), doubtful: () => t("news.st.doubtful"), questionable: () => t("news.st.questionable"),
+  dnp: () => t("news.st.dnp"), limited: () => t("news.st.limited"), full: () => t("news.st.full"),
+  cleared: () => t("news.st.cleared"), none: () => t("news.st.none"),
+};
+const NEWS_MARK = {dnp: () => t("news.mark.dnp"), limited: () => t("news.mark.limited"), full: () => t("news.mark.full")};
+const NEWS_DAY = {Wed: () => t("news.day.wed"), Thu: () => t("news.day.thu"), Fri: () => t("news.day.fri")};
+const NEWS_GROUP = {mine: () => t("news.group.mine"), wire: () => t("news.group.wire"), starter: () => t("news.group.starter")};
+
+function newsStHTML(word){
+  const k = NEWS_ST[word] ? word : "none";
+  return `<span class="nr-st ${k}" data-testid="news-sunday">${NEWS_ST_ICON[k] || ""}${esc(NEWS_ST[k]())}</span>`;
+}
+function newsDaysHTML(r){
+  return `<div class="nr-days">${NR_DAYS.map(d => {
+    const w = r.days[d];
+    return `<span class="nr-cell ${w || ""}" data-testid="news-day"><i>${esc(NEWS_DAY[d]())}</i>${w ? esc(NEWS_MARK[w]()) : ""}</span>`;
+  }).join("")}</div>`;
+}
+/* A league by its short name; a league the page knows no short name for (a connected one) by its own. */
+const NEWS_LG = {espn: () => t("news.lg.espn"), yahoo: () => t("news.lg.yahoo"), ayo: () => t("news.lg.ayo")};
+const newsLeague = lg => NEWS_LG[lg] ? esc(NEWS_LG[lg]()) : TEAMS[lg] ? tsLeagueName(lg) : esc(lg);
+function newsNextHTML(r){
+  return r.next.map(x => `<p class="nr-next" data-testid="news-next">${t("news.next", {
+    name: `<b>${esc(x.n)}</b>`, where: x.free.map(newsLeague).join(", ")})}</p>`).join("");
+}
+function newsStoryHTML(it, name, cls, also){
+  const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title || "")}`;
+  const when = [kickFmt(it.at) || it.when, ...(also || [])].filter(Boolean).join(" · ");
+  return `<a class="${cls}" data-testid="news-story" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(nrWhat(it.title, name))}${when ? `<span class="nr-when">${esc(when)}</span>` : ""}</a>`;
+}
+/* The week's cells; while ff-jarvis's report carries a note (no marks yet) and no headline gave him one, one line
+   says so in their place (ledger #100). */
+function newsWeekHTML(r){
+  const note = LIVE_NEWS && LIVE_NEWS.practice && LIVE_NEWS.practice.note;
+  return note && !NR_DAYS.some(d => r.days[d])
+    ? `<p class="nr-noreport" data-testid="news-noreport">${esc(t("news.noreport"))}</p>` : newsDaysHTML(r);
+}
+function newsRowHTML(r, tuesday){
+  const open = NEWS_OPEN.has(r.slug);
+  const meta = [r.pos, r.team].filter(Boolean);
+  const newest = r.newest ? newsStoryHTML(r.newest, r.n, "nr-story nr-newest", meta)
+    : `<span class="nr-when">${esc(meta.join(" · "))}</span>`;
+  const more = tuesday && r.more.length ? `<button class="nr-more" data-testid="news-more" data-nrmore="${esc(r.slug)}" aria-expanded="${open}">${esc(t("news.more", {n: r.more.length}))}</button>
+    <div class="nr-earlier" ${open ? "" : "hidden"}>${r.more.map(it => newsStoryHTML(it, r.n, "nr-story")).join("")}</div>` : "";
+  return `<article class="nr-row" data-testid="news-player" data-slug="${esc(r.slug)}">
+    <div class="nhead">${avatarHTML({n: r.n, slug: r.slug})}</div>
+    <div class="nr-body">
+      <div class="nr-l1"><b class="nr-name" data-testid="news-name">${esc(r.n)}</b>${newsStHTML(r.sunday)}</div>
+      ${tuesday ? "" : newsWeekHTML(r)}
+      ${newest}
+      ${newsNextHTML(r)}${more}
+    </div></article>`;
 }
 
-/* The player the story leads with: a head when HEADS has one of the build's candidate slugs,
-   initials when the title names the player but no head exists, an empty slot for a story with no
-   player, so every row's text starts on one edge (2026-09-29: rows without a head ran 52px left of
-   the rest). The build parses the name; the page picks the slug, because only HEADS knows which exist. */
-function newsHeadHTML(it){
-  const slug = (it.slugs || []).find(s => HEADS[s]);
-  if (!slug && !it.player) return `<div class="nhead"></div>`;
-  return `<div class="nhead">${avatarHTML({n: it.player || "", slug})}</div>`;
-}
-
-/* The headline with the player's name set bright and heavy, the rest a step quieter, so a scan down
-   the list reads names first (2026-09-30, David: "Player names are hard to find on a scan"). The
-   headline's words are unchanged; a title that does not name the parsed player stays whole. */
-let NEWS_NAMES = null;   // every name search knows, longest first, built on first use
-/* The build parses a name only from "Name (injury) ..." headlines; "Christian Watson good to go" has
-   none, so a headline that starts with a known player's name is matched against search's index. */
-function newsLeadName(title){
-  if (!NEWS_NAMES) NEWS_NAMES = typeof searchIndex === "function"
-    ? [...new Set(searchIndex().map(e => e.n).filter(Boolean))].sort((a, b) => b.length - a.length) : [];
-  return NEWS_NAMES.find(n => title.startsWith(n + " ")) || null;
-}
-
-function newsTitleHTML(it){
-  const title = it.title || "", name = it.player || newsLeadName(title);
-  const at = name ? title.indexOf(name) : -1;
-  if (at < 0) return esc(title);
-  const end = at + name.length;
-  return `${esc(title.slice(0, at))}<b class="nname" data-testid="news-name">${esc(name)}</b>${esc(title.slice(end))}`;
-}
-
-/* What a search matches: the player, his team and the headline, lower-cased once at render. */
-const newsQueryText = it => [it.player, it.team, it.title].filter(Boolean).join(" ").toLowerCase();
-
-/* A row: head, kind, time and team, the headline, then the scanner's read on it. The scanner's own
-   summary (.ndesc) restates the headline, so it shows only when a story has no read (2026-09-30,
-   David: "the first paragraph of each news repeats the headline"). */
-function newsRowHTML(it, featured, i){
-  const href = it.link || `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(it.title)}`;
-  const kind = newsKind(it);
-  const head = newsHeadHTML(it);
-  return `<a class="newsrow ${kind} ${featured ? "featured" : ""}" data-testid="news-row" data-newsq="${esc(newsQueryText(it))}" style="animation-delay:${Math.min(i || 0, 14) * 30}ms" href="${esc(href)}" target="_blank" rel="noopener noreferrer">
-    ${head}<div class="nbody">
-    <div class="newstop">
-      ${featured ? `<span class="livedot"></span>` : ""}
-      ${newsKindTag(kind)}
-      ${it.when ? `<span class="when">${esc(kickFmt(it.at) || it.when)}</span>` : ""}
-      ${it.team ? `<span class="nteam">${esc(it.team)}</span>` : ""}
-    </div>
-    <div class="ntitle" data-testid="news-title">${newsTitleHTML(it)}</div>
-    ${it.desc && it.desc !== it.title && !it.impact ? `<div class="ndesc" data-testid="news-desc">${esc(it.desc)}</div>` : ""}
-    ${it.impact ? `<div class="nimpact" data-testid="news-impact">${esc(it.impact)}</div>` : ""}
-    </div>
-  </a>`;
-}
+/* The wire: the players each followed team's own packet lists, only where the reader may see that packet. */
+const newsWire = keys => keys.flatMap(k => {
+  const tm = TEAMS[k];
+  return tm && wvOwn(tm) ? waiverIn(nrLeagueOf(tm), waiverBlock(tm)).map(([r]) => r.slug) : [];
+});
 
 function newsHTML(){
-  const items = NEWS_ITEMS;
-  // The freshest out story leads on its own above the filter: the one thing that changes a
-  // lineup today. Everything else, filtered or not, is chronological below it. A story the build
-  // marked superseded (a later "cleared" for the same player) never pins: it would lead a stale out.
-  const lead = items.find(it => newsKind(it) === "out" && !it.superseded);
-  const rest = lead ? items.filter(it => it !== lead) : items;
-  const counts = {};
-  rest.forEach(it => counts[newsKind(it)] = (counts[newsKind(it)] || 0) + 1);
-  const shown = NEWS_CAT === "all" ? rest : rest.filter(it => newsKind(it) === NEWS_CAT);
-  const chips = [`<button class="chip" data-testid="news-chip-all" data-newscat="all" aria-pressed="${NEWS_CAT==="all"}">${t("news.kind.all")} (${rest.length})</button>`]
-    .concat(NEWS_KINDS.filter(k => counts[k.k]).map(k =>
-      `<button class="chip nchip ${k.k}" data-newscat="${k.k}" aria-pressed="${NEWS_CAT===k.k}">${k.icon}${k.label()} (${counts[k.k]})</button>`));
-  const label = NEWS_KIND[NEWS_CAT] ? NEWS_KIND[NEWS_CAT].label() : t("news.kind.all");
-  return `<section class="hero slim">
-    <div class="wrap hero-in">
-      <div>
-        <div class="hero-eyebrow" style="--tint:var(--lime)">
-          <span class="league-mark"></span><span class="lbl">${t("news.hero.eyebrow", {n: items.length})}</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  <div class="wrap newswrap">
-    ${lead ? `<div class="newslead">${newsRowHTML(lead, true, 0)}</div>` : ""}
-    <div class="filters" style="margin-top:${lead?"18":"0"}px">
-      <span class="lbl">${t("news.filter.label")}</span>
-      ${chips.join("")}
-      <label class="nsearch"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input type="search" id="news-q" data-testid="news-search"value="${esc(NEWS_Q)}" placeholder="${t("news.search.placeholder")}" aria-label="${t("news.search.placeholder")}" autocomplete="off"></label>
-    </div>
-    ${shown.length
-      ? `<div class="newslist" data-testid="news-list" style="margin-top:14px">${shown.map((it, i) => newsRowHTML(it, false, i)).join("")}</div>`
-      : `<div class="state-empty" style="margin:14px 0;min-height:110px"><div><b>0</b><span>${t("news.empty.noStories", {cat: esc(label.toUpperCase())})}</span></div></div>`}
-    <div class="state-empty nsearch-none" data-testid="news-none" style="margin:14px 0;min-height:110px" hidden><div><b>0</b><span></span></div></div>
-  </div>`;
-}
-
-/* The search narrows the rows already drawn, in place: a re-render would take the caret out of the box
-   on every letter. The lead story is searched too; the kind chips keep their counts. */
-function newsApplyQuery(v){
-  const q = NEWS_Q.trim().toLowerCase();
-  let hits = 0;
-  v.querySelectorAll(".newsrow[data-newsq]").forEach(r => {
-    const on = !q || r.dataset.newsq.includes(q);
-    r.hidden = !on;
-    if (on && r.closest(".newslist")) hits++;
-  });
-  const lead = v.querySelector(".newslead");
-  if (lead) lead.hidden = !!lead.querySelector(".newsrow[hidden]");
-  const none = v.querySelector(".nsearch-none"), list = v.querySelector(".newslist");
-  if (none) {
-    none.hidden = !q || hits > 0 || !list;
-    none.querySelector("span").textContent = q ? t("news.search.none", {q: NEWS_Q.trim()}) : "";
-  }
+  const ms = Date.now(), tuesday = nrTuesday(ms), keys = tsFollowed();
+  const scope = nrScope(TEAMS, keys);
+  const groups = nrGroups(nrRows(LIVE_NEWS, scope, newsWire(keys), ms));
+  const body = groups.map(g => {
+    const pg = g.key === "starter" ? nrPage(g.rows, NEWS_AT) : {rows: g.rows, at: 0, pages: 1};
+    NEWS_AT = g.key === "starter" ? pg.at : NEWS_AT;
+    const pager = pg.pages > 1 ? `<div class="nr-pager" data-testid="news-pager">
+      <button data-nrpage="-1" ${pg.at ? "" : "disabled"}>${esc(t("news.page.prev"))}</button>
+      <span>${esc(t("news.page.of", {a: pg.at * NR_PAGE + 1, b: pg.at * NR_PAGE + pg.rows.length, n: g.rows.length}))}</span>
+      <button data-nrpage="1" ${pg.at < pg.pages - 1 ? "" : "disabled"}>${esc(t("news.page.next"))}</button></div>` : "";
+    return `<section class="nr-group" data-testid="news-group" data-group="${g.key}">
+      <h2 class="nr-h">${esc(NEWS_GROUP[g.key]())}<small>${g.rows.length}</small></h2>
+      <div class="nr-list">${pg.rows.map(r => newsRowHTML(r, tuesday)).join("")}</div>${pager}</section>`;
+  }).join("");
+  return `<div class="wrap nrwrap ${tuesday ? "tue" : ""}" data-testid="news-report">${body ||
+    `<div class="state-empty" data-testid="news-empty"><div><span>${esc(t("news.empty"))}</span></div></div>`}</div>`;
 }
 
 function wireNews(v){
-  v.querySelectorAll("[data-newscat]").forEach(b => b.addEventListener("click", () => {
-    NEWS_CAT = b.dataset.newscat; render();
+  v.querySelectorAll("[data-nrmore]").forEach(b => b.addEventListener("click", () => {
+    const s = b.dataset.nrmore, open = !NEWS_OPEN.has(s);
+    open ? NEWS_OPEN.add(s) : NEWS_OPEN.delete(s);
+    b.setAttribute("aria-expanded", open);
+    b.nextElementSibling.hidden = !open;      // in place: nothing above it moves
   }));
-  const box = v.querySelector("#news-q");
-  if (box) box.addEventListener("input", () => { NEWS_Q = box.value; newsApplyQuery(v); });
-  newsApplyQuery(v);
+  v.querySelectorAll("[data-nrpage]").forEach(b => b.addEventListener("click", () => {
+    NEWS_AT += Number(b.dataset.nrpage); render();
+    const h = v.querySelector('[data-group="starter"]');
+    if (h) h.scrollIntoView({block: "start"});
+  }));
 }
