@@ -1,6 +1,6 @@
 /* ============================== LEAGUE > RECORDS > TRADE HISTORY (Yahoo) ==============================
-   2026-09-28 as the Trades leaf, since 2026-10-06 the Trade history tab of Records (league/rctabs.js; the Trades
-   leaf is the finder), storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn. Who trades best and worst, each
+   2026-09-28 as the Trades leaf, 2026-10-06 to 2026-10-08 the Trade history tab of Records, since 2026-10-08 its
+   own League leaf `tradehist` (the Trades leaf is the finder), storyboard https://claude.ai/artifact/EhbDwDUZ7ERb2iNfAqaKjn. Who trades best and worst, each
    manager's trades, the heists, the trades that decided a season, and the curses. The same page for every
    reader. One basis per row (David, 2026-09-28): a manager's W-L, dot and trade list count only the weeks
    each team held a player; the trade tree decides the cards (cards.js), and a trade whose tree verdict
@@ -101,7 +101,7 @@ function trRankHTML(){
     ${cols}<ol class="tr-mgrs">${rows}</ol><p class="tr-note">${t("trades.rank.key")}</p></section>`;
 }
 
-/* League > Trades: the same page for every reader. */
+/* League > Trade history: the same page for every reader. */
 function trPageHTML(){
   const D = trData();
   if (!lgUsePicked()) return `<div class="wrap"><p class="tr-none">${t("trades.none")}</p></div>`;
@@ -111,7 +111,7 @@ function trPageHTML(){
   // What PAR means comes before the first number it explains (2026-09-29), then the answer (best, worst,
   // the heists). The sections are siblings in one grid, not two columns: on a desktop the ranking pairs
   // with the curses (trades.css places them) and the decided trades take the full width.
-  return `<div class="wrap">${lgChipHTML()}${rcTabsHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
+  return `<div class="wrap">${lgChipHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
       <p class="tr-kick">${t("trades.page.kick", {a: D.since, b: D.through, n: D.n})}</p><p class="tr-what">${t("trades.page.what")}</p></header>
     ${trTopHTML()}
     <div class="tr-body">${trRankHTML()}${trDecidedBlockHTML()}${trCursesHTML()}</div></div></div>`;

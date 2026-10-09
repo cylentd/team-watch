@@ -127,6 +127,11 @@ GAPS = r"""(phone) => {
 
 # Today's true violations: (leaf, width, kind, selector) -> why it is one, and where it is being fixed.
 KNOWN = {
+    # Trade history became a leaf on 2026-10-08, so the rule measures its ranking for the first time. The empty run is the
+    # aria-hidden dot-and-range track (.tr-track) between the PAR figure and the record; it is the chart, drawn as
+    # positioned children the rule cannot see. Fix: teach the rule a track, or move the dot into a real child (David to decide).
+    ("tradehist", 1280, "row", "li > button.tr-mgr"): "the ranking's range track at 1280px is an aria-hidden chart, 330px of 576px",
+    ("tradehist", 1280, "row", "li.few > button.tr-mgr"): "the same track on the too-few-trades rows",
 }
 
 

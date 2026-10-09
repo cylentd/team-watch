@@ -56,12 +56,12 @@ const navDefaultLeaf = () => navWaiverDay() ? "waivers" : "digest";
 /* What the league on screen has, as plain booleans for navLeavesFor. A connected league has no Waivers:
    ff-jarvis builds the packet for David's leagues only. A leaguemate's team has its league's rail
    (data/mates.js hasWaivers). Recap is every league with a League block, ESPN's too; Records only a
-   league with a record book (Yahoo's), whose Trade history tab is a league with graded trades; Teams (2026-10-05)
+   league with a record book (Yahoo's); Trade history (leaf `tradehist`, 2026-10-08) only a league with graded trades; Teams (2026-10-05)
    and Trades (the trade finder, 2026-10-06) are for all three leagues, and a league with no rosters says so on the
    page. */
 function navFacts(){
   const f = lgFocusKey(), L = f && LGS[f], rosters = lbKeys().length > 0;
-  return {waivers: hasWaivers(TEAMS[VIEW]), teams: rosters, recap: !!L, records: !!(L && L.book), trades: rosters};
+  return {waivers: hasWaivers(TEAMS[VIEW]), teams: rosters, recap: !!L, records: !!(L && L.book), trades: rosters, tradehist: !!(f && LG_TRADES[f])};
 }
 const navTabsOf = group => navLeavesFor(group, navFacts(), navWaiverDay());
 

@@ -15,7 +15,7 @@ const NAV = [
   ["team",     ["roster", "waivers", "trades"]],
   ["week",     ["live", "matchups", "preview", "weekrecap", "parlay", "build", "dfs", "weather"]],
   ["scouting", ["news", "ranks", "board", "movers", "usage", "schedule"]],
-  ["league",   ["recap", "teams", "records"]],
+  ["league",   ["recap", "teams", "records", "tradehist"]],   // Trade history left Records' mode row for its own leaf 2026-10-08 (David, ledger #74)
 ];
 
 /* The most leaves a sub-row holds on a 360 px phone. The row is 332 px (360 less the page's 14 px a side);
@@ -56,11 +56,12 @@ const navGroupOf = leaf => (NAV.find(([, tabs]) => tabs.includes(leaf)) || NAV.f
 /* The leaves a group shows, given what the league on screen has. `facts` is plain booleans:
    waivers (a league with a packet; a connected one has none), teams (any league has rosters),
    recap (the league has a recap block), records (a record book: Yahoo's), trades (the trade finder: any league
-   with rosters, like teams; the graded trade history moved to Records > Trade history, 2026-10-06).
+   with rosters, like teams; the graded trade history moved to Records > Trade history, 2026-10-06), tradehist
+   (the league has graded trades: its own leaf since 2026-10-08, was Records' second tab).
    On a Tuesday, claims day, Waivers leads. */
 function navLeavesFor(group, facts, waiverDay){
   const all = (NAV.find(([g]) => g === group) || NAV[0])[1];
-  const has = {waivers: facts.waivers, teams: facts.teams, recap: facts.recap, records: facts.records, trades: facts.trades};
+  const has = {waivers: facts.waivers, teams: facts.teams, recap: facts.recap, records: facts.records, trades: facts.trades, tradehist: facts.tradehist};
   const tabs = all.filter(k => !(k in has) || has[k]);
   return waiverDay && tabs.includes("waivers") ? ["waivers", ...tabs.filter(k => k !== "waivers")] : tabs;
 }
@@ -88,7 +89,7 @@ function navFocusKey(team, keys){
 const navLabel = leaf => ({
   digest: t("nav.tab.digest"), weekrecap: t("nav.tab.weekrecap"), roster: t("nav.tab.roster"), waivers: t("nav.tab.waivers"),
   records: t("nav.tab.records"), recap: t("nav.tab.recap"), trades: t("nav.tab.trades"),
-  ranks: t("nav.tab.ranks"),
+  tradehist: t("nav.tab.tradehist"), ranks: t("nav.tab.ranks"),
   board: t("nav.tab.board"), movers: t("nav.tab.movers"),
   matchups: t("nav.tab.matchups"), usage: t("nav.tab.grid"), news: t("nav.tab.news"),
   weather: t("nav.tab.weather"), preview: t("nav.tab.preview"), teams: t("nav.tab.teams"),

@@ -204,7 +204,6 @@ surface/league/share-draw.js
 surface/league/tape.js
 surface/league/lead.js
 surface/league/records.js
-surface/league/rctabs.js
 surface/league/cases.js
 surface/league/myrecap.js
 surface/league/league.js

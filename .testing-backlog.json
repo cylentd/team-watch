@@ -170,8 +170,6 @@
     "tests/test_recap_view.py::test_nothing_scrolls_sideways_at_360[scores]",
     "tests/test_recap_view.py::test_players_leaders_lists_and_touchdowns",
     "tests/test_recap_view.py::test_three_tabs_open_on_players_and_the_choice_is_kept",
-    "tests/test_records_tabs.py::test_records_has_all_time_and_trade_history_and_the_second_opens_the_old_trades_page[desktop]",
-    "tests/test_records_tabs.py::test_records_has_all_time_and_trade_history_and_the_second_opens_the_old_trades_page[phone]",
     "tests/test_ros_view.py::test_a_chart_label_opens_the_profile_too",
     "tests/test_ros_view.py::test_a_chip_swaps_the_position_and_the_position_is_shared_with_this_week",
     "tests/test_ros_view.py::test_a_desktop_draws_the_chart_across_the_width_above_the_list",

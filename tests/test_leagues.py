@@ -214,9 +214,8 @@ def test_records_and_trades_for_ayo_say_there_is_no_history_yet(browser, page_fi
     chip.open_by_hash("trades")                    # a #trades link opens the finder, not the old history
     assert chip.subnav_leaves().count("trades") == 1, "Trades is the trade finder since 2026-10-06: every league with rosters has it"
     chip.pick_team("yahoo")
-    drive(page, go("records"))
-    records.select(words("records.tab.trades"))
-    assert records.history_has_ranking(), "the Madden Curse's trades, on Records' Trade history tab"
+    drive(page, go("tradehist"))
+    assert records.history_has_ranking(), "the Madden Curse's trades, on its own Trade history leaf"
     assert errors == []
     ctx.close()
 

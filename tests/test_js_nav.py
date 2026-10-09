@@ -30,7 +30,7 @@ def test_the_bottom_bar_is_team_matchup_players_league_bets(nav):
 def test_team_holds_your_teams_views_and_league_holds_the_leagues(nav):
     assert nav("NAV.some(([g]) => g === 'teams')") is False
     assert nav("NAV.find(([g]) => g === 'team')[1]") == ["roster", "waivers", "trades"]
-    assert nav("NAV.find(([g]) => g === 'league')[1]") == ["recap", "teams", "records"]
+    assert nav("NAV.find(([g]) => g === 'league')[1]") == ["recap", "teams", "records", "tradehist"]
 
 
 def test_no_sub_row_holds_more_than_six_leaves(nav):
@@ -38,7 +38,7 @@ def test_no_sub_row_holds_more_than_six_leaves(nav):
     browser, 2026-10-05; the figures are in data/navmap.js). Stats holds six since Schedule came back (2026-10-06)."""
     assert nav("NAV_SUBROW_MAX") == 6
     # Matchup holds seven since Bets moved under it (Home draft B, 2026-10-08): it scrolls as one row, like Players'.
-    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [1, 3, 7, 6, 3]
+    assert nav("NAV.map(([g, tabs]) => tabs.filter(k => !NAV_HIDDEN.includes(k)).length)") == [1, 3, 7, 6, 4]
     assert nav("NAV_DENSE").count("week") == 1
 
 

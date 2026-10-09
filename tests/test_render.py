@@ -86,7 +86,7 @@ def LIVE_PLANT(states=None):
 # out here (rather than trusting the group button's "return me to where I was") keeps a state
 # reachable in the same way no matter which state ran before it.
 GROUP = {"digest": "home", "roster": "team", "waivers": "team",   # Team split from League on 2026-10-08 (nav regroup)
-         "recap": "league", "records": "league", "trades": "team", "teams": "league",
+         "recap": "league", "records": "league", "tradehist": "league", "trades": "team", "teams": "league",
          "ranks": "scouting", "board": "scouting", "movers": "scouting", "matchups": "week", "usage": "scouting",
          "news": "scouting", "weather": "week", "weekrecap": "week", "preview": "week", "live": "week",
          "schedule": "scouting",
@@ -293,11 +293,12 @@ STATES = [
     # which have no history yet and no graded trades (so no Trade history tab on its Records).
     ("recap-ayo", [("eval", LB_AS("ayo"))] + go("recap")),
     ("records-ayo", [("eval", LB_AS("ayo"))] + go("records")),
-    # Records > Trade history (2026-10-06; the Trades leaf, 2026-09-28): the page, then Lateef's trades open (a 2026 one
+    # League > Trade history (its own leaf `tradehist` since 2026-10-08; Records' second tab 2026-10-06; the Trades leaf,
+    # 2026-09-28): the page, then Lateef's trades open (a 2026 one
     # still open, a trade whose tree verdict differs, the seasons it decided) and every "decided a season" card shown (a
-    # phone swipes through all of them and has no Show all). rcSelect is what a tab runs: a phone's tab is in the pill.
-    ("trades-history", go("records") + [("eval", "rcSelect('trades')")]),
-    ("trades-history-open", go("records") + [("eval", "rcSelect('trades')"), ("click", "[data-trmgr='6']"),
+    # phone swipes through all of them and has no Show all).
+    ("trades-history", go("tradehist")),
+    ("trades-history-open", go("tradehist") + [("click", "[data-trmgr='6']"),
                                               ("eval", "document.querySelector('[data-trall]')?.click()")]),
     # League > Teams (2026-10-05; cards 2026-10-06): the board. The suite's reader is on the Madden Curse, whose fixture is
     # the old scrape with no slots, so the default is the empty state; ESPN's and AYO's boards by the switch, ESPN's
@@ -1056,8 +1057,7 @@ def test_trades_desktop_rows_end_level(browser, page_file):
     cards on top, the ranking beside the curses (ending within 250px of them), the decided trades full width, three
     across. Two columns by kind left the ranking ending ~1000px above its neighbour. On a phone it is one strip, its
     card sections swipe rows."""
-    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#records")
-    page.evaluate("rcSelect('trades')")
+    ctx, page, errors = open_at(browser, page_file, (1440, 900), "#tradehist")
     box = "q => { const r = document.querySelector(q).getBoundingClientRect(); return [r.left, r.top, r.width, r.bottom]; }"
     try:
         rank, curses, dec, body = (page.evaluate(box, q) for q in (".tr-rank", ".tr-curses", ".tr-decided", ".tr-body"))
