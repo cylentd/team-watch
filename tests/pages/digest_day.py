@@ -84,6 +84,27 @@ class DigestDayPage(DigestPage):
         first card starts on the first screen."""
         return self._bn.evaluate("el => { const h = el.getBoundingClientRect().height; return h >= 128 && h <= innerHeight / 3; }")
 
+    def plant_tnf_about_player(self, at):
+        """Thursday's take about one player, the first the page has a head for, of the first club in the colour table;
+        returns his slug and club."""
+        self.plant_tnf(at)
+        return self.page.evaluate("""() => { const g = LIVE_PREVIEW.games[0], heads = {...HEADS, ...(HEADS_LG || {})};
+          const p = {slug: Object.keys(heads)[0], n: 'Sam Hero', pos: 'RB', team: Object.keys(TEAM_COLOURS)[0]};
+          g.take = {...g.take, players: [p], head: 'Hero runs into the softest front he will see'};
+          DG_CUT = null; render(); return {slug: p.slug, team: p.team}; }""")
+
+    def hero_pane(self):
+        """The hero's pane and what is in it, as boxes against the band's (Home's hero v3, 2026-10-08): the face or
+        Blip, the club's code, the headline, and whatever in the club's colour sits behind them."""
+        return self._bn.evaluate("""bn => { const box = el => { if (!el) return null;
+            const r = el.getBoundingClientRect(); return {l: r.left, t: r.top, r: r.right, b: r.bottom, w: r.width}; };
+          const q = id => bn.querySelector(`[data-testid="${id}"]`), ghost = q('digest-lead-ghost');
+          return {band: box(bn), pane: box(q('digest-lead-pane')), face: box(q('digest-lead-face')),
+                  blip: box(q('digest-lead-blip')), club: q('digest-lead-club') ? q('digest-lead-club').textContent : null,
+                  clubBox: box(q('digest-lead-club')), head: box(q('digest-lead-head')),
+                  glow: getComputedStyle(bn, '::after').content,
+                  ghost: !!ghost && ghost.getClientRects().length > 0}; }""")
+
     def banner_marks(self):
         """The tooltips on the headline and the fact line (an untested call says so), or None."""
         return {"head": self._head.get_attribute("title"),

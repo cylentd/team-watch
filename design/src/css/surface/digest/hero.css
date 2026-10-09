@@ -13,12 +13,12 @@
 /* The words' free space goes under the headline: the tiles and the fact hold the band's floor, the headline its
    top, so a short headline leaves the gap in the middle, never at the edge (STYLE.md Gaps). */
 .dg-bn.hero .dg-bn-h{margin-bottom:auto}
-/* With a face or Blip on the floor at the right (face.css), the headline and the fact keep a column at the left,
-   a size down from the full-width headline, so the picture is the hero (David 2026-10-08, "hero v2"). */
-.dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:78%}
+/* With a face or Blip in the pane at the right (face.css), the headline and the fact keep the column at the left,
+   a size down from the full-width headline (David 2026-10-08, "hero v2"; the pane since v3). */
+.dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:64%}
 /* A headline that pushes the band past its budget (face.js dgHeroFit, measured) takes a size down: never cut. */
 .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-5)}
-.dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:78%;margin-top:6px}
+.dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:64%;margin-top:6px}
 
 /* The game's board: a row of tiles in the words' flow, between the day's tag and the headline. */
 .dg-bn.hero.has-vs{padding-right:16px}
@@ -72,8 +72,8 @@
   .dg-bn.hero{min-height:300px;padding:32px 40px}
   .dg-bn.hero .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
   .dg-bn.hero .dg-bn-fact{font-size:var(--t-4);margin-top:12px}
-  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the face's. */
-  .dg-bn.hero.has-face .dg-bn-txt,.dg-bn.hero.has-blip .dg-bn-txt{padding-right:420px}
+  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the pane. */
+  .dg-bn.hero.has-face .dg-bn-txt,.dg-bn.hero.has-blip .dg-bn-txt{padding-right:38%}
   .dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h,
   .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-hero);line-height:1;max-width:20ch}
   .dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:none}

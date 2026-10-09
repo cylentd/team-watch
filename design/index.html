@@ -5436,12 +5436,12 @@ body:has(.connect:not([hidden])){overflow:hidden}
 /* The words' free space goes under the headline: the tiles and the fact hold the band's floor, the headline its
    top, so a short headline leaves the gap in the middle, never at the edge (STYLE.md Gaps). */
 .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{margin-bottom:auto}
-/* With a face or Blip on the floor at the right (face.css), the headline and the fact keep a column at the left,
-   a size down from the full-width headline, so the picture is the hero (David 2026-10-08, "hero v2"). */
-.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:78%}
+/* With a face or Blip in the pane at the right (face.css), the headline and the fact keep the column at the left,
+   a size down from the full-width headline (David 2026-10-08, "hero v2"; the pane since v3). */
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-hero-sm);line-height:1.06;margin-top:10px;max-width:64%}
 /* A headline that pushes the band past its budget (face.js dgHeroFit, measured) takes a size down: never cut. */
 .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-5)}
-.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{max-width:78%;margin-top:6px}
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{max-width:64%;margin-top:6px}
 
 /* The game's board: a row of tiles in the words' flow, between the day's tag and the headline. */
 .dg-bn.hero.has-vs:where(#view[data-view="digest"], #view[data-view="digest"] *){padding-right:16px}
@@ -5495,8 +5495,8 @@ body:has(.connect:not([hidden])){overflow:hidden}
   .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:300px;padding:32px 40px}
   .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
   .dg-bn.hero:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{font-size:var(--t-4);margin-top:12px}
-  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the face's. */
-  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt{padding-right:420px}
+  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the pane. */
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-txt{padding-right:38%}
   .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h,
   .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-hero);line-height:1;max-width:20ch}
   .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-fact{max-width:none}
@@ -5507,55 +5507,62 @@ body:has(.connect:not([hidden])){overflow:hidden}
 }
 /* ── css/surface/digest/face.css ── */
 /* ============================== HOME: THE HERO'S FACE ==============================
-   Ledger #63 (David 2026-10-08, "hero v2"; face.js dgHeroFaceParts). The hero's subject, a poster: the player's
-   cut-out stands on the band's floor, bigger than the words and bleeding off the band's right edge, its chest
-   cropped by the floor and its left side faded under the words, over a glow in his club's colour and in front of
-   the ghost wall. The day's tag and the tiles sit above the headline, which keeps a column at the left (hero.css).
-   On a Blip day, Blip stands on the same floor, twice his old size, on a contact shadow, leaning into the
-   headline. A phone's band stays inside a third of the screen (tests/pages/digest_day.py hero_fits). The face
-   rises from the floor as the tiles finish turning; reduced motion gets it at rest. */
+   Hero v3, "the spread" (David 2026-10-08, ledger #70; face.js dgHeroFaceParts). The band splits: the words on the
+   left, the subject filling a pane on the right whose inner edge is cut on a slant. On his day the player's cut-out
+   fills the pane edge to edge, a photo rather than a head rising from the band's floor (V2's "whack a mole"); his
+   club's code runs down the pane's outer edge, never behind him (V2's glow and ghost were "awkward on wider
+   screens"). On any other day Blip stands in the same pane on a contact shadow, leaning into the headline. A
+   phone's band stays inside a third of the screen (tests/pages/digest_day.py hero_fits). The pane slides in as
+   the tiles finish turning; reduced motion gets it at rest. */
 
 .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *),.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *){min-height:232px}
-.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){
-  position:absolute;right:var(--dg-face-right);bottom:0;z-index:1;margin:0;
-  width:var(--dg-face-w);height:var(--dg-face-w);
-  transform:translateY(var(--dg-face-crop));transform-origin:50% 100%;
-  animation:dg-face-rise var(--dur-flap) var(--ease) var(--dur-flap) both;
-}
-@keyframes dg-face-rise{from{transform:translateY(100%);opacity:0}}
+/* Nothing in his club's colour sits behind him: the ghost wall spelled his club or his rank there. */
+.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{display:none}
 
-/* His head: the cut-out, its chest below the band's edge, its left side faded where the words run. */
-img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:184px;--dg-face-right:-40px;--dg-face-crop:24px;object-fit:contain;object-position:bottom;
-  filter:drop-shadow(0 12px 14px rgb(var(--shadow-rgb) / .55));
-  mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%);
-  -webkit-mask-image:linear-gradient(to right,transparent 6%,rgb(var(--shadow-rgb)) 34%)}
-/* The glow: his club's colour (data/teamcolors.js --team) pooled where he stands, behind the wall's letters. */
-.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{
-  content:"";position:absolute;z-index:0;right:-90px;bottom:-80px;width:360px;height:320px;border-radius:50%;
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--team,var(--panel-3)) 78%,transparent),transparent);
-  pointer-events:none;
+.dg-hpane:where(#view[data-view="digest"], #view[data-view="digest"] *){
+  position:absolute;z-index:1;top:0;right:0;bottom:0;width:var(--dg-pane-w);overflow:hidden;
+  clip-path:polygon(var(--dg-pane-slant) 0,100% 0,100% 100%,0 100%);
+  background:linear-gradient(160deg,rgb(var(--ink-rgb) / .1),rgb(var(--ink-rgb) / .02)),var(--panel);
+  animation:dg-pane-in var(--dur-spring) var(--spring) var(--dur-flap) both;
+  --dg-pane-w:38%;--dg-pane-slant:22%;
 }
-.dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-ghost{z-index:0}
+@keyframes dg-pane-in{from{opacity:0;transform:translateX(24px)}}
 
-/* Blip: feet on the floor (his legs end 10 of 120 viewBox units above his box), a contact shadow under them, the
-   lean toward the words on the figure's own box so the shadow stays flat. */
-.dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:140px;--dg-face-right:-14px;--dg-face-crop:8.3%;--br-d:var(--dur-flap)}
+/* His head: the cut-out covers the pane, his face at the top, his shoulders on the pane's floor. */
+img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;
+  object-fit:cover;object-position:50% 0;transform-origin:50% 30%}
+/* His club: the code down the pane's outer edge, a magazine's spine, in his club's colour lifted toward ink. */
+.dg-hclub:where(#view[data-view="digest"], #view[data-view="digest"] *){
+  position:absolute;z-index:2;right:6px;top:10px;writing-mode:vertical-rl;
+  font:800 var(--t-3)/1 var(--tab);letter-spacing:.3em;text-transform:uppercase;
+  color:color-mix(in srgb,var(--team,var(--ink-3)) 60%,var(--ink));
+}
+
+/* Blip: feet on the pane's floor (his legs end 10 of 120 viewBox units above his box), a contact shadow under
+   them, the lean toward the words on the figure's own box so the shadow stays flat. */
+.dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){position:absolute;left:10%;bottom:6px;width:90%;aspect-ratio:1;margin:0;--br-d:var(--dur-flap)}
 .dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *) svg{display:block;width:100%;height:100%;transform:rotate(-10deg);transform-origin:50% 92%}
 .dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{
-  content:"";position:absolute;left:12%;right:12%;bottom:var(--dg-face-crop);height:14px;border-radius:50%;
+  content:"";position:absolute;left:12%;right:12%;bottom:8.3%;height:14px;border-radius:50%;
   background:radial-gradient(closest-side,rgb(var(--shadow-rgb) / .7),transparent);
 }
 
-/* A face lifts a little under a pointer when the band opens his profile. */
+/* A face leans in a little under a pointer when the band opens his profile. */
 .dg-bn.opens:where(#view[data-view="digest"], #view[data-view="digest"] *) img.dg-hface{transition:transform var(--dur-spring) var(--spring)}
-@media (hover:hover){ .dg-bn.opens:hover:where(#view[data-view="digest"], #view[data-view="digest"] *) img.dg-hface{transform:translateY(var(--dg-face-crop)) scale(1.03)} }
+@media (hover:hover){ .dg-bn.opens:hover:where(#view[data-view="digest"], #view[data-view="digest"] *) img.dg-hface{transform:scale(1.04)} }
 
-@media (prefers-reduced-motion:reduce){ .dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){animation:none} }
+@media (prefers-reduced-motion:reduce){ .dg-hpane:where(#view[data-view="digest"], #view[data-view="digest"] *){animation:none} }
 
+/* A tablet's column is wide enough that a headline over the band's budget only needs one step down, not two. */
+@media (min-width:760px){
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-6)}
+}
 @media (min-width:960px){
-  img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:352px;--dg-face-right:-48px;--dg-face-crop:48px}
-  .dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-face-w:224px;--dg-face-right:0}
-  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *)::after{right:-80px;bottom:-160px;width:640px;height:560px}
+  .dg-hpane:where(#view[data-view="digest"], #view[data-view="digest"] *){--dg-pane-w:40%}
+  .dg-bn.hero.has-face:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long,.dg-bn.hero.has-blip:where(#view[data-view="digest"], #view[data-view="digest"] *) .dg-bn-h.long{font-size:var(--t-hero)}
+  img.dg-hface:where(#view[data-view="digest"], #view[data-view="digest"] *){object-position:50% 18%}
+  .dg-hclub:where(#view[data-view="digest"], #view[data-view="digest"] *){font-size:var(--t-6);right:14px;top:18px}
+  .dg-hblip:where(#view[data-view="digest"], #view[data-view="digest"] *){left:22%;width:62%}
 }
 /* ── css/surface/digest/ticker.css ── */
 /* ============================== DIGEST: SHARED PARTS ==============================
@@ -22563,8 +22570,8 @@ function dgLeadHTML(){
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
-  // The subject (face.js): a player's cut-out over a glow in his club's colour, or Blip; the tiles sit under the
-  // headline, in the words' flow, so the headline keeps the full width above the face (face.css).
+  // The subject (face.js): a player's cut-out or Blip in a pane at the right, his club's code on its edge; the
+  // tiles sit under the headline, in the words' flow (face.css).
   const face = dgHeroFaceParts(L, plan), team = L.team || face.team;
   return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
       face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>
@@ -22578,9 +22585,8 @@ function dgLeadHTML(){
 /* ============================== HOME: THE HERO'S FACE ==============================
    Ledger #63 (David 2026-10-08, "face a"; the subject since the same evening: "flashy and cool... the first thing
    people see"): the hero's subject. A headline about one player shows his 256px cut-out (heads/lg/ where
-   ff-jarvis cut one, else heads/), cropped at the chest and standing on the band's floor at the right, over a
-   glow in his club's colour; any other headline shows Blip, twice his old size, standing on the same floor and
-   leaning into the headline. The pose is League's set (surface/league/lead.js LG_BLIP_LABEL, lib/blip.js
+   ff-jarvis cut one, else heads/), filling a pane at the band's right with his club's code on its edge (v3, below);
+   any other headline shows Blip standing in the same pane and leaning into the headline. The pose is League's set (surface/league/lead.js LG_BLIP_LABEL, lib/blip.js
    blipReactSVG), picked by data/hero.js dgHeroFace from the day's job and Claude's call. The face sits outside
    the words (digest/face.css), so the headline keeps its full width and is never cut. Blip is drawn without a
    label: the headline beside him says what the day is about. His reaction plays once as the page lands
@@ -22588,21 +22594,29 @@ function dgLeadHTML(){
 /* The band's budget on a phone: a third of the screen (tests/pages/digest_day.py hero_fits), so the first card
    starts on the first screen. A headline that pushes the band past it takes a size down (hero.css `long`),
    measured in the reader's browser after the render, never guessed from its length (STYLE.md Layout). */
-const DG_HERO_BUDGET = 3;
+const DG_HERO_BUDGET = 3;  // nomutate: the budget itself; its tests read it back
 function dgHeroFit(root){
   const bn = root && root.querySelector(".dg-bn.hero"), h = bn && bn.querySelector(".dg-bn-h");
   if (!h || h.classList.contains("long")) return;
   if (bn.getBoundingClientRect().height > window.innerHeight / DG_HERO_BUDGET) h.classList.add("long");
 }
 
+/* Hero v3, "the spread" (David 2026-10-08, ledger #70): the subject sits in a pane at the band's right (face.css),
+   his club's code on the pane's outer edge when the lead knows his club. */
+const dgHeroPane = (inner, club) => `<div class="dg-hpane" data-testid="digest-lead-pane" aria-hidden="true">${inner}${
+  club ? `<span class="dg-hclub" data-testid="digest-lead-club">${esc(club)}</span>` : ""}</div>`;
+
 function dgHeroFaceParts(L, plan){
-  const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG : {}, sm = typeof HEADS !== "undefined" ? HEADS : {};
+  const lg = typeof HEADS_LG !== "undefined" && HEADS_LG ? HEADS_LG : {}, sm = typeof HEADS !== "undefined" ? HEADS : {};  // nomutate: a null HEADS_LG passes either way, dgHeroFace reads it as (lg || {})
   const f = dgHeroFace(L, plan && plan.banner, lg, sm);
-  if (f.slug) return {kind: "has-face", team: dgTeamCode(dgHeroTeam(L, f.slug)),
-    html: `<img class="dg-hface" data-testid="digest-lead-face" src="${esc(f.src)}" alt="" decoding="async" onerror="this.remove()">`};
+  if (f.slug){
+    const team = dgTeamCode(dgHeroTeam(L, f.slug));
+    return {kind: "has-face", team,
+      html: dgHeroPane(`<img class="dg-hface" data-testid="digest-lead-face" src="${esc(f.src)}" alt="" decoding="async" onerror="this.remove()">`, team)};
+  }
   if (!LG_BLIP_LABEL[f.pose]) return {kind: "", team: "", html: ""};
-  return {kind: "has-blip", team: "", html: `<figure class="dg-hface dg-hblip bp-in" data-testid="digest-lead-blip" data-pose="${f.pose}">${
-    blipReactSVG("", f.pose)}</figure>`};
+  return {kind: "has-blip", team: "", html: dgHeroPane(`<figure class="dg-hblip bp-in" data-testid="digest-lead-blip" data-pose="${f.pose}">${
+    blipReactSVG("", f.pose)}</figure>`, "")};
 }
 /* ── js/surface/digest/day.js ── */
 /* ============================== DIGEST: THE DAY'S BANNER ==============================

@@ -1122,6 +1122,9 @@ holds one view, today's Digest (leaf `digest`, hash `#digest`), so it draws no t
   huge outlined letters. Every tile flips over in turn once as the page lands (`--dur-flap`, `--flap-step`); a
   pointer flips the ghost again; reduced motion gets the end state. At most a third of the screen (227px of 800 at
   360px on Thursday, 203px on Sunday).
+  2026-10-08: David chose C, spread: face in a slanted pane, club code on its edge, over a card and a medallion,
+  because the sign behind the face was awkward wide and the bottom rise looked like whack-a-mole (ledger #70;
+  `digest/face.css`, `face.js` `dgHeroPane`; superseding V2's cut-out on the band's floor over a club glow).
 - **Desktop:** the cards flow in balanced columns (CSS columns), so no column leaves a hole.
 - **Right now** takes Weather's place from the first kickoff (`DG_TAKES_PLACE`).
 

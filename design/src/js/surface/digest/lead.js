@@ -212,8 +212,8 @@ function dgLeadHTML(){
   // The ghost wall: the lead's reason in huge outlined split-flap letters behind the words (data/hero.js).
   const ghost = dgHeroGhost(L, schedWeek());
   const wall = ghost ? `<span class="dg-bn-ghost" data-testid="digest-lead-ghost" aria-hidden="true">${dgFlapHTML(ghost)}</span>` : "";
-  // The subject (face.js): a player's cut-out over a glow in his club's colour, or Blip; the tiles sit under the
-  // headline, in the words' flow, so the headline keeps the full width above the face (face.css).
+  // The subject (face.js): a player's cut-out or Blip in a pane at the right, his club's code on its edge; the
+  // tiles sit under the headline, in the words' flow (face.css).
   const face = dgHeroFaceParts(L, plan), team = L.team || face.team;
   return `<article class="dg-bn ${L.tone} hero${side ? " has-side" : ""}${L.vs ? " has-vs" : ""}${go ? " opens" : ""}${
       face.kind ? " " + face.kind : ""}" data-testid="digest-lead" data-dgday="${plan.key}"${team ? " " + teamColourStyle(team) : ""}>

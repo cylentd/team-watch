@@ -210,3 +210,54 @@ def test_a_wide_screen_fits(mount):
     dg.plant_card()
     assert dg.fits() and dg.hero_fits()
     assert errors == []
+
+
+# ---------------------------------------------------------------- the hero's pane (v3, David 2026-10-08, ledger #70)
+# "The headshot popping out from the bottom is too awkward" and "the team sign shouldn't be right behind the
+# headshot": the subject fills a pane that holds the band's right edge, top to bottom, the club's code on its edge.
+
+WIDE = (1280, 900)
+SLANT = 0.22    # face.css --dg-pane-slant: the pane's inner edge is cut on a slant, the words may run under its top
+
+
+def near(a, b):
+    return abs(a - b) <= 1
+
+
+@pytest.mark.req("Home", ac="a player's face fills a pane on the band's right edge, top to bottom, never rising from its floor")
+@pytest.mark.parametrize("size", [PHONE, WIDE], ids=["phone", "wide"])
+def test_a_players_face_fills_a_pane_on_the_bands_right_edge(mount, size):
+    page, errors = mount("digest", size=size, heads=True)
+    dg = DigestDayPage(page)
+    dg.plant_tnf_about_player(NOON["thu"])
+    got = dg.hero_pane()
+    band, pane, face = got["band"], got["pane"], got["face"]
+    assert near(pane["r"], band["r"]) and near(pane["t"], band["t"]) and near(pane["b"], band["b"]), "the pane holds the band's right edge"
+    assert (face["t"], face["b"]) == (pane["t"], pane["b"]) and face["l"] >= pane["l"] - 1 and face["r"] <= pane["r"] + 1, "the face fills the pane"
+    assert got["head"]["r"] <= pane["l"] + SLANT * pane["w"], "the headline ends before the pane"
+    assert errors == []
+
+
+@pytest.mark.req("Home", ac="the face's club is a code on the pane's outer edge, and nothing in his club's colour sits behind him")
+@pytest.mark.parametrize("size", [PHONE, WIDE], ids=["phone", "wide"])
+def test_the_club_sits_on_the_panes_edge_not_behind_the_face(mount, size):
+    page, errors = mount("digest", size=size, heads=True)
+    dg = DigestDayPage(page)
+    who = dg.plant_tnf_about_player(NOON["thu"])
+    got = dg.hero_pane()
+    assert got["club"] == who["team"]
+    assert got["clubBox"]["r"] >= got["pane"]["r"] - 24, "the code runs down the pane's outer edge"
+    assert (got["glow"], got["ghost"]) == ("none", False), "no glow and no ghost letters behind him"
+    assert errors == []
+
+
+@pytest.mark.req("Home", ac="on a day about no one player Blip stands in the same pane, with no club")
+@pytest.mark.parametrize("size", [PHONE, WIDE], ids=["phone", "wide"])
+def test_blip_stands_in_the_pane_on_a_day_about_no_one(mount, size):
+    dg, errors = day(mount, size=size)
+    dg.plant_tnf(NOON["thu"])
+    got = dg.hero_pane()
+    pane, blip = got["pane"], got["blip"]
+    assert near(pane["r"], got["band"]["r"]) and pane["l"] <= blip["l"] and blip["r"] <= pane["r"] + 1 and blip["b"] <= pane["b"]
+    assert got["club"] is None
+    assert errors == []
