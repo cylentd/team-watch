@@ -45,6 +45,10 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-09: chose Back leaving the view over Back stepping through a view's own tabs (Live, Recap, Ranks' Rest of season) (David).
 - 2026-10-09: chose Ranks printing our own projection, with order and tiers from it, everywhere the page shows a player's week (David, reapproving the tests that pinned the books' order).
 - 2026-10-09: chose a default, consistent landing view for every group over returning to the last view seen: the last view "is confusing as we want to reduce mental load on the user" (David).
+- 2026-10-09: chose Start/Sit leading with the reader's own lineup and our one swap (draft A) over a compare-first or a by-position page; every call, running backs too, decided by our points, never the books (David).
+- 2026-10-09: chose News as an injury report (each player's Sunday word and Wed-Fri practice), blended with player rows on Tuesday, over a filtered feed; facts only, no lineup instructions: "I dont like the Bench him because we are not linked to their fantasy app" (David).
+- 2026-10-09: chose Ranks drawing ff-jarvis's week_ranks rank and tier as shipped, now that ff-jarvis orders them on our own points, over re-sorting here; the "No line" tag and the books' RB note are gone (David).
+- 2026-10-09: chose a tier ladder with the rank on each name for week ranks on Home, and fantasy team avatars as a Teams list plus a picker grid, over a dot chart, packs or avatars on today's cards (David, storyboards a + d).
 
 ## Not doing
 
