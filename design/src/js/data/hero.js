@@ -23,6 +23,16 @@ const dgFlapWords = html => {
     : part.split(/(\s+)/).map(w => w && !/^\s+$/.test(w) ? `<i class="dg-hw" style="--i:${i++}">${w}</i>` : w).join("")).join("");
 };
 
+/* The headline's letters as split-flap tiles (David 2026-10-08, ledger #73: "on hover the headline doesnt flip like a
+   scoreboard like the previous animation"): each letter one tile knowing its place across the whole headline (--c),
+   so a pointer turns them over in turn, as b0284898's ghost letters did (digest/hero.css). Runs on dgFlapWords'
+   output: a tag passes through whole, a space stays plain text, an entity is one letter. */
+const dgFlapChars = html => {
+  let c = 0;
+  return String(html || "").split(/(<[^>]*>)/).map(part => part.startsWith("<") ? part
+    : (part.match(/&[^;\s]+;|\s+|./gu) || []).map(ch => ch.trim() ? `<i class="dg-hc" style="--c:${c++}">${ch}</i>` : ch).join("")).join("");
+};
+
 /* The face's cuts as a srcset (David 2026-10-08, "the headshot is not clear. looks pixelated"): the pane draws the
    square head at its larger side, 232-300px on a phone, so a 2x screen needs ~460-600 device px and the 256px cut
    blurred there. `cuts` is [[slug -> path, px], ...] smallest first; the browser takes the smallest sharp at the

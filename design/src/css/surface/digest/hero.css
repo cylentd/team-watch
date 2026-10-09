@@ -49,6 +49,17 @@
   100%{transform:none;opacity:1}
 }
 
+/* A pointer over the band turns the headline over letter by letter, left to right, a split-flap board turning a full
+   revolution, and leaving turns it back (David 2026-10-08, ledger #73: "on hover the headline doesnt flip like a
+   scoreboard like the previous animation"; the hover b0284898 gave the ghost's letters, which V2's pane hid). */
+.dg-bn.hero .dg-hc{
+  display:inline-block;font-style:inherit;transform-origin:50% 55%;
+  transition:transform var(--dur-flap) var(--ease) calc(var(--c) * var(--flap-char-step));
+}
+@media (hover:hover){
+  .dg-bn.hero:hover .dg-hc{transform:perspective(var(--flap-depth)) rotateX(360deg)}
+}
+
 /* The ghost wall. */
 .dg-bn-ghost{
   position:absolute;right:-4px;bottom:-14px;z-index:0;perspective:900px;
@@ -78,16 +89,15 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .dg-bn.hero .dg-bn-vs i,.dg-bn-ghost i,.dg-bn.hero .dg-hw{animation:none;transition:none}
-  .dg-bn.hero:hover .dg-bn-ghost i{transform:none}
+  .dg-bn.hero .dg-bn-vs i,.dg-bn-ghost i,.dg-bn.hero .dg-hw,.dg-bn.hero .dg-hc{animation:none;transition:none}
+  .dg-bn.hero:hover .dg-bn-ghost i,.dg-bn.hero:hover .dg-hc{transform:none}
 }
 
 @media (min-width:960px){
   .dg-bn.hero{min-height:300px;padding:32px 40px}
   .dg-bn.hero .dg-bn-h{font-size:var(--t-hero);max-width:20ch;line-height:1}
   .dg-bn.hero .dg-bn-fact{font-size:var(--t-4);margin-top:12px}
-  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the pane. */
-  .dg-bn.hero.has-face .dg-bn-txt,.dg-bn.hero.has-blip .dg-bn-txt{padding-right:38%}
+  /* A desktop has the width: the headline keeps its hero size and the words' column ends before the pane (face.css). */
   .dg-bn.hero.has-face .dg-bn-h,.dg-bn.hero.has-blip .dg-bn-h,
   .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-hero);line-height:1;max-width:20ch}
   .dg-bn.hero.has-face .dg-bn-fact,.dg-bn.hero.has-blip .dg-bn-fact{max-width:none}

@@ -8,8 +8,10 @@
    the tiles finish turning; reduced motion gets it at rest. */
 
 .dg-bn.hero.has-face,.dg-bn.hero.has-blip{min-height:232px}
-/* Nothing in his club's colour sits behind him: the ghost wall spelled his club or his rank there. */
-.dg-bn.hero.has-face .dg-bn-ghost{display:none}
+/* Nothing in his club's colour sits behind him: the ghost wall spelled his club or his rank there. On Blip's day it
+   spelled the home side the tiles already show, and since the desktop pane hugs its subject (ledger #73) its letters
+   peeked out beside the pane as stray lines. The headline's own letters flip under a pointer instead (hero.css). */
+.dg-bn.hero.has-face .dg-bn-ghost,.dg-bn.hero.has-blip .dg-bn-ghost{display:none}
 
 .dg-hpane{
   position:absolute;z-index:1;top:0;right:0;bottom:0;width:var(--dg-pane-w);overflow:hidden;
@@ -49,10 +51,17 @@ img.dg-hface{position:absolute;inset:0;width:100%;height:100%;max-width:none;mar
 @media (min-width:760px){
   .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-6)}
 }
+/* A desktop's pane hugs his head (David 2026-10-08, ledger #73: "the desktop design is not good"; 40% of a 1635px band
+   was a 620px pane that cropped him to eyes and mouth and left most of it empty). The head is a square as tall as the
+   band's floor height (--dg-face), the pane that square plus the slant beside it (1 / (1 - 22%) = 50/39), and the head
+   is drawn whole (contain) on the pane's floor: a band grown taller by a long headline adds room over him, never a
+   crop. The words' column ends a pane's width short of the band's edge. */
 @media (min-width:960px){
-  .dg-hpane{--dg-pane-w:40%}
+  .dg-bn.hero{--dg-face:300px;--dg-desk-pane:calc(var(--dg-face) * 50 / 39)}
+  .dg-hpane{--dg-pane-w:var(--dg-desk-pane)}
+  .dg-bn.hero.has-face .dg-bn-txt,.dg-bn.hero.has-blip .dg-bn-txt{padding-right:var(--dg-desk-pane)}
   .dg-bn.hero.has-face .dg-bn-h.long,.dg-bn.hero.has-blip .dg-bn-h.long{font-size:var(--t-hero)}
-  img.dg-hface{object-position:50% 18%}
+  img.dg-hface{left:auto;width:auto;max-width:100%;aspect-ratio:1;object-fit:contain;object-position:50% 100%}
   .dg-hclub{font-size:var(--t-6);right:14px;top:18px}
   .dg-hblip{left:22%;width:62%}
 }

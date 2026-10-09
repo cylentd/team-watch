@@ -245,4 +245,6 @@
   --dur-flash:1.8s;     /* a Breaking row new since the last visit, lit once */
   --dur-flap:.8s;       /* one split-flap tile of Home's hero turning over as the page lands */
   --flap-step:75ms;     /* the gap between two tiles of the flip, so it runs left to right like a scoreboard */
+  --flap-char-step:24ms; /* the gap between two letters of the headline turning under a pointer: b0284898's ghost
+                           used 90ms over 3 letters; a 40-letter headline at 90ms would take 4.4s, at 24ms 1.8s */
   --flap-depth:500px;   /* the viewer's distance for a headline word turning over: near enough that the hinge reads */
