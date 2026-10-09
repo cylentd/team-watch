@@ -2,7 +2,7 @@
 the head rail, the strip of cells and its notes, the link to Usage, and the league owners.
 
 Every locator is a `profile-*` data-testid (test hooks only), through the modal's `_tid`; a few reads go past
-one because the element is drawn outside surface/profile/ (the "No line" tag, `.pf-noline`, rbrules.js).
+one because the element is drawn outside surface/profile/.
 
 `ProfileHead` extends `ProfileSheet` (pages/profile_sheet.py) and is the base of `ProfilePage` (pages/profile.py):
 one object, one API for a test.
@@ -87,10 +87,6 @@ class ProfileHead(ProfileSheet):
     def notes(self):
         """The strip's notes, as read."""
         return self._tid("profile-lede-note").all_inner_texts()
-
-    def noline_tips(self):
-        """The tooltip of every "No line" tag on the strip (drawn by data/rbrules.js: no testid); [] when none."""
-        return self._modal.locator(".pf-noline").evaluate_all("ts => ts.map(t => t.title)")
 
     def projection(self, slug):
         return self.page.evaluate("s => projFor({slug: s}).toFixed(1)", slug)

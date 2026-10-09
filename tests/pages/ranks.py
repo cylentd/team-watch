@@ -60,9 +60,7 @@ class RanksPage:
                   mx: get("ranks-mx") ? get("ranks-mx").textContent : null,
                   mx_up: get("ranks-mx") ? get("ranks-mx").classList.contains("up") : null,
                   pos: get("ranks-row-pos") ? get("ranks-row-pos").textContent : null,
-                  mine: r.classList.contains("mine"),
-                  noline: r.querySelector(".rk-noline") ? {text: r.querySelector(".rk-noline").textContent,
-                                                            title: r.querySelector(".rk-noline").title} : null};
+                  mine: r.classList.contains("mine")};
         })""")
 
     def tiers(self):

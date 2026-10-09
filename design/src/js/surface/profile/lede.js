@@ -43,8 +43,5 @@ function ledeHTML(p, prof){
   const html = cells.map(c => ledeCellHTML(esc(c.value), c.label, c.id, c.range ? range : null)).join("");
   // The band is said in words once, under the strip, and only when a cell draws one (plan U5).
   const note = cells.some(c => c.range) ? `<p class="pf-lede-note" data-testid="profile-lede-note">${t("range.note")}</p>` : "";
-  // A back the books left unpriced beside a priced teammate (rbrules.js, METHODOLOGY 12.87): the tag and what it means.
-  const noLine = rbNoLine(rbProjRow(p.slug));
-  const why = noLine ? `<p class="pf-lede-note" data-testid="profile-lede-note">${rbNoLineHTML(rbProjRow(p.slug), "pf-noline")}${noLine.tip}</p>` : "";
-  return html ? `<div class="pf-lede" data-testid="profile-lede">${html}</div>${note}${why}` : "";
+  return html ? `<div class="pf-lede" data-testid="profile-lede">${html}</div>${note}` : "";
 }

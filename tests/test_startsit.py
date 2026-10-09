@@ -162,7 +162,6 @@ def test_the_verdict_judges_the_margin_as_shown_to_one_decimal(ss):
 
 
 PICK_RBS = "SS_PICKS = %s; SS_OPEN = false; SS_Q = ''; SS_CMP = true;"
-NOTE = words("ranks.rb.note")
 
 
 @pytest.mark.render
@@ -192,9 +191,8 @@ def test_a_back_against_a_receiver_is_called_by_points_with_no_note(ss):
 @pytest.mark.render
 def test_an_unlined_backup_wears_no_tag_when_the_rank_is_ours(ss):
     """Kendre Miller (the books priced a teammate, not him): with ff-jarvis week_ranks loaded the page shows
-    one rank, so no No line tag and no note (David 2026-10-08, ledger #23)."""
+    one rank, so no note (David 2026-10-08, ledger #23; the No line tag is gone, ledger #96)."""
     pg = ss(PICK_RBS % "['breece-hall', 'kendre-miller']")
-    assert pg.locator(".ssv-who .ssv-noline").count() == 0
     assert pg.locator(".ssv-why").count() == 0
     assert verdict(pg)["name"] == "B. Hall"
 

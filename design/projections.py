@@ -83,28 +83,15 @@ def slate(players, slugify, schedule, week=None):
     return week, off
 
 
-def order_key(p):
-    """What a player is ordered by within his position: for a running back the books' implied points
-    (`rank_pts`) where his game's RB markets are priced, else his projection. The books' number ranks
-    backs better than ours but reads about 0.5 high in level, so it orders and never displays
-    (ff-jarvis METHODOLOGY 12.86, 2026-10-05, weekly Spearman 0.527 -> 0.551). Every other position
-    orders by `pts`: 12.86 tested running backs only. Null when he has no points."""
-    pts = p.get("pts")
-    rp = p.get("rank_pts")
-    if p.get("pos") == "RB" and isinstance(rp, (int, float)) and pts is not None:
-        return rp
-    return pts
-
-
 def position_ranks(players, slugify, skip=()):
     """slug -> (rank, of): where this week's projected points put a player among every player
-    ff-jarvis projects at his position, 1 = most (running backs: by `order_key`). Ranked over the whole list, before the cut to
+    ff-jarvis projects at his position, 1 = most. Ranked over the whole list, before the cut to
     `wanted`, or a roster would only be ranked against itself. The roster cards' tier is this rank
     (js/surface/teams/cards.js). Plain half-PPR, so an ESPN rank is approximate. A player in
     `skip` (not playing this week) is not ranked, so everyone below him moves up."""
     best = {}
     for p in players:
-        slug, pts = slugify(p.get("name") or ""), order_key(p)
+        slug, pts = slugify(p.get("name") or ""), p.get("pts")
         if not slug or pts is None or not p.get("pos") or slug in skip:
             continue
         if slug not in best or pts > best[slug][1]:
@@ -122,7 +109,7 @@ def position_ranks(players, slugify, skip=()):
 
 def live_projections(raw, slugify, wanted, status=None, schedule=None, week_ranks=None, ranks=None):
     """LIVE_PROJECTIONS: {players: {slug -> {pts, mu, games, src, rank, of, out, done, wx, floor, ceil,
-    stage, rank_pts, unlined_backup, pts_before_unlined}}, meta:
+    stage, rank_pts}}, meta:
     {scoring, through}} or None when ff-jarvis has not written the file. Two players on the same
     slug keep the model source over a line-only fallback, same tie-break as build.py's
     _stock_by_slug(). A player Sleeper lists as not playing (`status`, OUT_INJURY) keeps his row
@@ -168,13 +155,9 @@ def live_projections(raw, slugify, wanted, status=None, schedule=None, week_rank
                         # "early" (no prop line posted for his game yet) | "lined" (lines posted for his game; his own blended if he has one) |
                         # null (a bye, or a feed from before ff-jarvis said which). Absent is never an error.
                         "stage": p.get("stage"),
-                        # Running backs only (ff-jarvis METHODOLOGY 12.86 and 12.87, 2026-10-05), null
-                        # elsewhere and with no points. `rank_pts`: the books' implied points, which order
-                        # backs and are never shown (they read ~0.5 high). `unlined_backup`: the books priced
-                        # a teammate, not him, so `pts` is already cut to 30% of `pts_before_unlined`.
-                        "rank_pts": None if slug in gone or slug in done else p.get("rank_pts"),
-                        "unlined_backup": (p.get("unlined_backup") or None) if slug not in gone and slug not in done else None,
-                        "pts_before_unlined": None if slug in gone or slug in done else p.get("pts_before_unlined")}
+                        # Running backs only (ff-jarvis METHODOLOGY 12.86), null elsewhere and with no points:
+                        # the books' implied points, never shown. Only the Start/Sit picker still reads it.
+                        "rank_pts": None if slug in gone or slug in done else p.get("rank_pts")}
     if not out:
         return None
     meta = {k: (raw or {}).get(k) for k in ("scoring", "through", "generated", "stage")}

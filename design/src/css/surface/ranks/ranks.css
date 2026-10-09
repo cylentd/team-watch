@@ -52,10 +52,6 @@
 .rk-mx.dn{color:var(--down)}
 .rk-inj{flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
 .rk-inj.d{color:var(--down)}
-/* "No line" (rbrules.js): the books priced a teammate, not him. An outline tag, quiet like a note flag: it is context for
-   the number, not a verdict. */
-.rk-noline{flex:none;padding:2px 5px;border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;line-height:1;
-  letter-spacing:.04em;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2)}
 /* A desktop has the width for what the points are made of, between the name and the number. */
 @media (min-width:760px){
   .rk-row{grid-template-columns:28px 34px minmax(200px,280px) minmax(0,1fr) 72px;gap:14px;padding:4px 20px}

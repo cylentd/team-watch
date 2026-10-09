@@ -2,7 +2,7 @@
 
 Every locator lives here, data-testid first (`profile-*`, test hooks only: no CSS or JS reads them). A
 few reads go past a testid because the element is drawn by a file outside surface/profile/: the leg
-sheet's bars (`.ls-*`), the Leaders card's fields (`.bd-*`), the "No line" tag (`.pf-noline`, rbrules.js),
+sheet's bars (`.ls-*`), the Leaders card's fields (`.bd-*`),
 the weather icon (`.pf-wx-i`). The profile has no leaf, so a test mounts the roster (pages/roster.py
 `on_roster`) and opens it from there; the roster's own rows are `profile.roster`.
 

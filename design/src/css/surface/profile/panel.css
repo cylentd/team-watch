@@ -63,10 +63,6 @@
 /* Floor and ceiling under the label (plan U5), said in words once under the strip. */
 .pf-lede-r{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pf-lede-note{margin:6px 0 0;font-size:var(--t-1);color:var(--ink-3)}
-/* "No line" (rbrules.js), beside the note that says what it means. */
-.pf-noline{display:inline-block;margin-right:6px;padding:2px 5px;border-radius:4px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;
-  line-height:1;letter-spacing:.04em;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2)}
-
 /* Who has him (owners.js): one pill per league. The reader's own team is lime, the page's "this is
    yours" colour; a free agent is green, the page's "up". The league's tag is grey, not Yahoo purple
    or ESPN red (2026-09-29, David: "super bright and distracting"): the word already names the

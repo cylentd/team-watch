@@ -4,7 +4,7 @@
  "weekly": {
   "season": 2026, "week": 2, "scoring": "half", "trial": "12.116",
   "w": {"QB": 0.5, "RB": 0.5, "WR": 0.0, "TE": 0.5},
-  "src_by_pos": {"QB": "books", "RB": "books", "WR": "blend", "TE": "books"},
+  "src_by_pos": {"QB": "ours", "RB": "ours", "WR": "ours", "TE": "ours"},
   "tier_method": "kmeans",
   "off": [],
   "lists": {
@@ -13,9 +13,9 @@
     {"key": "brock purdy", "name": "Brock Purdy", "pos": "QB", "team": "SF", "opp": "SEA", "kickoff": "2026-09-14T00:20:00Z", "rank": 2, "tier": 2, "val": -2.0, "pts": 18.1, "src": "books", "rank_pts": 18.1}
    ],
    "RB": [
-    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 15.0, "src": "books", "rank_pts": 17.0},
-    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": -2.0, "pts": 16.2, "src": "books", "rank_pts": 16.2},
-    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 3, "tier": 2, "val": -3.0, "pts": 3.1, "src": "ours", "rank_pts": 3.1}
+    {"key": "chase brown", "name": "Chase Brown", "pos": "RB", "team": "CIN", "opp": "NYJ", "kickoff": "2026-09-13T17:00:00Z", "rank": 1, "tier": 1, "val": 16.2, "pts": 16.2, "src": "ours", "rank_pts": 16.2},
+    {"key": "breece hall", "name": "Breece Hall", "pos": "RB", "team": "NYJ", "opp": "CIN", "kickoff": "2026-09-13T17:00:00Z", "rank": 2, "tier": 1, "val": 15.0, "pts": 15.0, "src": "ours", "rank_pts": 17.0},
+    {"key": "kendre miller", "name": "Kendre Miller", "pos": "RB", "team": "SEA", "opp": "SF", "kickoff": "2026-09-14T00:20:00Z", "rank": 3, "tier": 2, "val": 3.1, "pts": 3.1, "src": "ours", "rank_pts": 3.1}
    ],
    "WR": [
     {"key": "amonra st brown", "name": "Amon-Ra St. Brown", "pos": "WR", "team": "DET", "opp": "GB", "kickoff": "2026-09-15T00:15:00Z", "rank": 1, "tier": 1, "val": -1.0, "pts": 17.3, "src": "blend", "rank_pts": 17.3}

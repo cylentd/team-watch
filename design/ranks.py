@@ -13,14 +13,14 @@ as his are. A plain "break where the drop is large" rule was tried on week 3 and
 
 Self-contained like the other cuts: the raw block, slugify and the out-list come in as arguments.
 """
-from projections import kick_iso, order_key, slate, unavailable
+from projections import kick_iso, slate, unavailable
 from week_ranks import load_week_ranks   # noqa: F401  (build.py loads the file through here)
 
 # How deep each list goes, and how many tiers it is split into.
 DEPTH = {"QB": (32, 8), "RB": (60, 12), "WR": (72, 14), "TE": (32, 8), "FLEX": (100, 16)}
 FLEX = ("RB", "WR", "TE")
 SCORING_WORD = {"half": "half-PPR"}   # week_ranks says "half"; the heading says the scoring the way the projections do
-FALLBACK_WORDS ="Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order)"
+FALLBACK_WORDS = "Ranks: week_ranks missing, so the old cut (natural breaks of our projections)"
 
 
 def report(ranks):
@@ -112,14 +112,10 @@ def live_ranks(raw, slugify, status=None, schedule=None, week_ranks=None):
 
 def _from_projections(raw, slugify, status=None, schedule=None):
     """The old cut: {scoring, week, off, from, rows, flex}, or None when ff-jarvis has not written the file.
-    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil,
-    rank_pts, unlined_backup, pts_before_unlined, rank, tier}, best first (`floor` and `ceil`:
-    ff-jarvis's 10th and 90th percentile outcome, null without a band, never computed here).
-    Running backs (2026-10-05, ff-jarvis METHODOLOGY 12.86): the RB list, its tiers and the RB `rank`
-    follow `rank_pts` (the books' implied points) where a back has one, else `pts`; the number a row
-    shows stays `pts`. FLEX and every other position order by `pts`. `unlined_backup` (12.87) marks a
-    back the books left unpriced beside a priced teammate, whose `pts` is already cut to 30% of
-    `pts_before_unlined`:
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil, rank, tier}, best
+    first (`floor` and `ceil`: ff-jarvis's 10th and 90th percentile outcome, null without a band, never computed
+    here). Every position, running backs too, orders and tiers by `pts` (ledger #96, 2026-10-09; a back followed the
+    books' `rank_pts` until then, with a "No line" flag, ff-jarvis METHODOLOGY 12.86 and 12.87).
     `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
     together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
     row too; a FLEX row's own place is its index.
@@ -131,7 +127,7 @@ def _from_projections(raw, slugify, status=None, schedule=None):
         return None
     gone = unavailable(status, slugify)
     week, done = slate(players, slugify, schedule)
-    rows, keys = {}, {}
+    rows = {}
     for p in players:
         slug = slugify(p.get("name") or "")
         if not slug or slug in gone or p.get("pts") is None or p.get("pos") not in ("QB", "RB", "WR", "TE"):
@@ -139,21 +135,16 @@ def _from_projections(raw, slugify, status=None, schedule=None):
         prev = rows.get(slug)
         if prev is None or p["pts"] > prev["pts"]:
             rows[slug] = _row(p, slug)
-            keys[slug] = order_key(p)
     off = sorted({rows[s]["team"] for s in done if s in rows})
     live = [r for r in rows.values() if r["slug"] not in done]
     lists, place = {}, {}
     for pos, (depth, k) in DEPTH.items():
         want = FLEX if pos == "FLEX" else (pos,)
-        # A position orders and tiers on one key: the books' number for a running back that has one,
-        # else `pts` (order_key). FLEX mixes three positions, so it stays on plain `pts`.
-        key = (lambda r: r["pts"]) if pos == "FLEX" else (lambda r: keys[r["slug"]])
-        ordered = sorted((r for r in live if r["pos"] in want), key=lambda r: (-key(r), r["slug"]))
+        ordered = sorted((r for r in live if r["pos"] in want), key=lambda r: (-r["pts"], r["slug"]))
         if pos != "FLEX":
             place.update({r["slug"]: i + 1 for i, r in enumerate(ordered)})
         top = ordered[:depth]
-        tiers = natural_breaks([key(r) for r in top], k)
-        lists[pos] = [{**r, "tier": t} for r, t in zip(top, tiers)]
+        lists[pos] = [{**r, "tier": t} for r, t in zip(top, natural_breaks([r["pts"] for r in top], k))]
     for rs in lists.values():
         for r in rs:
             r["rank"] = place[r["slug"]]
@@ -168,19 +159,16 @@ def _row(p, slug):
             "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
             "pts": round(p["pts"], 2) if p.get("pts") is not None else None,
             "shown": round(p["pts"], 2) if p.get("pts") is not None else None, "floor": p.get("floor"), "ceil": p.get("ceil"),
-            "rank_pts": p.get("rank_pts") if p.get("pos") == "RB" else None,
-            "unlined_backup": (p.get("unlined_backup") or None) if p.get("pos") == "RB" else None,
-            "pts_before_unlined": p.get("pts_before_unlined") if p.get("pos") == "RB" else None,
             "rank": None, "tier": None}
 
 
 def _from_lists(doc, players, slugify):
-    """LIVE_RANKS from ff-jarvis's week_ranks lists, ranked by our own number (ledger #81, 2026-10-09; David chose "our
-    own rank and tiers, with Vegas as a supporting input, over the books' rank" on 2026-10-08). The lists say who is in
-    each one, his game and kickoff. The number is the projection every other view prints (his projections row's `pts`,
-    else the list's own), printed as `shown`; each list is ordered by it and cut into tiers by natural breaks, and `rank`
-    is the place in that order, so a card's rank is the one drawn here. The producer's order, tier, `val`, `src` and
-    `rank_pts` (the books' price) stay behind: the page ranks by what it shows. What only the projections hold (home,
+    """LIVE_RANKS from ff-jarvis's week_ranks lists, drawn as the producer ships them (ledger #98, 2026-10-09; David chose
+    "our own rank and tiers" on 2026-10-08, and ff-jarvis #88 now orders and tiers each list on our `pts`, frozen at
+    kickoff). The lists say who is in each one, his game and kickoff, his `rank` and `tier`. The number is the projection
+    every other view prints (his projections row's `pts`, else the list's own), printed as `shown`. A position row's
+    `rank` is the list's, so a card's rank is the one drawn here; a FLEX row takes his place at his own position. `val`,
+    `src` and `rank_pts` (the books' price, in no order) stay behind. What only the projections hold (home,
     injury tag, the points' makeup, the matchup, the band) is read off his projections row by slug, null when he has none."""
     wk = doc["weekly"]
     held = {}
@@ -196,14 +184,13 @@ def _from_lists(doc, players, slugify):
             mine = held.get(slug)
             pts = round(mine["pts"] if mine else r["pts"], 2)
             rows.append({**_row(mine or {}, slug), "n": r["name"], "pos": r["pos"], "team": r["team"], "opp": r["opp"],
-                         "kick": r["kickoff"], "pts": pts, "shown": pts, "rank_pts": None,
-                         "unlined_backup": None, "pts_before_unlined": None})
-        rows.sort(key=lambda r: (-r["pts"], r["slug"]))
-        for i, (r, tier) in enumerate(zip(rows, natural_breaks([r["pts"] for r in rows], k))):
-            r["tier"] = tier
-            r["rank"] = place.get(r["slug"]) if pos == "FLEX" else i + 1
-            if pos != "FLEX":
-                place[r["slug"]] = i + 1
+                         "kick": r["kickoff"], "pts": pts, "shown": pts,
+                         "rank": r["rank"], "tier": r["tier"]})
+        if pos == "FLEX":
+            for row in rows:
+                row["rank"] = place.get(row["slug"])
+        else:
+            place.update({row["slug"]: row["rank"] for row in rows})
         lists[pos] = rows
     return {"scoring": SCORING_WORD.get(wk["scoring"], wk["scoring"]), "week": wk["week"], "off": sorted(wk["off"]), "from": "week_ranks",
             "rows": [r for pos in DEPTH if pos != "FLEX" for r in lists[pos]], "flex": lists["FLEX"]}

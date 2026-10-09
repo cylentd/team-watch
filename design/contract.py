@@ -28,10 +28,7 @@ from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTI
 # null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
 # it already in `pts`, `matchup.priced`) are null for every WR.
 RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx", "mxp", "pts", "shown", "floor", "ceil",
-            "rank_pts", "unlined_backup", "pts_before_unlined", "rank", "tier"]
-# `rank_pts`, `unlined_backup` and `pts_before_unlined` (2026-10-05, ff-jarvis METHODOLOGY 12.86 and 12.87)
-# are optional in the file: ranks.py and projections.py always write them, null on a file from before them,
-# on any non-RB and on a back the books priced fully. Only a back has a number.
+            "rank", "tier"]
 # `shown` (2026-10-08): the number the row prints, the one its rank is built on (`pts` stays our projection).
 # design/recap.py: a player's day, and a kicker's or a defense's (`slug` null for a defense).
 RECAP_ROW = ["n", "slug", "pos", "team", "game_id", "actual", "proj", "diff", "line",
@@ -189,7 +186,7 @@ CONTRACT = {
     "LIVE_PROJECTIONS": {
         "keys": ["players"],
         "map": ("players", ["pts", "mu", "games", "src", "rank", "of", "out", "done", "wx", "floor", "ceil",
-                            "rank_pts", "unlined_backup", "pts_before_unlined"]),
+                            "rank_pts"]),
     },
     # design/ranks.py: Players > Ranks. Every position's list in `rows`, RB/WR/TE together in
     # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and

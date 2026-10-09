@@ -37,8 +37,9 @@ COOK = row("J Cook", "RB", 11, 2, 14.1, 12.0)
 
 
 def test_a_row_shows_our_points_and_never_the_books_number():
-    """(ledger #81, 2026-10-09; was: shows the number its rank is built on) rank_pts no longer orders or prints."""
-    rows = cut({"RB": [row("A Ace", "RB", 1, 1, 8.1, 14.5), row("B Bee", "RB", 2, 1, 14.1, 12.04)]})["rows"]
+    """(ledger #81, 2026-10-09; was: shows the number its rank is built on) rank_pts no longer orders or prints; the list
+    arrives in our points' order (ff-jarvis #88) and is drawn as shipped (ledger #98)."""
+    rows = cut({"RB": [row("B Bee", "RB", 1, 1, 14.1, 12.04), row("A Ace", "RB", 2, 1, 8.1, 14.5)]})["rows"]
     assert [(r["slug"], r["shown"], r["pts"]) for r in rows] == [("b-bee", 14.1, 14.1), ("a-ace", 8.1, 8.1)]
 
 

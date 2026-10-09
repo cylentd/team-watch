@@ -43,7 +43,6 @@ def test_a_list_row_is_enriched_from_the_projections_row_by_slug():
     raw = {"players": [{"name": "Ann Arm", "pos": "QB", "team": "BBB", "game": "AAA @ BBB", "pts": 9.0, "injury": "Doubtful"}]}
     got = live_ranks(raw, slug, None, None, doc({"QB": [row("Ann Arm", "QB", 1, 1, 8.0)]}))["rows"][0]
     assert (got["home"], got["inj"], got["pts"], got["rank"], got["tier"]) == (True, "D", 9.0, 1, 1)   # his projection (9.0), not the list's frozen 8.0
-    assert (got["rank_pts"], got["unlined_backup"], got["pts_before_unlined"]) == (None, None, None)
 
 
 def test_of_two_projection_rows_for_one_player_the_higher_points_stay_and_a_tie_keeps_the_first():
@@ -72,16 +71,14 @@ def test_flex_rows_carry_their_position_rank_and_the_position_lists_hold_no_flex
                  "FLEX": [row("Cy Catch", "WR", 1, 1, 9.5), row("Bo Back", "RB", 2, 1, 8.0), row("Ann Arm", "RB", 3, 2, 9.0)]})
     got = live_ranks({"players": [{"name": "x", "pts": 1.0}]}, slug, None, None, lists)
     assert [(r["slug"], r["rank"]) for r in got["rows"]] == [("ann-arm", 1), ("bo-back", 2), ("cy-catch", 1)]
-    assert [(r["slug"], r["rank"], r["tier"]) for r in got["flex"]] == [("cy-catch", 1, 1), ("ann-arm", 1, 2), ("bo-back", 2, 3)]   # ordered by the points (9.5, 9.0, 8.0), not the list
+    assert [(r["slug"], r["rank"], r["tier"]) for r in got["flex"]] == [("cy-catch", 1, 1), ("bo-back", 2, 1), ("ann-arm", 1, 2)]   # the list's own order and tiers, as shipped (ledger #98)
 
 
-def test_the_old_cut_carries_the_books_fields_for_a_back_only_and_rounds_points_to_hundredths():
+def test_the_old_cut_rounds_points_to_hundredths():
     back = {"name": "Bo Back", "pos": "RB", "team": "BBB", "game": "AAA @ BBB", "pts": 1.236, "rank_pts": 2.5,
             "unlined_backup": True, "pts_before_unlined": 4.5}
-    wide = {**back, "name": "Cy Catch", "pos": "WR"}
-    got = {r["slug"]: r for r in live_ranks({"players": [back, wide]}, slug)["rows"]}
-    assert (got["bo-back"]["pts"], got["bo-back"]["rank_pts"], got["bo-back"]["unlined_backup"], got["bo-back"]["pts_before_unlined"]) == (1.24, 2.5, True, 4.5)
-    assert (got["cy-catch"]["rank_pts"], got["cy-catch"]["unlined_backup"], got["cy-catch"]["pts_before_unlined"]) == (None, None, None)
+    got = live_ranks({"players": [back]}, slug)["rows"][0]
+    assert got["pts"] == 1.24
 
 
 def test_the_old_cut_lists_positions_in_rows_and_leaves_flex_to_its_own_key():

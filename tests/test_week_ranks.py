@@ -1,7 +1,7 @@
 """Stats > Ranks reads ff-jarvis's week_ranks (ledger #23, 2026-10-08, METHODOLOGY 12.116/12.117): our rank and
 tiers per position and FLEX, `val` the order key (never shown), `src` whose number it is (never shown). The
 roster cards' rank reads the same lists, so the two never disagree. A build without the file keeps the old
-cut (natural breaks, the books' back order), and says so in its report line. No browser here: the view's own
+cut (natural breaks of our projections, ledger #96), and says so in its report line. No browser here: the view's own
 test is test_ranks.py."""
 import copy
 import json
@@ -50,8 +50,8 @@ def test_the_fixture_file_meets_its_own_contract():
     (edited(("weekly", "scoring"), "ppr"), "weekly.scoring"),
     (edited(("weekly", "lists", "RB", 1, "rank"), 5), "weekly.lists.RB[1].rank"),
     (edited(("weekly", "lists", "RB", 1, "tier"), 3), "weekly.lists.RB[1].tier"),
-    (edited(("weekly", "lists", "RB", 1, "val"), 0.5), "weekly.lists.RB[1].val"),
-    (edited(("weekly", "lists", "RB", 1, "key"), "breece hall"), "weekly.lists.RB[1].key"),
+    (edited(("weekly", "lists", "RB", 1, "val"), 20.0), "weekly.lists.RB[1].val"),
+    (edited(("weekly", "lists", "RB", 1, "key"), "chase brown"), "weekly.lists.RB[1].key"),
     (edited(("weekly", "lists", "RB", 0, "pts"), None), "weekly.lists.RB[0].pts"),
 ])
 def test_a_malformed_file_is_named_where_it_is_wrong(doc, where):
@@ -69,29 +69,29 @@ def test_a_missing_list_or_row_field_is_named():
     assert week_ranks.problems({})[0].startswith("week_ranks")
 
 
-def test_our_points_set_each_positions_order_rank_and_tier():
-    """(ledger #81, 2026-10-09; was: the lists set them) The lists say who is in each one; the order is the points shown."""
+def test_the_lists_set_each_positions_order_rank_and_tier():
+    """(ledger #98, 2026-10-09; was #81's re-sort) ff-jarvis #88 orders and tiers on our own points, so the page draws
+    each list's order, rank and tier as shipped."""
     block = live_ranks(PROJ, slug, None, None, DOC)
     rbs = rows(block, "RB")
-    assert [(r["slug"], r["rank"], r["tier"]) for r in rbs] == [("chase-brown", 1, 1), ("breece-hall", 2, 2), ("kendre-miller", 3, 3)], \
-        "Brown (16.2) leads Hall (15.0): the points shown order the list, not the producer's books order; 3 players, 3 tiers"
+    shipped = [(slug(r["name"]), r["rank"], r["tier"]) for r in DOC["weekly"]["lists"]["RB"]]
+    assert [(r["slug"], r["rank"], r["tier"]) for r in rbs] == shipped
     assert [r["pts"] for r in rbs] == [16.2, 15.0, 3.1], "the number shown is his projection"
     assert [(r["slug"], r["tier"]) for r in rows(block, "QB")] == [("joe-burrow", 1), ("brock-purdy", 2)]
     assert (block["week"], block["off"], block["scoring"]) == (2, [], "half-PPR")
 
 
-def test_flex_rows_follow_the_points_with_their_position_rank():
+def test_flex_rows_keep_the_shipped_order_and_tier_with_their_position_rank():
     flex = live_ranks(PROJ, slug, None, None, DOC)["flex"]
-    assert [(r["slug"], r["rank"], r["tier"]) for r in flex] == [
-        ("amon-ra-st-brown", 1, 1), ("chase-brown", 1, 2), ("breece-hall", 2, 3), ("george-kittle", 1, 4), ("kendre-miller", 3, 5)], \
-        "rank is the place at his position (Brown RB1, Hall RB2), tier is the FLEX list's own cut of the points"
+    pos_rank = {slug(r["name"]): r["rank"] for p in ("QB", "RB", "WR", "TE") for r in DOC["weekly"]["lists"][p]}
+    shipped = [(slug(r["name"]), pos_rank[slug(r["name"])], r["tier"]) for r in DOC["weekly"]["lists"]["FLEX"]]
+    assert [(r["slug"], r["rank"], r["tier"]) for r in flex] == shipped, "rank is the place at his position, tier the FLEX list's own"
 
 
-def test_a_row_shows_one_rank_whoever_made_it():
+@pytest.mark.parametrize("field", ["src", "val", "key", "rank_pts", "unlined_backup", "pts_before_unlined"])
+def test_a_row_shows_one_rank_whoever_made_it(field):
     block = live_ranks(PROJ, slug, None, None, DOC)
-    assert [k for r in block["rows"] + block["flex"] for k in ("src", "val", "key") if k in r] == [], "the producer's bookkeeping stays out of the page"
-    assert [(r["rank_pts"], r["unlined_backup"], r["pts_before_unlined"]) for r in rows(block, "RB")] == [(None, None, None)] * 3, \
-        "no books number, no No line tag: the list already holds the books"
+    assert [r["slug"] for r in block["rows"] + block["flex"] if field in r] == [], "the producer's bookkeeping and the books stay out"
 
 
 def test_a_row_keeps_what_only_the_projections_know():
@@ -136,16 +136,15 @@ def test_a_player_the_lists_do_not_hold_has_no_card_rank():
 
 def test_without_the_file_the_old_cut_stands():
     old = live_ranks(PROJ, slug, None, None, None)
-    assert [r["slug"] for r in rows(old, "RB")] == ["breece-hall", "chase-brown", "kendre-miller"], "the books' order, as before"
-    assert [r["unlined_backup"] for r in rows(old, "RB")] == [None, None, True]
+    assert [r["slug"] for r in rows(old, "RB")] == ["chase-brown", "breece-hall", "kendre-miller"], "our points, as on every view (ledger #96)"
     assert old["from"] == "projections"
     assert live_ranks(PROJ, slug, None, None, DOC)["from"] == "week_ranks"
 
 
 def test_the_report_line_names_the_source():
-    assert ranks_report(live_ranks(PROJ, slug, None, None, DOC)) == "Ranks: week_ranks · QB 2 in 2 tiers · RB 3 in 3 tiers · WR 1 in 1 tiers · TE 1 in 1 tiers · FLEX 5 in 5 tiers"
+    assert ranks_report(live_ranks(PROJ, slug, None, None, DOC)) == "Ranks: week_ranks · QB 2 in 2 tiers · RB 3 in 2 tiers · WR 1 in 1 tiers · TE 1 in 1 tiers · FLEX 5 in 3 tiers"
     old = ranks_report(live_ranks(PROJ, slug, None, None, None))
-    assert old.startswith("Ranks: week_ranks missing, so the old cut (natural breaks, the books' back order) · QB 2 in")
+    assert old.startswith("Ranks: week_ranks missing, so the old cut (natural breaks of our projections) · QB 2 in")
     assert ranks_report(None) == "Ranks: none, so no Ranks view"
 
 

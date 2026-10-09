@@ -11,7 +11,7 @@
    named in the heading instead of ranked on a number for a game outside it. Order, rank and tier are
    ff-jarvis's week_ranks lists (since 2026-10-08; `from` "week_ranks"), each tier drawn as its own panel,
    so the list needs no rule between tiers. With no such file (`from` "projections") the build cuts them
-   itself, as before, and the back list keeps its "No line" tag and its note on the books' order.
+   itself from our projections, as before (ledger #96, 2026-10-09: backs too, no "No line" tag, no books note).
 ------------------------------------------------------------------ */
 const RK_POSITIONS = statsPosList("ranks");   // QB RB WR TE FLEX; D/ST and K are the league's (dst.js)
 let RK_POS = "RB";
@@ -77,7 +77,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-n">${place}</span>
     <span class="rk-face">${avatarHTML(r)}</span>
     <span class="rk-who"><span class="rk-nm"><span class="rk-nmt">${esc(nameInitial(r.n))}</span>${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}${tagRowHTML(r, "ranks-row")}</span>
-      <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}${rbNoLineHTML(r, "rk-noline")}</span></span>
+      <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
     <span class="rk-pts" data-testid="ranks-pts">${rkShown(r).toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
   </button>`;
@@ -115,17 +115,6 @@ function rkChipsHTML(pos, extra, base = RK_POSITIONS){
   </div>`;
 }
 
-/* Running backs only (2026-10-05, ff-jarvis METHODOLOGY 12.86 and 12.87), each said once per list and only when
-   it shows on screen: why a back can sit above one with more points (the list follows the books), and what a
-   "No line" tag means. */
-function rkRbNotes(pos, list){
-  // Only on the old cut (no week_ranks file): ff-jarvis's lists already hold the books' order and the reader sees one rank (2026-10-08).
-  if (pos !== "RB" || LIVE_RANKS.from !== "projections") return "";
-  const order = rbReordered(list) ? " " + t("ranks.rb.note") : "";
-  const row = list.find(r => rbNoLine(r));
-  return order + (row ? ` ${rbNoLineHTML(row, "rk-noline")} ${rbNoLine(row).tip}` : "");
-}
-
 function ranksHTML(){
   if (rkView() === "ros") return rosViewHTML();   // Rest of season (surface/ranks/ros.js)
   const block = rkDstBlock(), lg = rkLeague(), pos = dstPos(RK_POS, block, lg), extra = dstTabs(block, lg);
@@ -140,10 +129,9 @@ function ranksHTML(){
   const offLine = schedOffLine(LIVE_RANKS.off || []), off = offLine ? " " + offLine : "";
   // The band is said in words once per list, only when a row draws one (plan U5).
   const band = list.some(rangeFrom) ? " " + t("range.note") : "";
-  const rb = rkRbNotes(pos, list);
   return `<div class="wrap rk">
     ${chips}
-    <div class="rk-headline"><div><h2>${title}</h2><p data-testid="ranks-sub">${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${rb}${off}</p></div>${rkSchedHTML()}</div>
+    <div class="rk-headline"><div><h2>${title}</h2><p data-testid="ranks-sub">${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${off}</p></div>${rkSchedHTML()}</div>
     <div class="rk-list">${rkTiersHTML(list, pos === "FLEX")}</div>
   </div>`;
 }

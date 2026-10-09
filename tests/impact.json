@@ -4,6 +4,7 @@
     "tests/test_week_ranks_units.py",
     "tests/test_week_ranks_pts.py",
     "tests/test_ranks_one_projection.py",
+    "tests/test_ranks_fallback_pts.py",
     "tests/test_flag_marks.py",
     "tests/test_budgets.py",
     "tests/test_build.py",

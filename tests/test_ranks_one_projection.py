@@ -2,11 +2,12 @@
 every other view prints (LIVE_PROJECTIONS `pts`: Roster cards, profile, Start/Sit), and the list's order, its tiers
 and the card's rank all follow that number. David chose "our own rank and tiers, with Vegas as a supporting input,
 over the books' rank" (2026-10-08), so the books' price (`rank_pts`) and the producer's list order do not decide a
-row. Light: dicts in, dicts out; the fixture build is the one whole-block check."""
+row. Since ff-jarvis #88 (2026-10-09) the producer orders and tiers each list on our points, so the page draws the
+order, rank and tier as shipped (ledger #98). Light: dicts in, dicts out; the fixture build is the one whole-block check."""
 import pytest
 
 from projections import live_projections
-from ranks import DEPTH, live_ranks, natural_breaks, ranks_places
+from ranks import live_ranks, ranks_places
 from test_build import injected
 from test_week_ranks_pts import doc, player, row
 from test_week_ranks_units import slug
@@ -17,12 +18,13 @@ pytestmark = pytest.mark.req("Ranks", ac="a player's Ranks number, order and tie
 RBS = [("Gil Gibbs", 20.31, 24.6, 20.31), ("Bo Bijan", 19.06, 19.72, 19.06), ("Tay Taylor", 15.97, 17.39, 15.97),
        ("Mac Mccaffrey", 15.73, 17.12, 15.73), ("Hal Henry", 15.87, 13.68, 15.87), ("Jay Jones", 13.09, 15.85, 13.09),
        ("Sam Stale", 13.11, 16.36, 13.83), ("Lo Low", 8.36, 14.18, 8.36)]
-# the producer's list: the books' order (descending rank_pts), as ff-jarvis wrote it
-BOOKS_ORDER = sorted(RBS, key=lambda r: -r[2])
+# the producer's list: our points' order (descending list pts), tiered by ff-jarvis, as it writes it since #88
+OUR_ORDER = sorted(RBS, key=lambda r: -r[3])
+TIER_SIZE = 3   # the sample's shipped tiers: three backs each
 
 
 def lists():
-    rb = [row(n, "RB", i + 1, 1 + i // 3, lp, bp) for i, (n, ours, bp, lp) in enumerate(BOOKS_ORDER)]
+    rb = [row(n, "RB", i + 1, 1 + i // TIER_SIZE, lp, bp) for i, (n, ours, bp, lp) in enumerate(OUR_ORDER)]
     flex = [{**r, "rank": i + 1} for i, r in enumerate(rb)]
     return {"RB": rb, "FLEX": flex}
 
@@ -56,10 +58,10 @@ def test_the_list_is_ordered_by_the_number_it_prints_and_a_back_the_books_doubt_
 
 
 @pytest.mark.parametrize("name", ["RB", "FLEX"])
-def test_tiers_are_natural_breaks_of_the_printed_numbers_in_every_list(name):
+def test_tiers_are_the_lists_own_as_shipped_in_every_list(name):
     block = built_block()
     rows = block["flex"] if name == "FLEX" else rb_rows(block)
-    assert [r["tier"] for r in rows] == natural_breaks([r["shown"] for r in rows], DEPTH[name][1])
+    assert [r["tier"] for r in rows] == [r["tier"] for r in lists()[name]]
 
 
 def test_the_sample_has_gaps_wide_enough_to_cut_into_tiers():

@@ -13,7 +13,6 @@ from ranks import live_ranks, natural_breaks  # noqa: E402
 from component import mount  # noqa: E402,F401  (the fixture)
 from pages.ranks import RanksPage  # noqa: E402
 from pages.teamswitch import TeamSwitchPage  # noqa: E402
-from wording import words  # noqa: E402
 
 # A first visit: nothing picked, nothing followed (the suite's seed picks and follows David's teams).
 FRESH_READER = 'try { localStorage.removeItem("tw-team"); localStorage.removeItem("tw-follow"); } catch (e) {}\n'
@@ -152,82 +151,6 @@ def test_the_band_rides_on_every_row_and_card_as_the_file_wrote_it():
     assert cards["out-back"]["pts"] is None and (cards["out-back"]["floor"], cards["out-back"]["ceil"]) == (None, None)
 
 
-RB_RAW = {"players": [
-    {"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 16.2, "rank_pts": 15.4, "src": "model"},
-    {"name": "B Back", "pos": "RB", "team": "DET", "game": "NYJ @ DET", "pts": 15.0, "rank_pts": 16.6, "src": "model"},
-    {"name": "C Back", "pos": "RB", "team": "GB", "game": "GB @ TB", "pts": 12.0, "rank_pts": None, "src": "model"},
-    {"name": "D Back", "pos": "RB", "team": "SEA", "game": "SEA @ SF", "pts": 3.1, "rank_pts": None, "src": "model",
-     "unlined_backup": True, "pts_before_unlined": 10.3},
-    {"name": "A Wideout", "pos": "WR", "team": "SEA", "game": "SEA @ LAR", "pts": 14.0, "rank_pts": 30.0, "src": "model"},
-    {"name": "B Wideout", "pos": "WR", "team": "MIA", "game": "MIA @ NE", "pts": 15.0, "src": "model"},
-]}
-
-
-@pytest.mark.req("Ranks", ac="backs order and rank by the books' number")
-def test_running_backs_are_ordered_and_ranked_by_the_books_number():
-    """ff-jarvis METHODOLOGY 12.86 (2026-10-05): the books' implied points order backs better than our
-    projection but read ~0.5 high, so they order and are never shown. A back they did not price falls
-    back to his own points; `pts` stays the number a row shows."""
-    r = live_ranks(RB_RAW, slug)
-    rbs = [x for x in r["rows"] if x["pos"] == "RB"]
-    assert [x["slug"] for x in rbs] == ["b-back", "a-back", "c-back", "d-back"], "B (16.6) over A (15.4) though A has more points"
-    assert [x["rank"] for x in rbs] == [1, 2, 3, 4], "the card's position rank follows the same order"
-    assert [x["pts"] for x in rbs] == [15.0, 16.2, 12.0, 3.1], "the number shown is still pts"
-    assert [x["rank_pts"] for x in rbs] == [16.6, 15.4, None, None]
-
-
-@pytest.mark.req("Ranks", ac="tiers cut on the same key as the order")
-def test_the_tiers_are_cut_on_the_same_key_as_the_order():
-    """A list ordered by the books and tiered on points would break a tier in two places at once."""
-    keys = [30.0 - i * 1.0 for i in range(14)]    # more backs than the 12 tiers, so a tier holds several
-    raw = {"players": [{"name": f"Back {i:02d}", "pos": "RB", "team": "ATL", "game": "ATL @ NO",
-                        "pts": k + (4.0 if i % 2 else -4.0), "rank_pts": k} for i, k in enumerate(keys)]}
-    rows = live_ranks(raw, slug)["rows"]
-    assert [x["slug"] for x in rows] == [f"back-{i:02d}" for i in range(14)], "ordered by the books' number"
-    assert [x["tier"] for x in rows] == natural_breaks(keys, 12), "and tiered on it"
-
-
-@pytest.mark.req("Ranks", ac="FLEX and other positions order by points")
-def test_flex_and_other_positions_still_order_by_points():
-    r = live_ranks(RB_RAW, slug)
-    assert [x["slug"] for x in r["flex"]] == ["a-back", "b-back", "b-wideout", "a-wideout", "c-back", "d-back"]
-    wrs = [x["slug"] for x in r["rows"] if x["pos"] == "WR"]
-    assert wrs == ["b-wideout", "a-wideout"], "a rank_pts on a receiver is ignored"
-    assert [x["rank"] for x in r["flex"] if x["pos"] == "RB"] == [2, 1, 3, 4], "a FLEX row keeps its position rank, by the books"
-    assert next(x for x in r["rows"] if x["slug"] == "a-wideout")["rank_pts"] is None, "only a back carries it"
-
-
-@pytest.mark.req("Ranks", ac="an unlined backup is flagged")
-def test_an_unlined_backup_is_flagged_and_keeps_his_cut_points():
-    """ff-jarvis METHODOLOGY 12.87: his `pts` is already 30% of `pts_before_unlined`; the page tags him."""
-    r = live_ranks(RB_RAW, slug)
-    d = next(x for x in r["rows"] if x["slug"] == "d-back")
-    assert (d["unlined_backup"], d["pts"], d["pts_before_unlined"]) == (True, 3.1, 10.3)
-    a = next(x for x in r["rows"] if x["slug"] == "a-back")
-    assert (a["unlined_backup"], a["pts_before_unlined"]) == (None, None)
-
-
-@pytest.mark.req("Ranks", ac="an older file gives null, never a missing key")
-def test_a_file_from_before_the_fields_gives_null_never_a_missing_key():
-    from projections import live_projections
-    raw = {"players": [{"name": "A Back", "pos": "RB", "team": "ATL", "game": "ATL @ NO", "pts": 19.7, "src": "model"}]}
-    row = live_ranks(raw, slug)["rows"][0]
-    assert (row["rank_pts"], row["unlined_backup"], row["pts_before_unlined"]) == (None, None, None)
-    card = live_projections(raw, slug, {"a-back"})["players"]["a-back"]
-    assert (card["rank_pts"], card["unlined_backup"], card["pts_before_unlined"]) == (None, None, None)
-
-
-@pytest.mark.req("Ranks", ac="the roster cards rank a back by the books too")
-def test_the_roster_cards_rank_a_back_by_the_books_number_too():
-    from projections import live_projections, position_ranks
-    ranks = position_ranks(RB_RAW["players"], slug)
-    assert [ranks[s] for s in ("b-back", "a-back", "c-back", "d-back")] == [(1, 4), (2, 4), (3, 4), (4, 4)]
-    assert ranks["b-wideout"] == (1, 2), "receivers rank by points"
-    cards = live_projections(RB_RAW, slug, {"b-back", "d-back"})["players"]
-    assert (cards["b-back"]["rank"], cards["b-back"]["rank_pts"]) == (1, 16.6)
-    assert (cards["d-back"]["unlined_backup"], cards["d-back"]["pts_before_unlined"]) == (True, 10.3)
-
-
 @pytest.mark.render
 @pytest.mark.req("Ranks", ac="a matchup tag shows from half a point, never on a WR")
 def test_ranks_tags_a_matchup_from_half_a_point(mount):
@@ -246,62 +169,20 @@ def test_ranks_tags_a_matchup_from_half_a_point(mount):
     assert errors == []
 
 
-NOTE = words("ranks.rb.note")
-TIP = words("ranks.noline.tip")
-
-
 @pytest.mark.render
 @pytest.mark.req("Ranks", ac="the back list follows the points it shows and says nothing about whose number it is")
 def test_the_back_list_follows_the_points_it_shows_and_says_nothing_about_whose_number_it_is(mount):
-    """The fixture's week_ranks list holds Hall, Brown and Miller; their points are 15.0, 16.2 and 3.1 (ledger #81,
-    2026-10-09: the order is the number shown, ours, was the producer's books order). Readers see one rank: no note on
-    the books' order, no "No line" tag (David: users do not need to know whose number it is)."""
+    """The fixture's week_ranks list ships Brown, Hall and Miller (16.2, 15.0, 3.1) in our points' order, tiered 1, 1, 2
+    (ff-jarvis #88; drawn as shipped, ledger #98). Readers see one rank: no note on the books' order, no "No line" tag
+    (David: users do not need to know whose number it is; the tag is gone, ledger #96)."""
     page, errors = mount("ranks")
     ranks = RanksPage(page)
     rows = ranks.rows()
     assert [[r["slug"], r["pts"]] for r in rows] == [["chase-brown", "16.2"], ["breece-hall", "15.0"], ["kendre-miller", "3.1"]]
-    assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2", "TIER 3"], "three players, three natural breaks"
-    sub = ranks.sub()
-    assert NOTE not in sub and words("ranks.noline.word") not in sub
-    assert [r["noline"] for r in rows] == [None, None, None]
+    assert [t.upper() for t in ranks.tiers()] == ["TIER 1", "TIER 2"], "the list's own tiers, as shipped (ledger #98)"
     ranks.pick("FLEX")
     assert [r["slug"] for r in ranks.rows()] == ["amonra-st-brown", "chase-brown", "breece-hall", "george-kittle", "kendre-miller"]
     assert ranks.fits()
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Ranks", ac="with no week_ranks file the back list keeps its books note and No line tag")
-def test_with_no_week_ranks_file_the_back_list_keeps_its_books_note_and_no_line_tag(mount):
-    """The fallback (a build whose ff-jarvis has not written week_ranks): the rows come from the projections and
-    carry the books' fields, so the page says why Hall (15.0) sits above Brown (16.2), once, and tags the unlined backup."""
-    page, errors = mount("ranks")
-    ranks = RanksPage(page)
-    page.evaluate("""() => { LIVE_RANKS.from = "projections";
-      const rb = LIVE_RANKS.rows, h = rb.findIndex(r => r.slug === "breece-hall"), b = rb.findIndex(r => r.slug === "chase-brown");
-      [rb[h], rb[b]] = [rb[b], rb[h]];   // the old cut put Hall (books) above Brown
-      rb.find(r => r.slug === "kendre-miller").unlined_backup = true; render(); }""")
-    sub = ranks.sub()
-    assert NOTE in sub and sub.count(NOTE) == 1 and words("ranks.noline.word") + " " + TIP in sub
-    assert [r["noline"] for r in ranks.rows() if r["noline"]] == [{"text": words("ranks.noline.word"), "title": TIP}]
-    ranks.pick("FLEX")
-    assert ranks.sub().count(NOTE) == 0
-    assert errors == []
-
-
-@pytest.mark.render
-@pytest.mark.req("Ranks", ac="an unlined backup's profile strip wears the No line tag")
-def test_an_unlined_backups_profile_strip_wears_the_tag(mount):
-    """The fixture's backup has no profile (so no strip), so Chase Brown, who has one, is flagged in the page."""
-    page, errors = mount("ranks")
-    ranks = RanksPage(page)
-    profile = ranks.open_player("chase-brown")
-    assert profile.noline_tips() == [], "a back the books priced has no tag"
-    profile.close()
-    page.evaluate("() => { LIVE_PROJECTIONS.players['chase-brown'].unlined_backup = true; }")
-    profile = ranks.open_player("chase-brown")
-    assert profile.notes()[-1] == words("ranks.noline.word") + TIP
-    assert profile.noline_tips() == [TIP]
     assert errors == []
 
 

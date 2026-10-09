@@ -78,8 +78,6 @@ function ssBooks(slug){
   const r = ssRank(slug), row = r && typeof r.rank_pts === "number" ? r : rbProjRow(slug);
   return row && typeof row.rank_pts === "number" ? row.rank_pts : null;
 }
-/* The row that says whether he is "No line" (the same two rows). */
-const ssLineRow = slug => { const r = ssRank(slug); return r && r.unlined_backup ? r : rbProjRow(slug); };
 const ssCols = () => ssLoad().map(ssPlayer).filter(Boolean).map(p => ({p, pos: p.pos, rk: ssRank(p.slug), pts: ssPts(p.slug), rp: ssBooks(p.slug)}));
 
 /* The higher projection starts; the top two inside SS_FLIP points of each other are a coin flip. Two or
@@ -158,7 +156,7 @@ function ssBandHTML(cols){
   return `<div class="ssv-band" style="--n:${cols.length}">${cols.map((c, i) => `<div class="ssv-who ssv-s${i}">
     <button type="button" class="ssv-x" data-ssx="${esc(c.p.slug)}" aria-label="${t("startsit.pick.remove", {name: shortName(c.p.n)})}">${SS_X}</button>
     <span class="ssv-face">${headHTML(c.p)}</span><b>${shortName(c.p.n)}</b>
-    <span class="lbl">${esc([c.p.pos, c.p.team].filter(Boolean).join(" · "))}</span>${rbNoLineHTML(ssLineRow(c.p.slug), "ssv-noline")}</div>`).join("")}</div>`;
+    <span class="lbl">${esc([c.p.pos, c.p.team].filter(Boolean).join(" · "))}</span></div>`).join("")}</div>`;
 }
 
 /* The gap is points, so a back the books put first on fewer points shows none (a negative gap is no gain). */
@@ -167,8 +165,7 @@ function ssVerdictHTML(cols){
   const gain = v && v.gap > 0 ? `<span class="ssv-gain">${t("startsit.pick.gap", {n: v.gap.toFixed(1)})}</span>` : "";
   const call = !v ? "" : v.flip ? `<div class="ssv-verdict flip"><span class="ssv-coin">${t("startsit.pick.flip")}</span></div>`
     : `<div class="ssv-verdict"><span class="mu-tag start">${t("matchups.call.start")}</span><b>${shortName(v.win.p.n)}</b>${gain}</div>`;
-  // Said once, only when it shows: why the call is not the higher points (the books ordered two backs), and "No line".
-  return call + rbWhyHTML(cols.map(c => ssLineRow(c.p.slug)), v && v.moved ? t("startsit.rb.note") : "", "ssv-why", "ssv-noline");
+  return call;
 }
 
 function ssOptHTML(p){
