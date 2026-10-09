@@ -41,6 +41,10 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-08: dropped ff-jarvis's SLEEPER tag ("a starter on the waiver almost never happens") and show POTENTIAL under the name SLEEPER (David).
 - 2026-10-08: chose four focus areas over the Later list (Yahoo sign-in, chain trades, Follow a game): "they're nice to have. I rather focus on the vision" (David).
 - 2026-10-08: chose the Home hero's face in a slanted pane at the band's right edge, club code on its edge (draft C), over a trading card or a medallion: the sign behind the face "looks ok mobile but awkward on wider screens" and the face rising from the bottom "looks like a whack a mole" (David).
+- 2026-10-09: chose the headline leading Preview's game page, players right after it, over players on top: "i dont exactly love the players on top. The headline is gone!" (David).
+- 2026-10-09: chose Back leaving the view over Back stepping through a view's own tabs (Live, Recap, Ranks' Rest of season) (David).
+- 2026-10-09: chose Ranks printing our own projection, with order and tiers from it, everywhere the page shows a player's week (David, reapproving the tests that pinned the books' order).
+- 2026-10-09: chose a default, consistent landing view for every group over returning to the last view seen: the last view "is confusing as we want to reduce mental load on the user" (David).
 
 ## Not doing
 
