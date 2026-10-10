@@ -39,7 +39,7 @@ def page(shared):
 def test_top_calls_lead_slips_with_a_verdict_each(page):
     """Since 2026-10-08 (ledger #33) Top calls are each game's best pick, under its kickoff window."""
     page.evaluate("GAL_WIN = 'morning'; render()")
-    box = page.locator(".sl-win").bounding_box()
+    box = page.locator(".atd-card, .sl-win").first.bounding_box()   # the Anytime TDs card leads since 2026-10-09
     assert box["y"] + page.evaluate("window.scrollY") <= 212, "the first data starts by ~200px"
     rows = page.locator(".sl-pk")
     assert rows.count() >= 1

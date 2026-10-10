@@ -75,7 +75,7 @@ function wireBuilder(v){
   }));
   v.querySelectorAll("[data-msel]").forEach(sel=>sel.addEventListener("change",()=>{
     const val = sel.value;
-    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = val === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge"); MKT_PAGE = 1; }
+    if (sel.dataset.msel === "mkind"){ MKT_KIND = val; MKT_SORT = kindSort(val, PARLAY_BOOK); MKT_PAGE = 1; }
     else if (sel.dataset.msel === "msort"){ MKT_SORT = val; MKT_PAGE = 1; }
     else if (sel.dataset.msel === "gwin"){ GAL_WIN = val; MKT_PAGE = 1; }
     // A kickoff change on Slips keeps the cards that stay in view and slides them (flight.js).
@@ -84,7 +84,7 @@ function wireBuilder(v){
   // The slip's own controls (presets, copy, remove, save) are wired with the tray (traywire.js).
   v.querySelectorAll("[data-parlaybook]").forEach(b=>b.addEventListener("click",()=>{
     PARLAY_BOOK = b.dataset.parlaybook;
-    MKT_PAGE = 1; MKT_SORT = MKT_KIND === "TD" ? "model" : (PARLAY_BOOK === "underdog" ? "conf" : "edge");
+    MKT_PAGE = 1; MKT_SORT = kindSort(MKT_KIND, PARLAY_BOOK);
     SLIP = []; SLIP_SIDE = {}; SLIP_MODE = "blank";
     render();
   }));

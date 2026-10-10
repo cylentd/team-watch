@@ -12,6 +12,7 @@ from player_tags import live_player_tags, load_player_tags, report as player_tag
 from ros import live_ros, load_ros_compare, load_ros_value, report as ros_report
 from sos import live_sos, report as sos_report
 from sources import load_accuracy, load_dst, load_sos
+from td_research import load_live as load_td_research_block, report as td_research_report
 from usage_movers import live_usage_movers, load_usage_movers, report as usage_movers_report
 
 
@@ -29,5 +30,7 @@ def add_audit_blocks(blocks, report):
     blocks["LIVE_ROS"] = live_ros(load_ros_value(), load_ros_compare())
     blocks["LIVE_PLAYER_TAGS"] = live_player_tags(load_player_tags())   # 2026-10-08, ledger #41
     report.append(player_tags_report(blocks["LIVE_PLAYER_TAGS"]))
+    blocks["LIVE_TD_RESEARCH"] = load_td_research_block()   # 2026-10-09, Slips' Anytime TDs card
+    report.append(td_research_report(blocks["LIVE_TD_RESEARCH"]))
     report += [accuracy_report(blocks["LIVE_ACCURACY"]), dst_report(blocks["LIVE_DST"]), sos_report(blocks["LIVE_SOS"]),
                d_starters_report(blocks["LIVE_D_STARTERS"]), ros_report(blocks["LIVE_ROS"])]

@@ -1993,6 +1993,22 @@ the cart's footer caption, never shown as an Underdog price. Switching the toggl
 by hand; the cart warns when two legs
 share a game (correlated legs are one bet, not two).
 
+**Since 2026-10-09: Anytime TDs card** (ff-jarvis `td_research`, METHODOLOGY 12.133/12.134; `design/td_research.py`
+-> `LIVE_TD_RESEARCH`, words `data/tdwhy.js`, rows `data/tdcard.js`, both Node-tested; `surface/parlay/tdcard.js`,
+`css/surface/builder/tdcard.css`). One card between the record line and the kickoff windows, for the open tab only.
+
+| part | what it shows |
+|---|---|
+| head | "Anytime TDs" and LOCK's record from the packet ("Book 55%+ went 38-18 in weeks 1-4"), or "Record starts week N" |
+| wait strip | only while a Claude game in the tab is `pending: "early"`: "Our picks arrive about {Sat 6:00 AM} · in 11h 20m", text rewritten once a minute, nothing moves |
+| groups | LOCK and VALUE open 3 rows then "N more"; MORE and LONG folded to a counted header. Rule lines come from `rules`, never the page |
+| row | face, name, Rising / New role chips, "RB · CIN vs NYJ · 1:00 PM", a lime line of up to 3 passed checks, a muted "Against:" line, the book's chance big, the + (his TD line through `slPick`; no TD line, no +) |
+| sheet | centred modal: the book's chance with its book and price, "Why he could score · N of 6", his last-3 work, weather, then our model's chance last, in grey, with the note that it has run under the book and cannot see role changes |
+
+The row has no model chance, edge or Stack chip: the book's price is the number (12.133). A row's window is the
+PROPS window of a line with the same kickoff instant, so the card never windows the slate itself. On DraftKings the
+TD sort is the book's chance (`SORTS.book`, `kindSort`); edge is no longer a TD sort. No block: no card.
+
 **Since 2026-10-08: Slips by kickoff window, one pick per line** (ledger #33; storyboard "Slips" B's windows
 with C's best call per game; `data/ourpicks.js` Node-tested, `surface/parlay/windows.js`, `css/surface/builder/windows.css`).
 Top calls, the game chips and the open player lists below are superseded. Under the record line, the kickoff tab's

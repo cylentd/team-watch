@@ -98,7 +98,9 @@ function lsRefresh(sel){
   const d = legEl();
   if (!d || LEG_SHEET === null) return;
   const top = d.scrollTop;
-  d.innerHTML = typeof LEG_SHEET === "string" ? playerSheetHTML(LEG_SHEET) : legSheetHTML(LEG_SHEET);
+  // "td:<slug>" is the Anytime TDs sheet (tdcard.js); any other string is a player's sheet.
+  d.innerHTML = typeof LEG_SHEET !== "string" ? legSheetHTML(LEG_SHEET)
+    : LEG_SHEET.startsWith("td:") ? tdSheetHTML(LEG_SHEET.slice(3)) : playerSheetHTML(LEG_SHEET);
   d.scrollTop = top;
   (sel && d.querySelector(sel) || d.querySelector("[data-legclose]")).focus({preventScroll: true});
 }

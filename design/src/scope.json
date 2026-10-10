@@ -4,6 +4,7 @@
     "surface/builder/board.css": ["parlay"],
     "surface/builder/record.css": ["parlay"],
     "surface/builder/windows.css": ["parlay"],
+    "surface/builder/tdcard.css": ["parlay", "#legsheet"],
     "surface/builder/lineitem.css": ["parlay", "preview", "#legsheet"],
     "surface/builder/playersheet.css": ["#legsheet"],
     "surface/builder/explain.css": ["parlay", "build", "dfs", "#drawer"],

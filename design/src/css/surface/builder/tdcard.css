@@ -1,0 +1,64 @@
+/* ============================================================
+   ANYTIME TDs (2026-10-09, js/surface/parlay/tdcard.js)
+   One card under the Record line: the book's chance per player,
+   in four groups. A row is face, name and chips, the game, a lime
+   "for" line and a muted "Against:" line; the chance big at the
+   right, then the round + (windows.css .sl-add). MORE and LONG
+   fold to a counted header. The sheet (.ls-read) lists the six
+   checks, his work, weather, then our model last, in grey.
+   ============================================================ */
+.atd-card{margin:4px 0 14px;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.atd-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;padding:12px 14px 0}
+.atd-head h2{margin:0;font-family:var(--tab);font-weight:900;font-size:var(--t-4);line-height:1;letter-spacing:.02em;text-transform:uppercase}
+.atd-rec{font-size:var(--t-1);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.atd-sub{margin:4px 14px 8px;font-size:var(--t-1);color:var(--ink-3)}
+.atd-wait{margin:0 14px 8px;padding:8px 10px;border:1px solid var(--line-2);border-radius:10px;font-size:var(--t-1);color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+.atd-wait span{color:var(--ink)}
+
+.atd-group{border-top:1px solid var(--line)}
+.atd-ghead{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;width:100%;padding:10px 14px 4px;color:var(--ink);font-family:var(--ui);text-align:left}
+button.atd-ghead{appearance:none;min-height:44px;padding-bottom:10px;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.atd-ghead:focus-visible,.atd-more:focus-visible,.atd-main:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.atd-gname{font-family:var(--disp);font-weight:800;font-size:var(--t-3);text-transform:uppercase;letter-spacing:.02em}
+.atd-grule{flex:1;min-width:0;font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.atd-gn{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.atd-ghead[aria-expanded="true"] .atd-gn{color:var(--lime)}
+
+.atd-rows{margin:0;padding:0;list-style:none}
+.atd-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center}
+.atd-row + .atd-row{border-top:1px solid var(--line)}
+.atd-main{appearance:none;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:12px;width:100%;
+  padding:10px 0 10px 14px;border:0;background:none;color:var(--ink);font-family:var(--ui);text-align:left;cursor:pointer}
+.atd-body{display:grid;gap:3px;min-width:0}
+.atd-who{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;min-width:0}
+.atd-who b{font-weight:700;font-size:var(--t-2)}
+.atd-chip{padding:1px 6px;border:1px solid var(--line-2);border-radius:6px;font-size:var(--t-1);font-weight:600;color:var(--ink-2)}
+.atd-meta{font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.atd-for{font-size:var(--t-1);color:var(--lime);line-height:1.3}
+.atd-against{font-size:var(--t-1);color:var(--ink-3);line-height:1.3}
+.atd-p{padding-left:8px;font-family:var(--mono);font-weight:700;font-size:var(--t-4);font-variant-numeric:tabular-nums}
+.atd-noadd{width:14px}
+.atd-more{appearance:none;display:block;width:100%;min-height:44px;border:0;border-top:1px solid var(--line);background:none;
+  color:var(--ink-2);font-family:var(--ui);font-size:var(--t-1);font-weight:600;cursor:pointer}
+
+/* ---- the sheet ---- */
+.atd-sbook{display:flex;align-items:baseline;gap:10px;margin:4px 0 12px}
+.atd-sbook b{font-family:var(--mono);font-weight:700;font-size:var(--t-6);line-height:1}
+.atd-sbook span{font-size:var(--t-1);color:var(--ink-3)}
+.atd-ss{margin:0 0 14px}
+.atd-ss h4{margin:0 0 6px;font-size:var(--t-1);font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.atd-cks,.atd-work{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.atd-ck{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start}
+.atd-ckm{font-weight:700;color:var(--ink-3)}
+.atd-ck.pass .atd-ckm{color:var(--lime)}
+.atd-ckb{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.atd-ckb b{font-size:var(--t-2)}
+.atd-ckn{font-family:var(--mono);font-size:var(--t-1)}
+.atd-ckw{flex-basis:100%;font-size:var(--t-1);color:var(--ink-3)}
+.atd-work li,.atd-wx{margin:0;font-size:var(--t-2)}
+.atd-ours p{margin:0;font-size:var(--t-1);color:var(--ink-3)}
+.atd-ours b{color:var(--ink-3)}
+/* the phone's close sits at the bottom, under the thumb (STYLE.md Overlays) */
+.atd-close{appearance:none;display:block;width:100%;min-height:44px;margin-top:4px;border:1px solid var(--line-2);border-radius:12px;
+  background:var(--panel-2);color:var(--ink);font-family:var(--ui);font-weight:600;cursor:pointer}

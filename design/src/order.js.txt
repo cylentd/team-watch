@@ -255,6 +255,8 @@ lib/odds.js
 data/topcalls.js
 data/ourpicks.js
 data/kickwin.js
+data/tdwhy.js
+data/tdcard.js
 builder/grade.js
 builder/slips.js
 builder/board.js
@@ -282,6 +284,7 @@ surface/parlay/lineitem.js
 surface/parlay/board.js
 surface/parlay/record.js
 surface/parlay/windows.js
+surface/parlay/tdcard.js
 surface/parlay/playersheet.js
 # pin: legsheet.js binds its listeners at load, so it needs #legsheet (shell.html, above the
 #      script) and nothing declared below it outside a function body.

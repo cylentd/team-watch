@@ -122,6 +122,7 @@ function wireBets(v){
     if (el.tagName !== "BUTTON") el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); } });
   });
   wireSlRecord(v);
+  wireTdCard(v);
   wireSlBoard(v);
   wireTray(v);
 }

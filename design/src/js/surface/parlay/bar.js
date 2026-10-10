@@ -64,6 +64,8 @@ function betsPanelHTML(build){
     // Anytime TD on Underdog is a model read at P(score) on every row, so one sort, named for
     // what it is, instead of three that visibly do nothing.
     ? (MKT_KIND === "TD" ? [["model",t("parlay.sort.model")]] : [["conf",t("parlay.sort.conf")],["model",t("parlay.sort.model")],["ready",t("parlay.sort.ready")]])
+    // DraftKings TD: the book's chance first; edge is gone from TD (2026-10-09), the TD card shows no edge.
+    : MKT_KIND === "TD" ? [["book",t("parlay.sort.book")],["model",t("parlay.sort.model")]]
     : [["edge",t("parlay.sort.edge")],["model",t("parlay.sort.model")],["ready",t("parlay.sort.ready")]];
   return `<div class="bets-panel">
     <div class="modes-sub bets-book">

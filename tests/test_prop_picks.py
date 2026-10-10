@@ -293,8 +293,9 @@ def test_the_record_line_is_slim_and_never_wraps_at_360(page):
     assert page.evaluate("(() => { const b = document.querySelector('.pr-rec-b'); return b.scrollWidth <= b.clientWidth; })()"), "overflows its line"
     mids = page.evaluate("[...document.querySelectorAll('.pr-rec-r:first-child > .pr-rec-l, .pr-rec-r:first-child > .pr-oq')].map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; })")
     assert max(mids) - min(mids) < 3, f"all on one line: {mids}"
-    # The first data is the first kickoff window, its heading on top as Top calls' was, since 2026-10-08.
-    top = page.locator(".sl-win").first.bounding_box()["y"] + page.evaluate("window.scrollY")
+    # The first data is the first kickoff window, its heading on top as Top calls' was, since 2026-10-08; since
+    # 2026-10-09 the Anytime TDs card when the tab has one (it sits between the record line and the windows).
+    top = page.locator(".atd-card, .sl-win").first.bounding_box()["y"] + page.evaluate("window.scrollY")
     print("first window top:", top)
     assert top <= 212, f"the first window at {top}px"
 

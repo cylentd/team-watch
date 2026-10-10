@@ -3,7 +3,8 @@
  "week": 4,
  "asof": "2026-10-05T22:09:24Z",
  "model": "opus/high",
- "games": {},
+ "games": {"2026_02_CIN_NYJ": {"kickoff": "2026-09-13T17:00:00Z", "home": "NYJ", "away": "CIN", "lines": 12, "pending": "early", "expected_at": "2026-09-13T13:00:00Z"},
+           "2026_02_DET_GB": {"kickoff": "2026-09-15T00:15:00Z", "home": "GB", "away": "DET", "lines": 10, "error": null, "attempts": 1}},
  "calls": [
   {
    "game": "2026_04_CIN_PIT",

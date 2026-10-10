@@ -9,6 +9,7 @@ whole. Null values are fine; absent keys are not.
 import contract_checks   # design/contract_checks.py: the rules that read a spec
 from contract_waiver import LIVE_WAIVER, LIVE_WAIVER_TEAMS, WAIVER_META, WAIVER_ROW  # noqa: F401  names tests/test_waiver.py reads
 import d_starters       # design/d_starters.py: LIVE_D_STARTERS's nested shape check
+import td_research      # design/td_research.py: LIVE_TD_RESEARCH's tier and check words
 import kdst             # design/kdst.py: LIVE_KDST's row shape check
 import leagues
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
@@ -358,6 +359,12 @@ CONTRACT = {
     # file. `effect` is null when the file has none (then `effect_signals` is []). Each entry's kind and numbers: player_tags.problems.
     "LIVE_PLAYER_TAGS": {"keys": ["season", "week", "through", "last_n", "hours", "effect", "effect_signals", "alias", "players"],
                          "checks": [player_tags.problems]},
+    # design/td_research.py (2026-10-09): Slips' Anytime TDs card; None without ff-jarvis's file. `book` and `ours` may be
+    # null; a tier or check word the page does not know fails the build (td_research.problems).
+    "LIVE_TD_RESEARCH": {"keys": ["season", "week", "rules", "record", "players", "pending"],
+                         "rows": [("players", ["slug", "name", "team", "pos", "opp", "game", "kickoff", "tier", "book", "ours",
+                                               "evidence", "checks"])],
+                         "checks": [td_research.problems]},
     # design/slips.py (2026-10-05): Claude's calls on prop lines, {slug: [{mkt, line, side, why}]}. Optional: None without
     # ff-jarvis's file, and a line with no call draws no badge.
     "LIVE_CLAUDE_PROPS": {"keys": ["week", "asof", "calls"], "checks": [slips.problems_claude]},
