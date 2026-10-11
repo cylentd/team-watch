@@ -21553,6 +21553,17 @@ function dgPacific(ms){
 }
 const dgDayPlan = ms => DG_PLAN[dgPacific(ms).day];
 
+/* The hero's scorer pool (2026-10-11, David: "It's game day but it's still showing Thursday's game"). On a slate day,
+   today's kickoffs outnumbering a standalone slot (DG_LATE_MAX), the top scorer comes from the clubs playing today, so
+   Thursday's final does not hold the banner on Sunday and a Sunday with no points yet falls to the day's kickoff
+   banner. Any other day keeps the week's scorers: Monday morning is still Sunday's top score. `games` is the week's,
+   `kickOf(club)` a club's kickoff in ms (undefined when it has none). */
+function dgSlateScorers(rows, games, now, kickOf){
+  const today = dgPacific(now).date;
+  if ((games || []).filter(g => dgPacific(Date.parse(g.kickoff)).date === today).length <= DG_LATE_MAX) return rows || [];
+  return (rows || []).filter(r => { const k = kickOf(r.team); return k !== undefined && !isNaN(k) && dgPacific(k).date === today; });
+}
+
 /* The cards to draw, from what each drew (`drawn`: id -> HTML or ""); none at all: Need to know stands in. */
 function dgDayCards(plan, drawn){
   const cards = plan.cards.filter(id => drawn[id]);
@@ -24157,7 +24168,8 @@ function dgLeadLeft(){
    then the packet's own lead. null leaves the packet's lead alone. */
 function dgLeadLive(d){
   const now = Date.now(), w = dgWeek(now), on = w.started && !w.done;
-  const top = on ? dgLeaders()[0] : null, playing = on && gdPlaying(now);
+  // On a slate day only today's games count: Thursday's final does not hold the banner on Sunday (data/dayplan.js).
+  const top = on ? dgSlateScorers(dgLeaders(), gdWeekGames(), now, gdKickOf)[0] : null, playing = on && gdPlaying(now);
   if (playing){
     const left = dgLeadLeft();
     return left || (top ? dgLeadTop(top, true) : null);

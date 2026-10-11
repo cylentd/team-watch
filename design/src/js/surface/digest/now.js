@@ -85,7 +85,8 @@ function dgLeadLeft(){
    then the packet's own lead. null leaves the packet's lead alone. */
 function dgLeadLive(d){
   const now = Date.now(), w = dgWeek(now), on = w.started && !w.done;
-  const top = on ? dgLeaders()[0] : null, playing = on && gdPlaying(now);
+  // On a slate day only today's games count: Thursday's final does not hold the banner on Sunday (data/dayplan.js).
+  const top = on ? dgSlateScorers(dgLeaders(), gdWeekGames(), now, gdKickOf)[0] : null, playing = on && gdPlaying(now);
   if (playing){
     const left = dgLeadLeft();
     return left || (top ? dgLeadTop(top, true) : null);
