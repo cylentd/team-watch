@@ -46,7 +46,7 @@ def test_the_fixture_file_meets_its_own_contract():
 
 
 @pytest.mark.parametrize("doc, where", [
-    (edited(("v",), 3), "v"),
+    (edited(("v",), 4), "v"),
     (edited(("weekly", "scoring"), "ppr"), "weekly.scoring"),
     (edited(("weekly", "lists", "RB", 1, "rank"), 5), "weekly.lists.RB[1].rank"),
     (edited(("weekly", "lists", "RB", 1, "tier"), 3), "weekly.lists.RB[1].tier"),

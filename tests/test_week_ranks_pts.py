@@ -115,9 +115,20 @@ def test_a_v1_row_with_rank_pts_is_not_a_v1_row():
     assert len(bad) == 1 and bad[0].startswith("weekly.lists.RB[0]: keys "), bad
 
 
-def test_a_version_other_than_one_or_two_is_named():
-    assert week_ranks.problems(doc({}, v=3)) == ["v: 3, expected 1 or 2"]
-    assert week_ranks.problems(doc({}, v=0)) == ["v: 0, expected 1 or 2"]
+def test_a_version_other_than_one_to_three_is_named():
+    assert week_ranks.problems(doc({}, v=4)) == ["v: 4, expected 1 or 2 or 3"]
+    assert week_ranks.problems(doc({}, v=0)) == ["v: 0, expected 1 or 2 or 3"]
+
+
+def test_v3_is_v2_with_an_optional_adjusted_flag_on_a_row():
+    """ff-jarvis #97 (2026-10-11): week_ranks v3 rows may carry `adjusted: true` (the miss-review label, ledger #110).
+    The build accepts the file; v1 and v2 rows still may not carry the key."""
+    flagged = row("A A", "RB", 1, 1, 9.0, 10.0)
+    flagged["adjusted"] = True
+    plain = row("B B", "RB", 2, 1, 8.0, 9.0)
+    assert week_ranks.problems(doc({"RB": [flagged, plain]}, v=3)) == []
+    bad = week_ranks.problems(doc({"RB": [flagged, plain]}, v=2))
+    assert len(bad) == 1 and bad[0].startswith("weekly.lists.RB[0]: keys "), bad
 
 
 def test_rank_pts_may_step_up_down_a_file_list_and_the_page_still_prints_our_points_in_order():

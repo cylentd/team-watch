@@ -4,7 +4,7 @@ tier at each position and FLEX, cut upstream. Stats > Ranks draws its order, ran
 
     {v, generated, weekly: {season, week, scoring: "half", w, src_by_pos, tier_method, off: [team],
                             lists: {QB|RB|WR|TE|FLEX|K|DST: [row]}}, ros}
-    row  {key, name, pos, team, opp, kickoff, rank, tier, val, pts, src, rank_pts}   (rank_pts: v2 only)
+    row  {key, name, pos, team, opp, kickoff, rank, tier, val, pts, src, rank_pts[, adjusted]}   (rank_pts: v2 on; adjusted: v3 only, optional)
 
 `val` is the list's order key and `src` says whose number it is: the page shows neither (David, 2026-10-08: readers
 see one rank). `pts` is our projection. v2 (ff-jarvis 9ef94b4, 2026-10-08) adds `rank_pts`, the half-PPR number the
@@ -20,14 +20,15 @@ import math
 
 import sources
 
-VERSIONS = (1, 2)
+VERSIONS = (1, 2, 3)
 SCORING = "half"
 POSITIONS = ("QB", "RB", "WR", "TE")
 LISTS = POSITIONS + ("FLEX", "K", "DST")
 TOP = ("v", "generated", "weekly")
 WEEKLY = ("season", "week", "scoring", "off", "lists")
 ROW = {"key", "name", "pos", "team", "opp", "kickoff", "rank", "tier", "val", "pts", "src"}
-ROW_BY_VERSION = {1: ROW, 2: ROW | {"rank_pts"}}
+ROW_BY_VERSION = {1: ROW, 2: ROW | {"rank_pts"}, 3: ROW | {"rank_pts"}}
+OPTIONAL_BY_VERSION = {3: {"adjusted"}}   # v3 (ff-jarvis #97, 2026-10-11): a row the miss review adjusted says so
 LIMIT = 8   # problems reported at most
 
 
@@ -48,13 +49,13 @@ def _num(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
 
-def _list_problems(rows, where, fields):
+def _list_problems(rows, where, fields, optional=frozenset()):
     """rank 1..n, tier from 1 stepping 0 or 1, `val` non-increasing, unique keys, every field of the version present
-    (v2: `rank_pts` a number, in no order, since only `rank` orders the list)."""
+    (v2: `rank_pts` a number, in no order, since only `rank` orders the list); `optional` keys may also be there."""
     bad, seen, tier, val = [], set(), 0, math.inf
     for i, r in enumerate(rows):
         at = f"{where}[{i}]"
-        if not isinstance(r, dict) or set(r) != fields:
+        if not isinstance(r, dict) or set(r) - optional != fields:
             bad.append(f"{at}: keys {sorted(r) if isinstance(r, dict) else type(r).__name__}, expected {sorted(fields)}")
             return bad
         if not _num(r["pts"]):
@@ -91,7 +92,7 @@ def problems(doc):
         if not isinstance(rows, list):
             bad.append(f"weekly.lists.{name}: missing")
             continue
-        bad += _list_problems(rows, f"weekly.lists.{name}", ROW_BY_VERSION[doc["v"]])
+        bad += _list_problems(rows, f"weekly.lists.{name}", ROW_BY_VERSION[doc["v"]], OPTIONAL_BY_VERSION.get(doc["v"], frozenset()))
     return bad[:LIMIT]
 
 
