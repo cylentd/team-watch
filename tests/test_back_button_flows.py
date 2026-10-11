@@ -46,7 +46,7 @@ def test_back_closes_the_how_this_works_drawer_and_stays_on_the_view(start):
     history.back()
     history.wait_drawer_closed()
     assert history.entry() == {"hash": "#dfs", "surface": "dfs", "layers": [], "entry_layer": None}
-    history.back_to("live")
+    history.back_to("preview")
 
 
 @pytest.mark.req(REQ, ac="closing the drawer from itself leaves no dead history entry")
@@ -56,7 +56,7 @@ def test_closing_the_drawer_with_its_x_takes_its_entry_back(start):
     history.open_explain()
     history.close_drawer_with_x()
     history.page.wait_for_function("LAYERS.length === 0 && LAYER_SKIP.length === 0")
-    history.back_to("live")
+    history.back_to("preview")
     assert not history.drawer_is_open()
 
 

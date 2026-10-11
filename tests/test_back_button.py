@@ -72,7 +72,7 @@ def test_a_profile_link_opened_from_search_returns_to_the_view_the_reader_left(s
     history.page.wait_for_function("v => SURFACE === v && LAYERS.length === 0", arg=view)
     history.back_to("parlay")
     assert history.entry()["entry_layer"] is None
-    history.back_to("live")
+    history.back_to("preview")
     history.back_to("ranks")
 
 
