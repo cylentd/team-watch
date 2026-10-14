@@ -44,6 +44,11 @@ SRC = "design/src/"
 CONTENT = SRC + "content.json"
 GOLDEN_DIR = "tests/golden/"      # one <area>.json per golden area (2026-10-07; was render.json)
 DESIGN_DOC = "design/DESIGN.md"
+# Build output, never source: land.ps1 rebuilds each of these (its `$generated`, held equal to this by
+# tests/test_impact.py), so one in a diff tests nothing of its own and must not force the whole suite
+# (2026-10-13: a rebuild-only land ran 240 test files for "no area owns index.html").
+GENERATED = ("index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins",
+             "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
 ORDERS = {SRC + "order.js.txt": SRC + "js/", SRC + "order.css.txt": SRC + "css/"}
 
 
@@ -155,6 +160,8 @@ def select(paths, cfg=None, scope=None, golden=()):
             why.append(f"golden state area {g} is no impact area's")
     for path in paths:
         if path.endswith(".md") and path != DESIGN_DOC:    # DESIGN.md names the sections `req` cites
+            continue
+        if any(path == g or path.startswith(g + "/") for g in GENERATED):
             continue
         if path.startswith("tests/"):
             if path.startswith("tests/test_") and path.endswith(".py") and path != "tests/test_render.py":

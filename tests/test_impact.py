@@ -74,6 +74,26 @@ def test_select_runs_everything(paths):
     assert got["all"] is True, got["why"]
 
 
+def test_a_diff_of_only_generated_files_runs_the_core_not_the_suite():
+    # land.ps1 rebuilds these from source, so a build output in the diff tests nothing of its own
+    got = impact.select(["index.html", "design/index.html", "build.json", "heads/ab.webp", "trade_pins/index.json"],
+                        CFG, SCOPE)
+    assert got["all"] is False, got["why"]
+    assert got["areas"] == [] and got["files"] == sorted(set(CFG["core"]))
+
+
+def test_a_generated_file_beside_source_still_runs_the_sources_tests():
+    got = impact.select(["index.html", "design/ranks.py"], CFG, SCOPE)
+    assert got["all"] is False and got["areas"] == ["ranks"]
+
+
+def test_the_generated_list_is_the_one_land_rebuilds():
+    import re
+    land = (ROOT / "scripts" / "land.ps1").read_text(encoding="utf-8")
+    line = next(l for l in land.splitlines() if l.startswith("$generated = @("))
+    assert list(impact.GENERATED) == re.findall(r'"([^"]+)"', line)
+
+
 def test_every_fenced_css_file_has_an_area():
     runs_all = [rel for rel in SCOPE["fenced"]
                 if impact.select([impact.CSS_SURFACE + rel[len("surface/"):]], CFG, SCOPE)["all"]]
