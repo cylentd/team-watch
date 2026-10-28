@@ -61,6 +61,32 @@ Nice to have, behind the four VISION focus areas (David, 2026-10-08).
 - [ ] **Follow a game, part 2.** Part 1 landed 2026-09-28; David does not recall what part 2 was (2026-10-08), so it needs a one-line definition or it is dropped.
 - [x] **Third league.** Done: AYO is the third league (David, 2026-10-08).
 
+## From memory cleanup 2026-10-28
+
+Open lines carried out of the retired memory notes. "Status unknown" means the note is the only record and nobody has re-checked it since its date.
+
+- [ ] **Re-check the after-land (postland) failures.** Due 2026-10-21, overdue. `scripts/postland.py` posts failures to Discord; look at the log and fix or file each.
+- [ ] **Game simulator for props.** Plan: `~/.claude/plans/game-sim.md` (read it before sizing). Scoring dates live in ff-jarvis TODO.
+- [ ] **Draft tendencies for draft help.** Raise when 2027 draft prep starts (~Aug 2027). Inputs exist: Yahoo `/<year>/f1/<id>/draftresults` (2019-2025 by cookie, 2018 via David's Chrome console), managers joined by ff-jarvis `data/yahoo_league_owners.json`, ESPN past drafts via leagueHistory `mDraftDetail` (~12 requests). ESPN owner continuity unverified.
+- [ ] **Trades: numbers or words for margins.** David never picked; numbers ship, words only on the top 3 recommended.
+- [ ] **Yahoo 2018 last place** needs David's browser (Chrome console + copy(); 2019-2025 come from ff-jarvis `yahoo_league finals`).
+- [ ] **Status unknown: Prop picks and Slips board A** (ff-jarvis `prop-tiers`, team-watch `prop-picks-ui`, 2026-10-05): landed or dropped? Tier cutoffs q<.55 none, .55 slight, .60 confident, .70+ very; weeks 1-3 backtest 56 / 51 / 56%.
+- [ ] **Status unknown: curated waiver branches** (ff-jarvis `waiver-teams`, team-watch `worktree-waiver-teams`): dead? `waiver_teams` ships per CLAUDE.md "Data".
+- [ ] **Status unknown: `design/league_private.json` hidden head-to-head**: still used?
+- [ ] **Status unknown: Digest by day follow-ups** (2026-10-07): ff-jarvis history `practice` has non-null Sleeper words (else Friday's marks stay blank); the Usage movers card and Wednesday banner show; Monday's "Out tonight and who's next" lacks Sunday's left-hurt list (needs a card); Friday's banner ranks hurt players by the points their rank is worth, a proxy for healthy projection.
+- [ ] **Status unknown: Compare elite follow-ups** (2026-09-30): `design/usage.py` `_sheet` passes `ev`/`el`, `sheetElite` reads `row.el`, provisional `elite_src` bars get a label; WR red-zone share is targets-only until ff-jarvis fills `red_zone.team_carries` for receivers.
+- [ ] **Status unknown: profile bugs** (2026-09-29): Props charts do not open the leg sheet (z-index 49 under `#modal` 61); heat-radar routes are week-1-only (ff-jarvis); a non-roster player outside the top 25 reads "No stats" in the profile.
+- [ ] **Status unknown: leaguemate Live board** never verified against real ESPN (team-name match, 2026-09-26); first unattended Tuesday run of `league_yahoo_box` and `league_roast` (2026-09-29); league payout awards not built.
+- [ ] **Status unknown: Digest game day** (2026-09-28): a Sunday ~9:30 AM rebuild so morning lineup changes reach Live; connected leagues on Live (rules at connect time); live drive strip blocked by ESPN's 403 to servers.
+- [ ] **Status unknown: Trade builder** (2026-10-05): Yahoo/AYO free-agent files stale since 2026-09-29 with no refresh job; do waiver-list players count toward floors (ESPN floors 0 Mon/Tue)?; edit-mode re-scoring must not hand-mirror ff-jarvis logic; `test_teams_board.py` still full-page.
+- [ ] **Status unknown: Roster matchup line** (2026-10-07): Waivers and All lines gaps; older weeks at .22 opacity may be too faint (.35 offered). **Trading cards:** a dark box swung across the stage pack on David's phone, fix unconfirmed; bigger source heads (96px, soft full-bleed) need ff-jarvis.
+- [ ] **Status unknown: STYLE.md motion rule 1** ("motion never competes with reading"): David's call on rewriting it; only a dated exception is in (2026-09-28, trades). He also finds it too restrictive (2026-09-28, 3D).
+- [ ] **Status unknown: clips** (2026-10-05): log Sunday 2026-10-11 YouTube post times (TD to first clip, NFL vs team channel) before designing real-time clips for Live > TDs via a Vercel `/api/clips` with a 2-min shared cache; Digest and Players clips; ring on trading cards.
+- [ ] **Status unknown: Start/Sit** (2026-10-04): teammate-out as a shown reason vs a new projection trial (open decision). Recap: Luck tag boundaries at exactly 0.5 untested (2 mutants survived, 2026-10-06).
+- [ ] **Status unknown: test speed** (2026-10-07): check `flake-*` logs exist in `~/.team-watch-reports`; shelved branch `shelved-component-shapes` (shape-keyed contexts, +3%); next lever is cross-session scheduling, not the mount helper; `test_render.py` golden is ~266 of ~650 worker-s; `test_digest_live.py` and `test_digest_story.py` still use selectors, not page objects.
+- [ ] **Status unknown: matchup signal** (2026-10-07): the bottom-3 pass-defense test (n 10,881 WR-games, only toughest-8 clears, -0.28 pts) is not in ff-jarvis METHODOLOGY and its script was in a session scratchpad; per-position beta (0.5 everywhere) not refit.
+- [ ] **Status unknown: data audit** (2026-09-29): the open ranked list (market labels, team mismatches, trades.py, per-position beta) is in `~/.claude/docs/projects/data-audit-2026-09-29.md`; ff-jarvis TODO carries the model side.
+
 ## Dropped
 
 - **ESPN QR fallback.** Public leagues only (VISION "Not doing", 2026-10-08).

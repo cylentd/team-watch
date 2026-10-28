@@ -137,7 +137,12 @@ The suite builds against `tests/fixtures/` (never ff-jarvis) and compares the re
 Chromium, to `tests/golden/<area>.json`, one file per area (since 2026-10-07; it was one 11.5 MB
 `render.json` that every UI change rewrote). A state lives in the file of the area its name starts
 with (`impact.area_of`), keyed viewport -> state. A refactor proves "no visual change" with an empty
-diff; an intended change regenerates the golden with `pytest --update-golden` (add `--areas x` to
+diff, and **the diff is read line by line before regenerating** (2026-09-29): `--update-golden` is a
+review step, not a fix. A `grid-template-columns` of ~10px tracks plus one huge implicit track means
+a grid area is missing, not an intended change; the wait-card branch once regenerated the Digest
+golden with the desktop wall collapsed, every later run passed against the bug, and it shipped.
+Screenshot the desktop state it rewrites; `test_every_wall_row_has_its_area` guards the Digest wall,
+and a new multi-state grid needs the same kind of check. An intended change regenerates the golden with `pytest --update-golden` (add `--areas x` to
 rewrite only that area's file) and the diff is the review. Never with `-n`: an area of over six
 states is several slices, and two workers would each rewrite its one file. `tests/test_budgets.py` holds the size ratchets: what is over budget today is listed with
 its size and may only shrink.

@@ -50,6 +50,11 @@ Where this page is going. The conductor reads it before sizing work here and app
 - 2026-10-09: chose Ranks drawing ff-jarvis's week_ranks rank and tier as shipped, now that ff-jarvis orders them on our own points, over re-sorting here; the "No line" tag and the books' RB note are gone (David).
 - 2026-10-09: chose a tier ladder with the rank on each name for week ranks on Home, and fantasy team avatars as a Teams list plus a picker grid, over a dot chart, packs or avatars on today's cards (David, storyboards a + d).
 
+- 2026-10-04: chose a Digest that is generic for the public over one keyed on David's roster: "The Digest is supposed to be GENERIC for the public" (David). Per-team advice stays owner-only (2026-09-27: "Hide my waiver from my leaguemates"). Detail: DESIGN.md "What David has ruled on".
+- 2026-10-04: chose our own model alone for Start/Sit and takes, with FantasyPros and Pitcher List tracked for fun only, and bold calls over "Close call" rows: "We are bold. We make takes." (David).
+- 2026-10-05: chose picks as the model's own call plus a confidence word and a kept record over a comparison to the books' break-even (David).
+- 2026-10-05: chose a full page with a Back link over a bottom sheet for drill-ins (David, League > Teams).
+
 ## Not doing
 
 - No `max-age` cache header: Vercel already revalidates, and a max-age would only add staleness.

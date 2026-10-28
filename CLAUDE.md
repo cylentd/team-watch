@@ -40,6 +40,20 @@ python design/build.py      # rebuild both outputs
 The build fails on a lint error (`design/lint_css.py`), a contract violation (`design/contract.py`:
 an injected block missing a field the JS reads), or a part the manifests do not agree on.
 
+- **Dry-run the gate first** (2026-10-07): the freeze and lint checks run last in `land.ps1`, so a
+  cheap failure throws away the expensive test run (7 extra failed lands that day). From the
+  branch's worktree run `.\scripts\land.ps1 -DryRun -Yes`: it runs the whole land gate (test-first,
+  backlog, lint, freeze) in seconds and lands nothing. Squash to one commit on the branch's own
+  base, then rebase. Entry names for `Test-Reapproved` come from the gate output (e.g.
+  `tests/test_gaps.py::KNOWN`).
+- **Builders and designers:** new test helpers go in NEW page-object files, never in existing
+  (frozen) ones; run the gate checks before reporting; component tests well under 400 ms.
+- **Nav, chrome, default page or player-row (tag) changes land with `-Yes -Full`** (2026-10-08):
+  `navmap.js`, `nav.js`, `phonenav.css` and `shell.html` show in every golden and many browser
+  tests, but a plain land tests only the impacted areas. The nav regroup (10 failures) and the Home
+  tab (28 failures, 24 goldens) both passed the gate and broke `main` in the after-land run.
+  Regenerate all goldens (reading the diff, tests/README.md "Goldens") before landing.
+
 ## Testing
 
 TDD is the default; standards live in the `testing` skill. **Before writing any test, read
@@ -142,6 +156,11 @@ Matchup is `week`, Players is `scouting`. Before: Week, League, Stats, Bets (202
 
 The table below is each view's history and detail; where it names a group, read the table above.
 Each group holds the views that answer one question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
+Sub-tabs stay in the top row and groups in the phone's bottom bar; never move sub-tabs to the bottom
+(people are not used to secondary nav there). Since 2026-10-06 a sideways swipe on a view taps the
+next stop in the top row (David: "I don't want to reach all the way to the top"), superseding
+"no page-wide swipe" (2026-09-30); a surface with its own sideways drag marks itself `data-ownswipe`
+(`onSwipeX` does it automatically). DESIGN.md "Swipe between tabs".
 A group with no view to show draws no button; a league that lacks a leaf (ESPN has no Records) shows fewer, and a link to the missing one lands on its nearest (`navFallback`).
 
 | group | views |
@@ -225,3 +244,26 @@ computes model numbers itself. Ranks' tiers (`design/ranks.py`, `LIVE_RANKS`) ar
 time from those same projections by natural breaks (1-D k-means, a fixed tier count per position),
 and its rank is the one the roster cards use (`ranks.ranks_places`). Since 2026-10-09 (ledger #81) one projection has one home: Ranks prints the projections row's `pts` that every other view prints, orders and tiers each week_ranks list by it (the books' `rank_pts` and the producer's order no longer decide a row), and the cards' rank is the place Ranks draws. See `README.md` for the DFS CSV import and `design/DESIGN.md` for
 the design system and the field contract.
+
+**Yahoo DFS CSV import** (noted 2026-09-10; contest ids may have changed since): Yahoo has no DFS API. Download the contest's "Export players" link (shape `https://dfyql-ro.sports.yahoo.com/v2/export/contestPlayers?contestId=<id>`; lands as `~/Downloads/Yahoo_DF_player_export.csv`). The contestId likely changes weekly: ask David for a fresh link if the old one 404s. From the ff-jarvis repo root run `python -m model.clients.dfs import <path.csv>`, which writes `ff-jarvis/data/dfs_pool.json`, then land team-watch; the deploy follows on its own.
+
+**Refresh the Digest's data by hand through the feed** (verified 2026-09-29): the build reads a feed
+block first and the data file second. A land from a worktree has no `feed.json` and reads the file;
+the scheduled rebuild reads `feed.json`. So a bare `python -m model.season.weekly_digest` updates only
+the file, and the next rebuild puts the 5:58 AM busts back on the live page. From the ff-jarvis main
+checkout:
+
+```
+python -m model.refresh --only weekly_digest --feed C:\Users\David\Github\team-watch\data\feed.json
+agent-config/scripts/team-watch-update.ps1 -Run manual
+```
+
+Any hand-run ff-jarvis step whose output the page reads goes through `model.refresh --only <step>
+--feed ...` (bit again 2026-09-30 with `game_preview`: check the rebuild log's "Preview: ... as of" line).
+
+**The live site is behind Vercel Bot Protection in Challenge mode** (since 2026-09-30, David's choice,
+kept over Log knowing link previews may break): a `curl` or script hit on `team-watch-three.vercel.app`
+gets 429, which is the challenge, not volume. Verify the live site in a real browser, or ask David.
+`.vercelignore` is an allowlist (index.html, build.json, robots.txt, heads, icons, games, api,
+requirements.txt, vercel.json): a new file the page fetches must be added to it or it 404s in
+production.

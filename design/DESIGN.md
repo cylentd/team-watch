@@ -2578,6 +2578,22 @@ word on it, and the prose lives one tap away in the profile.
 
 A new or changed view is checked against this table too (`STYLE.md`, "Before a view lands").
 
+### What David has ruled on (moved from memory 2026-10-28)
+
+| Rule | Why, dated |
+|---|---|
+| **Names are first initial + surname** ("B. Allen") in UI copy and ff-jarvis's LLM summaries, except where the name is the title (card heading, profile head). One shared JS name formatter; a summary prompt gets the same rule and its validator accepts the initial form. | Shorter text, most readers on phones. |
+| **The Digest is public and generic**: league-wide news and stats only, never keyed on David's roster, matchups, opponents or league scores. A spec saying "my starters" for the Digest: stop and ask. "Yours/mine" anywhere (Live, game sheet) means the team the reader picked with the team switch (`tw-team`, `tw-follow`); no pick, no "yours". | David, 2026-10-04: "The Digest is supposed to be GENERIC for the public." |
+| **The Digest's lead banner celebrates**: what he did, in an announcer's verb, real stats only; no caveats (TD luck), ratios (2x) or obvious facts. Analysis lives in the Results list below, in the reason pills. | David, 2026-09-29: "This is the headline and supposed to be awesome. TD luck or not." |
+| **Leaguemate-facing features are fun, never advice**: ask "does this make them better at beating David?" If yes, keep it behind the owner check (`data/owner.js`). Generic league-wide help the same for every reader is fine in public; per-team advice is owner-only. The curated per-team waiver build is tabled, not landed. | David, 2026-09-26/27: "Hide my waiver from my leaguemates"; 2026-09-29 chose "Everyone" for the Stats help tab. |
+| **Picks are the model's own call plus a confidence word** (Slight / Confident / Very confident) and a kept record by tier; never framed against the books' break-even, "not enough to bet" or coin flips. A 54% backtest hit rate is not a reason to show no pick. | David, 2026-10-05: "I keep repeating this constantly." |
+| **Own model only**: Start/Sit and takes never define a call or a confidence as a gap to an outside ranking. Lines may feed the projection. FantasyPros and Pitcher List are tracked for fun, never a benchmark or input. Page = SMASH / START / SIT only where confident, no "Close call" rows ("We are bold. We make takes."); bold = our call disagrees with the player's season average by a margin; the record grades exactly the shown list and must account for obvious top-5 starts. | David, 2026-10-04. Week 4 takes scored 0.344; our ranks alone matched FP (15.0 vs 14.9 spots, n 42). |
+| **Matchup green/red explains the projection** (Yahoo-style "vs BUF (4th)"), on every position including WR, though the WR effect is already inside the Vegas total. Do not withhold a tag as "already priced"; do not write copy implying it adds points beyond the projection. | David, 2026-10-07: "Green could also mean his projection is high because he is in a plus matchup." |
+| **Usage shows only as a spike or a multi-week trend with context.** Glance surfaces (roster row, card back) show fantasy points by week as bars ending in a hollow projection bar, never raw usage; raw usage lives in the Usage grid, Role board, profile and the Wednesday usage movers. | David, 2026-10-07: usage is noisy; readers misread it as projections and totals. |
+| **No bottom sheets for drill-ins**: a tapped item opens a full page in the view with a "‹ Back" link and a history entry (superseded where STYLE.md "Overlays" keeps a centred modal for reading). Every blocked state carries the action that unblocks it ("This is my team", not a dead hint line). | David, 2026-10-05, League > Teams. |
+| **3D means real volume**: canvas with hand-rolled projection (CSS 3D has no spheres), data readable while it moves, paused off screen, in a hidden tab and under reduced motion. A 2D shape tilting reads as "not cool". David also finds STYLE.md rule 1 ("nothing moves on its own") too restrictive. | David, 2026-09-28, profile radar badge. |
+| **Logo and brand work: the still mark first**, motion only afterwards if it earns a place; storyboards show stills (specimen, 22px nav bar, 16/32/180px icon). The M/W-strokes-as-slashes idea was dropped after 3 rounds. | David, 2026-09-29: "designing a logo first and then later adding animation if it makes sense." |
+
 ## Theme rules
 
 `design/lint_css.py` fails the build on any of these (`python design/lint_css.py`):
