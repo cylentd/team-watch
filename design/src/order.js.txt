@@ -219,7 +219,7 @@ surface/trades/trades.js
 surface/trades/alive.js
 # lboard is the board and lbcard its cards. The trade finder (leaf trades, 2026-10-06) is tbscore (the scorer), offers
 # (the file and the guard), tbcard (an offer card), tbedit (the edit state), then finder/: logic (pure), lenses (an
-# offer card's lenses and bye notes, 2026-10-08), finder, deep,
+# offer card's lenses and bye notes, 2026-10-08), signals (what changed since the price, 2026-10-29), finder, deep,
 # page (the edit page). Nothing binds at load (the pages wire per draw), so the order is readability: every name is
 # used only after the last part ran. A player's trade page (2026-10-08, ledger #51): data/tradepage.js (pure), then
 # finder/tpdata.js (the pinned file's fetch), finder/tprows.js (its rows) and finder/tpage.js, which binds one
@@ -233,6 +233,7 @@ surface/lboard/tbcard.js
 surface/lboard/tbedit.js
 surface/finder/logic.js
 surface/finder/lenses.js
+surface/finder/signals.js
 surface/finder/finder.js
 surface/finder/deep.js
 surface/finder/page.js

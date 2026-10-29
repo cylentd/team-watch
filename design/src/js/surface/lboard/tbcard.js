@@ -56,6 +56,10 @@ function tbHeadHTML(o, lg){
     rec ? `<small data-testid="finder-record">${rec}</small>` : ""}</header>`;
 }
 
+/* What changed since the price (finder/signals.js, 2026-10-29), after the room lines; nothing where signals.js is not
+   loaded (a Node test of the card alone). */
+const tbSigsHTML = (o, lgd) => typeof tfSignalsHTML === "function" ? tfSignalsHTML(o, lgd) : "";
+
 /* `i` is the card's place in the offers on screen (finder.js TF_SHOWN): Copy and Edit address it by that. An offer with
    lenses (2026-10-08, finder/lenses.js) shows both sides' judged gains and its nearest bye notes in place of the one
    rest-of-season gain; one without shows that gain, as it did. */
@@ -66,7 +70,7 @@ function tbCardHTML(o, i, lg, canEdit){
   const gain = lensed ? tfLensFootHTML(o, lgd, me ? me.name : null)
     : `<p class="tb-gain" data-testid="finder-gain" title="${t("lboard.offer.mark")}">${t("lboard.offer.gain", {n: `<b>+${lbNum(o.gain)}</b>`})}</p>`;
   return `<article class="tb-card" data-testid="finder-card">${tbHeadHTML(o, lg)}
-    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}${lensed ? tfNotesHTML(o, lgd) : ""}
+    <div class="tb-cols">${col(t("lboard.offer.send"), o.send)}${col(t("lboard.offer.get"), o.get)}</div>${tbRoomHTML(o)}${tbSigsHTML(o, lgd)}${lensed ? tfNotesHTML(o, lgd) : ""}
     <div class="tb-foot">${gain}
       <div class="tb-acts">${edit}<button type="button" class="tb-copy" data-tbcopy="${i}" data-testid="finder-copy">${t("lboard.offer.copy")}</button></div></div></article>`;
 }
