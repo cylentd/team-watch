@@ -71,6 +71,7 @@ tests, goldens, test history.
 | Mutation | `python $HOME/.agents/skills/testing/scripts/mutate.py --files <file>` (`.testing.json` picks the files, `scripts/mutate_tests.py` the tests) |
 | Before land | `.\scripts\land.ps1` runs the testing skill's `land_gate.py` itself |
 | Where a run's time went | `python scripts/testlog.py --profile` (harness vs tests, fixtures, workers; `--last` for any run) |
+| Off the PC | `gh workflow run tests.yml -f mode=full` (or `mode=flake`), `.github/workflows/tests.yml`; setup in `requirements-dev.txt`, Vercel's stays `requirements.txt` (since 2026-10-30) |
 
 - **Workers are shared** (since 2026-10-07): `run_tests.py` claims its `-n` from loadgate, the one
   budget for heavy work on this PC (agent-config `testsched/SPEC.md`; code at `$LOADGATE_CODE`, else

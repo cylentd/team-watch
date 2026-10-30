@@ -40,6 +40,9 @@ import urllib.request
 HERE = pathlib.Path(__file__).resolve().parent
 REPORTS = pathlib.Path.home() / ".team-watch-reports"
 WEBHOOK_FILE = pathlib.Path.home() / ".config" / "ff-jarvis" / "discord.json"
+WEBHOOK_ENV = "TEAM_WATCH_DISCORD_WEBHOOK"
+WINDOWS = os.name == "nt"
+SIGKILL = 9          # signal.SIGKILL on POSIX; the name does not exist on Windows
 RUN_TIMEOUT = 900    # per run, flake.py's own limit; this script allows every run its share and a margin
 DEFAULT_RUNS = 5
 MAX_LINES = 10       # failing tests named in the message; the rest are counted
@@ -112,15 +115,27 @@ def flake_command(skill, repo, runs=None):
     return cmd + (["--runs", str(runs)] if runs else [])
 
 
+def popen_options(windows=WINDOWS):
+    """A Linux run leads its own process group, which is what stop_tree kills."""
+    return {} if windows else {"start_new_session": True}
+
+
+def stop_tree(p, windows=WINDOWS, run=subprocess.run, killpg=getattr(os, "killpg", None)):
+    """The whole tree: killing python alone would orphan its xdist workers and their Chromiums."""
+    if windows:
+        run(["taskkill", "/T", "/F", "/PID", str(p.pid)], capture_output=True)
+    else:
+        killpg(p.pid, SIGKILL)
+
+
 def run_flake(cmd, timeout, env, cwd=None):
     """(exit code, stdout, stderr) of flake.py; on a timeout the whole process tree is stopped."""
     p = subprocess.Popen(cmd, env=env, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                         text=True, encoding="utf-8", errors="replace")
+                         text=True, encoding="utf-8", errors="replace", **popen_options())
     try:
         out, err = p.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
-        # The whole tree: killing python alone would orphan its xdist workers and their Chromiums.
-        subprocess.run(["taskkill", "/T", "/F", "/PID", str(p.pid)], capture_output=True)
+        stop_tree(p)
         p.communicate()
         return None, "", f"flake.py gave no result in {timeout} s"
     return p.returncode, out, err
@@ -249,7 +264,11 @@ def message(report, planned=DEFAULT_RUNS, skill=None):
     return "\n".join(lines)[:MAX_CHARS]
 
 
-def webhook_url(path=WEBHOOK_FILE):
+def webhook_url(path=WEBHOOK_FILE, environ=None):
+    """A runner's secret when it sets one, else this PC's file."""
+    found = (os.environ if environ is None else environ).get(WEBHOOK_ENV)
+    if found:
+        return found
     with open(path, encoding="utf-8") as f:
         url = json.load(f).get("webhook")
     if not url:

@@ -1,0 +1,70 @@
+# Deterministic test runs off the Windows PC: no Claude credits, no load on the PC (2026-10-30).
+#
+# windows-latest on purpose. tests/golden/ records layout with Windows' fallback fonts: on Linux 37 tests fail
+# with no code at fault (33 goldens, 4 layout, cloud run 2026-10-30), and the land queue's tests need PowerShell.
+#
+#   Wednesday cron, or `gh workflow run tests.yml -f mode=flake`: scripts/flake_run.py, 5 shuffled runs and the suite budgets
+#   `gh workflow run tests.yml -f mode=full`: one full suite
+#
+# This repo is public, so its logs are too, and ff-jarvis is private. Failures print ids only (--tb=no); read
+# a failure's detail by running that test on the PC. flake_run.py prints ids only already.
+#
+# Secrets: PRIVATE_REPOS_TOKEN (read-only contents on ff-jarvis and agent-config), TEAM_WATCH_DISCORD_WEBHOOK.
+name: tests
+
+on:
+  schedule:
+    - cron: "30 11 * * 3"    # UTC: Wednesday 3:30 PST, 4:30 PDT
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [full, flake]
+        default: full
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      LOADGATE: "off"
+      LOADGATE_CODE: ${{ github.workspace }}/agent-config/testsched
+      TESTING_SKILL: ${{ github.workspace }}/agent-config/shared/skills/testing/scripts
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          path: team-watch
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          repository: cylentd/ff-jarvis
+          token: ${{ secrets.PRIVATE_REPOS_TOKEN }}
+          path: ff-jarvis
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          repository: cylentd/agent-config
+          token: ${{ secrets.PRIVATE_REPOS_TOKEN }}
+          path: agent-config
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
+        with:
+          node-version: "24"
+      - run: pip install -q -r team-watch/requirements-dev.txt
+      - run: python -m playwright install chromium
+      - name: One full suite
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
+        working-directory: team-watch
+        run: python scripts/run_tests.py --full --tb=no -q
+      - name: Weekly flake run
+        if: github.event_name == 'schedule' || inputs.mode == 'flake'
+        working-directory: team-watch
+        env:
+          TEAM_WATCH_DISCORD_WEBHOOK: ${{ secrets.TEAM_WATCH_DISCORD_WEBHOOK }}
+        run: python scripts/flake_run.py

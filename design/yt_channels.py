@@ -13,10 +13,19 @@ Format: {code: {"uploads": "UU...", "embed": bool}}, codes sorted, NFL included.
 import json
 import pathlib
 
-# Where design/sources.py looks for the ff-jarvis checkout.
-FF_JARVIS = pathlib.Path("C:/Users/David/Github/ff-jarvis")
-CLIENTS = FF_JARVIS / "model" / "clients"
-OUT = pathlib.Path(__file__).resolve().parent.parent / "api" / "_yt_channels.json"
+REPO = pathlib.Path(__file__).resolve().parent.parent
+# Where design/sources.py looks for the ff-jarvis checkout, for a checkout with no sibling (the after-land one).
+PC_FF_JARVIS = pathlib.Path("C:/Users/David/Github/ff-jarvis")
+
+
+def find_ff_jarvis(repo=REPO):
+    """ff-jarvis beside this checkout, or beside the main one above a .claude/worktrees one."""
+    found = (p / "ff-jarvis" for p in pathlib.Path(repo).parents)
+    return next((p for p in found if (p / "model" / "clients").is_dir()), PC_FF_JARVIS)
+
+
+CLIENTS = find_ff_jarvis() / "model" / "clients"
+OUT = REPO / "api" / "_yt_channels.json"
 
 
 def table(channels, embed):

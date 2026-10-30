@@ -79,7 +79,7 @@
                 "design/schedule.py", "api/clips.py", "api/_yt_channels.json", "design/yt_channels.py"],
       "tests": ["tests/test_gameday.py", "tests/test_gamesheet_v2.py", "tests/test_schedule.py", "tests/test_live_tds.py", "tests/test_live_tabs.py",
                 "tests/test_live_mine.py", "tests/test_live_swipe.py", "tests/test_live_tdclips.py", "tests/test_js_tdclips.py", "tests/test_api_clips.py",
-                "tests/test_yt_channels.py", "tests/test_js_hurt.py", "tests/test_js_page_week.py", "tests/test_slate_week.py", "tests/test_page_week_build.py", "tests/test_js_gamesituation.py",
+                "tests/test_yt_channels.py", "tests/test_yt_channels_path.py", "tests/test_js_hurt.py", "tests/test_js_page_week.py", "tests/test_slate_week.py", "tests/test_page_week_build.py", "tests/test_js_gamesituation.py",
                 "tests/test_live_modal.py", "tests/test_js_gdstrip.py"],
       "render": ["live"]
     },
@@ -204,7 +204,7 @@
     },
     "testtools": {
       "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json", ".testing-backlog.json", ".testsched.json", "scripts/flake_run.py", "scripts/postland.py"],
-      "tests": ["tests/test_run_tests.py", "tests/test_run_tests_plugin.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_mutate_picker.py", "tests/test_flake_run.py", "tests/test_postland.py", "tests/test_testlog.py", "tests/test_profile_log.py", "tests/test_e2e_select.py"],
+      "tests": ["tests/test_run_tests.py", "tests/test_run_tests_plugin.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_mutate_picker.py", "tests/test_flake_run.py", "tests/test_flake_run_cloud.py", "tests/test_postland.py", "tests/test_testlog.py", "tests/test_profile_log.py", "tests/test_e2e_select.py"],
       "render": []
     },
     "designdoc": {

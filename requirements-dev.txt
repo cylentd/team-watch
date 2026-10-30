@@ -1,0 +1,16 @@
+# Everything the test suite needs, pinned to the versions it passes on. The Vercel function's own
+# needs stay in requirements.txt, which is all the deploy installs; .vercelignore keeps this file out.
+#
+#   pip install -r requirements-dev.txt
+#   python -m playwright install --with-deps chromium     # Linux; on Windows drop --with-deps
+#
+# Node 24 runs the JS tests. Python 3.13.
+-r requirements.txt
+numpy==2.3.1
+pandas==2.3.1
+psutil==7.2.2
+pyarrow==25.0.1
+pytest==9.1.1
+pytest-xdist==3.8.0
+playwright==1.62.0
+scipy==1.18.1
