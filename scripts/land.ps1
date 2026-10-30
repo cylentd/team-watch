@@ -56,6 +56,9 @@ param(
     [switch]$NoPostland       # do not start the after-land full run (scripts/postland.py)
 )
 
+# The global pre-push hook refuses main without this marker: tests run here, `git land` alone runs none.
+$env:LAND_VIA = "land.ps1"
+
 $ErrorActionPreference = "Stop"
 $repo = Split-Path -Parent $PSScriptRoot
 
