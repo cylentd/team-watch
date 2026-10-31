@@ -56,7 +56,7 @@
   },
   "flake": {
     "runs": 5,
-    "args": ["-n", "auto", "--dist", "loadgroup"],
+    "args": ["-n", "6", "--dist", "loadgroup"],
     "timeout_s": 900
   }
 }

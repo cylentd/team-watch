@@ -4,7 +4,7 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 
 ## Now
 
-- [ ] **Cap the weekly flake run's workers.** On 2026-10-23 the flake run (`scripts/flake_run.py`, the weekly job in agent-config `scripts/jobs.ps1`, then the testing skill's `flake.py`, 5 shuffled runs) used `-n auto` from `.testing.json` `flake.args`: 20 pytest workers on 20 logical cores, one Chromium each (about 190 browser processes) and 0.8 GB of Python per worker. Free RAM fell to 0.8 GB of 31.7 and commit to 62.7 of 65.7 GB, while other sessions were working; David stopped the run by hand. `run_tests.py` already claims its `-n` from loadgate (CLAUDE.md "Workers are shared"); the flake run does not. Fix: have the flake run claim workers from loadgate like `run_tests.py`, or set a fixed cap (6 to 8) in `flake.args`; check that 5 runs still fit `timeout_s` 900 with fewer workers. Done when a flake run with `--dry-run` or a log shows a capped `-n` and RAM stays above 8 GB free. The flake.py default in the testing skill (`-n auto`) is the same shape: tell agent-config if it is changed here. Size: small. (David, 2026-10-23)
+- [ ] **Cap the weekly flake run's workers.** PARTLY DONE 2026-10-31 on branch `backlog/2026-10-31-flake-worker-cap`: `.testing.json` `flake.args` now `-n 6` (pinned by `tests/test_flake_worker_cap.py`); still open: confirm 5 runs fit `timeout_s` 900 at 6 workers and RAM stays above 8 GB free (needs the PC), and tell agent-config about the skill's `-n auto` default. On 2026-10-23 the flake run (`scripts/flake_run.py`, the weekly job in agent-config `scripts/jobs.ps1`, then the testing skill's `flake.py`, 5 shuffled runs) used `-n auto` from `.testing.json` `flake.args`: 20 pytest workers on 20 logical cores, one Chromium each (about 190 browser processes) and 0.8 GB of Python per worker. Free RAM fell to 0.8 GB of 31.7 and commit to 62.7 of 65.7 GB, while other sessions were working; David stopped the run by hand. `run_tests.py` already claims its `-n` from loadgate (CLAUDE.md "Workers are shared"); the flake run does not. Fix: have the flake run claim workers from loadgate like `run_tests.py`, or set a fixed cap (6 to 8) in `flake.args`; check that 5 runs still fit `timeout_s` 900 with fewer workers. Done when a flake run with `--dry-run` or a log shows a capped `-n` and RAM stays above 8 GB free. The flake.py default in the testing skill (`-n auto`) is the same shape: tell agent-config if it is changed here. Size: small. (David, 2026-10-23)
 
 - [ ] **TD locks on Slips, ranked by the book.** Slips' anytime-TD legs should come from the book's price, not our model's P: on 2026 weeks 1-4 (849 graded) the book's Brier was 0.1746 against ours 0.1788, ours ran low (mean 22% vs 25.6% scored), and players the book put at 55%+ scored 68% (n 57, +8% flat at the price). Our "value" TDs (our P above the book's) lost 14.5% (n 123). Show a TD locks list (book P >= 55%, one per game or team-stack flagged), the book's % beside ours, and drop "edge" as the TD sort. Producer: ff-jarvis `props_record` `td` block (METHODOLOGY 12.133, landing 2026-10-09) carries the weekly record to show beside it. Storyboard first. Size: feature. (David, 2026-10-09: "We will probably have to fix our slips to do TD locks")
 
@@ -39,10 +39,10 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 
 ## Checks on a date
 
-- [ ] Tue 2026-10-06, after the week turn: Preview > Past games shows week 4.
-- [ ] Sun 2026-10-11: the Live TD reel matches the day's real touchdowns.
-- [ ] Mon 2026-10-12, ~9:15 PM PT: the whole page turns to week 6 after the last final (One page week).
-- [ ] On/after 2026-10-21: run the season scorecard trials once (`python -m model.season.season_scorecard --trials` in ff-jarvis) and record them in METHODOLOGY 12.60. Rerun the week-3 recap first: it lacks PHI @ CHI.
+- [ ] STALE (date passed 2026-10-06; needs the live site) Tue 2026-10-06, after the week turn: Preview > Past games shows week 4.
+- [ ] STALE (date passed; needs a browser on the live site) Sun 2026-10-11: the Live TD reel matches the day's real touchdowns.
+- [ ] STALE (date passed; needs the live site) Mon 2026-10-12, ~9:15 PM PT: the whole page turns to week 6 after the last final (One page week).
+- [ ] STALE? (date passed; a trial scorer, out of bounds for cloud sessions) On/after 2026-10-21: run the season scorecard trials once (`python -m model.season.season_scorecard --trials` in ff-jarvis) and record them in METHODOLOGY 12.60. Rerun the week-3 recap first: it lacks PHI @ CHI.
 - [ ] 2026-11-11: review Start/Sit v3's record.
 
 ## Needs an iPhone
