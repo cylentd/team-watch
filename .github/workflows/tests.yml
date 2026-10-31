@@ -61,7 +61,7 @@ jobs:
       - name: One full suite
         if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
         working-directory: team-watch
-        run: python scripts/run_tests.py --full -- --tb=no -q
+        run: python scripts/run_tests.py --full -- --tb=no -q -n 4    # LOADGATE off grants 8; the runner has 4 cores
       - name: Weekly flake run
         if: github.event_name == 'schedule' || inputs.mode == 'flake'
         working-directory: team-watch
