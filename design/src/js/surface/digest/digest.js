@@ -17,10 +17,10 @@ const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 function dgCardsHTML(d, plan, now){
   const ctx = dgCardCtx(d, plan, now);
   const drawn = Object.fromEntries(dgCardOrder(plan).map(id => [id, dgCardDraw(id, ctx)]));
-  const ids = dgCardList(plan, drawn);
+  const nowHTML = dgNowHTML();
+  const {now: leads, ids} = dgDayBlocks(plan, drawn, nowHTML);
   if (!(ids[0] in drawn)) drawn[ids[0]] = dgCardDraw(ids[0], ctx);
-  const live = plan.cards.includes("now") ? "" : dgNowHTML();
-  return live + ids.map(id => drawn[id]).join("");
+  return (leads ? nowHTML : "") + ids.map(id => drawn[id]).join("");
 }
 
 function digestHTML(){

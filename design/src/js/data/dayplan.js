@@ -80,6 +80,15 @@ function dgCardList(plan, drawn){
   return dgDayCards({cards: dgCardOrder(plan).filter(id => !gone.includes(id))}, drawn).slice(0, DG_MAX_CARDS);
 }
 
+/* What the Digest draws below the banner: {now, ids}. `now` is true when Right now leads the cards (David,
+   2026-11-01: a live game pushes one card out). A plan that places "now" itself (Sunday) draws it in the list, and an
+   empty Right now (`nowHTML` "") leaves the five cards whole. Otherwise Right now takes one of the DG_MAX_CARDS
+   places, so a day draws five blocks at most and the job card stays first. */
+function dgDayBlocks(plan, drawn, nowHTML){
+  const ids = dgCardList(plan, drawn), lead = !plan.cards.includes("now") && !!nowHTML;
+  return {now: lead, ids: lead ? ids.slice(0, DG_MAX_CARDS - 1) : ids};
+}
+
 /* The strip's views: Recap only while its week is fresh (dgRecap), as the Recap row was. */
 const dgStripLeaves = (plan, facts) => plan.strip.filter(leaf => leaf !== "weekrecap" || facts.recap);
 

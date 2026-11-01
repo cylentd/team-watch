@@ -1160,7 +1160,9 @@ have data that day, five at most; superseding "today's job only". A strip chip a
   is outside `DG_PLAN`'s lists. It holds the game line, Claude's headline and Claude vs Vegas's bet rows; a tap on
   the game, or the Preview link, opens Preview's dossier on that game (`dgPreviewOpen`, `pvOpen`). Sunday's card is
   gone from the night game's kickoff. A week without the game has no card. The cap is five cards (`DG_MAX_CARDS`):
-  Wednesday's last (Top calls) is the one dropped when all six draw.
+  Wednesday's last (Top calls) is the one dropped when all six draw. Right now counts in the five (2026-11-01, David:
+  a live game pushes one card out): on a day whose plan has no "now" card it leads the list and the last card
+  drops, so a day draws five blocks at most (`dgDayBlocks`, `data/dayplan.js`).
 - **Banner:** 128px, the day's label, its answer, a 96px headshot or the two team codes. Live headlines still lead
   once a game is on, and the Digest never names Recap's subject (`lspPick`).
 - **Row** (`surface/digest/row.js`): a 34px headshot (a team tile for a defense or a game), name, one meta line,
