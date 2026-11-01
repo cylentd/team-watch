@@ -94,7 +94,7 @@
                 "design/src/js/data/lineup.js",
                 "design/startsit.py", "design/startsit_board.py", "design/startsit_v3.py", "design/startsit_blocks.py"],
       "tests": ["tests/test_startsit.py", "tests/test_startsit_board.py", "tests/test_startsit_v3.py", "tests/test_js_startsit.py",
-                "tests/test_js_lineup.py", "tests/test_matchups_view.py", "tests/test_matchups_calls.py"],
+                "tests/test_js_lineup.py", "tests/test_matchups_view.py", "tests/test_matchups_calls.py", "tests/test_startsit_record_drawn.py"],
       "render": ["matchups"]
     },
     "news": {
