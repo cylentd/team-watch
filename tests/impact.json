@@ -8,6 +8,7 @@
     "tests/test_flag_marks.py",
     "tests/test_honest_record.py",
     "tests/test_untested_marks_drawn.py",
+    "tests/test_one_number_every_view.py",
     "tests/test_budgets.py",
     "tests/test_build.py",
     "tests/test_build_outputs_land.py",
