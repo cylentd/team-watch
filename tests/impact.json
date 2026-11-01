@@ -26,6 +26,7 @@
     "tests/test_sources_behind.py",
     "tests/test_page_leak.py",
     "tests/test_smoke_views.py",
+    "tests/test_phone_width.py",
     "tests/test_public_views.py",
     "tests/test_wording.py"
   ],
