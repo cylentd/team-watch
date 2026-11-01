@@ -84,6 +84,18 @@
 .tr-lead-ic{display:inline-grid;place-items:center}
 .best .tr-lead-ic{color:var(--lime)}
 .worst .tr-lead-ic{color:var(--down)}
+/* The strip: a manager's trades as a form guide (trFormHTML, 2026-11-01). The card's width is shared out in
+   --cols square marks, so 2 to 25 fit one or two lines; a short strip's marks are big enough for a bigger letter. */
+/* A heist's taller rows set the card. The strip holds the foot and the name centres in the height left (STYLE.md
+   "Gaps"). The key sits under the marks, so the two cards' strips share their lines whatever size their marks are. */
+.tr-lead-card{grid-template-rows:auto 1fr}
+.tr-lead-body{display:grid;grid-template-rows:1fr auto;min-width:0}
+.tr-lead-body > .tr-hl{align-self:center}
+.tr-form{display:grid;gap:8px;padding:12px;border-top:1px solid var(--line);min-width:0}
+.tr-form-key{margin:0;font-size:var(--t-2);line-height:1.4;color:var(--ink-3)}
+.tr-form-marks{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:3px}
+.tr-form-marks .tr-res{display:grid;place-items:center;aspect-ratio:1;padding:0;line-height:1;overflow:hidden}
+.tr-form-marks.big .tr-res{font-size:var(--t-3)}
 
 /* the ranking: a row per manager, its place, the number beside the name, the range on one scale, the record */
 .tr-mgrs{list-style:none;margin:0;padding:0}
@@ -156,6 +168,7 @@
   margin-inline:calc(-1 * var(--tr-gut));padding-inline:var(--tr-gut);scroll-padding-inline:var(--tr-gut)}
 .tr-swipe::-webkit-scrollbar{display:none}
 .tr-swipe > *{scroll-snap-align:start}
+.tr-top-row{align-items:stretch}   /* the people and the heists are one set: one height (2026-11-01) */
 /* ~340px a card on a phone, ~260px in the desktop's top row: a long name wraps rather than push the
    score out of the card */
 @media not all and (min-width:960px){
@@ -173,7 +186,7 @@
   .tr-pager{display:none}
   .tr-what{max-width:none}   /* one sentence, the key to every number: one line where it fits */
   /* two, then three: best and worst over the heists until five fit */
-  .tr-top-row{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:stretch}
+  .tr-top-row{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
   .tr-top-row > :nth-child(-n+2){grid-column:span 3}
   .tr-top-row > :nth-child(n+3){grid-column:span 2}
   /* ~260px a card: the manager above his faces, the score beside them, so no name breaks */
@@ -196,6 +209,7 @@
      sit on one line at the bottom (David, 2026-09-29: "the body section should align"). */
   :is(.tr-top-row,.tr-decided .tr-grid) > .tr-bx{grid-row:span 4;grid-template-rows:subgrid;row-gap:0}
   :is(.tr-top-row,.tr-decided .tr-grid) > .tr-bx > .tr-bx-ft{align-self:end}
+  .tr-top-row .tr-lead-body{grid-row:2 / -1}   /* a lead card shares only the strip track: it has no proof or payoff */
 }
 @media (min-width:1100px){
   .tr-top-row{grid-template-columns:repeat(5,minmax(0,1fr))}

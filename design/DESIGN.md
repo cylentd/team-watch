@@ -572,7 +572,7 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 
 | Block | Answers | Basis |
 |---|---|---|
-| Best / worst | who trades best and worst, and whether it is proven (a 90% range clear of 0) | held weeks, per trade |
+| Best / worst | who trades best and worst, and whether it is proven (a 90% range clear of 0). ~~Each card shows that manager's biggest win or loss~~ **Since 2026-11-01 (David: "People vs trades"; on ESPN the best's win, the worst's loss and Heist #1 were one trade) the two cards are about the person and show no trade, so no trade repeats in the row: a strip of his closed trades, oldest first, one W, L or T mark each, whose counts equal the record beside it (`data/tradeform.js`)** | held weeks, per trade |
 | Trader ranking | each manager's W–L, the dot (average PAR a trade) and its range; a row opens their trades | held weeks |
 | The 3 biggest heists | the best and worst trade ever (each heist is both) | trade tree |
 | Trades that decided a season | the title, then every playoff spot or bye a trade moved | trade tree + the swing check |
@@ -614,8 +614,9 @@ labels went from 5px to 2px sides (8px clear of the search icon at 360px, measur
 - **One story per card** (David chose B, the back page, 2026-09-29, storyboard
   https://claude.ai/artifact/PxyR3tAZs9LeaioEPEz9Gq): every card is strip (what, when), headline (the
   story in `--tab` caps), deck (its numbers), proof (the trade's two sides), payoff (only a
-  consequence, in ink). Best and worst carry their defining trade as proof, so the top row matches by
-  content. Headlines never brag for the winner of a decided trade ("The trade that decided 2021") and
+  consequence, in ink). ~~Best and worst carry their defining trade as proof, so the top row matches by
+  content.~~ Superseded 2026-11-01: best and worst show no trade; the name centres and the strip of closed
+  trades holds the card's foot. Headlines never brag for the winner of a decided trade ("The trade that decided 2021") and
   root for the worst trader ("Chanel is due": David, "trading is healthy, we should promote it"). The
   curse's count lives in its skulls and deck, not the strip. Superseded: the "a trade" lead card and
   the grey "After:" footnote.

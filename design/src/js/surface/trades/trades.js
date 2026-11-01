@@ -15,32 +15,36 @@ const trWL = r => { const ties = r.trades - r.won - r.lost; return `${r.won}–$
 const trSigned = n => `${n > 0 ? "+" : n < 0 ? "−" : ""}${trPar(Math.abs(n))}`;
 let TR_OPEN = null;   // the manager whose trades are open; one at a time, kept for the session
 
-/* Best and worst: the top and bottom of the ranking among managers with enough trades. The trade that
-   defines each is the best manager's biggest win and the worst's biggest loss, on held weeks like the
-   ranking's row. */
+/* Best and worst: the top and bottom of the ranking among managers with enough trades. These two cards are
+   about the person and show no trade, so no trade repeats in the top row: on ESPN the best trader's biggest
+   win, the worst's biggest loss and Heist #1 were one trade (David, 2026-11-01, "People vs trades"; until then
+   each card showed that manager's defining trade). */
 const TR_LEAD_ICON = {
   best: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8.5 8 12.5 12 5l4 7.5 4.5-4-1.8 9.5H5.3z M5.5 20h13" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
   worst: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M21 11v6h-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
-function trDefining(key, best){
-  const mine = trData().trades.filter(x => !x.open && (x.win.m === key || x.lose.m === key) && (x.held.win === key) === best);
-  if (!mine.length) return null;
-  const tr = mine.reduce((a, b) => b.held.margin > a.held.margin ? b : a);
-  const me = tr.win.m === key ? tr.win : tr.lose, them = tr.win.m === key ? tr.lose : tr.win;
-  return {tr, them, side: best ? me : them};
+/* A manager's closed trades as a form guide, oldest first (data/tradeform.js), in the W / L / T tags his open
+   row in the ranking uses. The letter carries the result, so it is not colour alone. */
+function trFormHTML(key){
+  const marks = trFormOf(trData().trades, key);
+  if (!marks.length) return "";
+  const c = trFormCounts(marks);
+  const mark = {w: ["up", t("trades.res.w")], l: ["dn", t("trades.res.l")], t: ["open", t("trades.res.t")]};
+  return `<div class="tr-form">
+    <div class="tr-form-marks${trFormBig(marks.length) ? " big" : ""}" role="img" data-testid="trades-form" style="--cols:${trFormCols(marks.length)}"
+      aria-label="${c.t ? t("trades.lead.formAriaTied", c) : t("trades.lead.formAria", c)}">${marks.map(({r}) =>
+        `<span class="tr-res ${mark[r][0]}" data-testid="trades-form-mark">${mark[r][1]}</span>`).join("")}</div>
+    <p class="tr-form-key">${t("trades.lead.formKey")}</p></div>`;
 }
-/* The story is the headline, the number and record its deck, and the defining trade the proof, as the
-   same two rows a heist has (so the top row's cards match by content, 2026-09-29). The worst trader's
-   headline roots for the next trade (David: "trading is healthy, we should promote it"). */
+/* The story is the headline, the number and record its deck, and the strip the proof at the card's foot. The
+   worst trader's headline roots for the next trade (David: "trading is healthy, we should promote it"). */
 function trLeadCardHTML(r, k){
-  const best = k === "best", d = trDefining(r.m, best), cls = best ? "up" : "dn", m = trName(r.m);
+  const best = k === "best", cls = best ? "up" : "dn", m = trName(r.m);
   // "is due" is a forward claim nothing has tested: the tooltip says so (2026-10-06).
   const head = !best ? `<span title="${t("trades.lead.dueMark")}">${t("trades.lead.due", {m})}</span>` : r.lost ? t("trades.lead.wins", {m}) : t("trades.lead.clean", {m});
-  const fv = d && {y: d.tr.season, n: trB(`${best ? "+" : "−"}${trPar(d.tr.held.margin)}`, cls)};
-  const foot = d ? `<p>${best ? t("trades.lead.bestTrade", fv) : t("trades.lead.worstTrade", fv)}</p>` : "";
   return trBox(`tr-lead-card ${k}`, `<span class="tr-lead-ic">${TR_LEAD_ICON[k]}</span>${best ? t("trades.lead.best") : t("trades.lead.worst")}`,
     t("trades.lead.n", {n: r.trades}),
-    trHead(head, t("trades.lead.deck", {n: trB(trSigned(r.per_trade), cls), wl: trB(trWL(r))})) + (d ? trScoreRows(d.tr) : ""), foot);
+    `<div class="tr-lead-body">${trHead(head, t("trades.lead.deck", {n: trB(trSigned(r.per_trade), cls), wl: trB(trWL(r))}))}${trFormHTML(r.m)}</div>`);
 }
 /* The ranking's order is the number it shows, PAR per trade (David, 2026-09-29: "sort by shown"); ff-jarvis
    sorts by the shrunk figure, which put David's +6.0 over Kearny's +6.3. The too-few divider keeps a

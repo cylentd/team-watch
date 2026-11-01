@@ -68,8 +68,8 @@
       "render": ["league", "myrecap", "recap", "records"]
     },
     "trades": {
-      "paths": ["design/src/js/surface/trades/", "design/src/css/surface/trades/", "design/league_trades.py"],
-      "tests": ["tests/test_league_trades.py", "tests/test_espn_trades.py", "tests/test_espn_tradehist.py"],
+      "paths": ["design/src/js/surface/trades/", "design/src/css/surface/trades/", "design/src/js/data/tradeform.js", "design/league_trades.py"],
+      "tests": ["tests/test_league_trades.py", "tests/test_espn_trades.py", "tests/test_espn_tradehist.py", "tests/test_tradehist_lead.py", "tests/test_js_tradeform.py"],
       "render": ["trades"]
     },
     "lboard": {
