@@ -78,7 +78,7 @@
       "paths": ["design/src/js/surface/lboard/", "design/src/css/surface/lboard/", "design/src/js/surface/finder/", "design/src/css/surface/finder/",
                 "design/teams.py", "design/trade_offers.py", "design/trade_pins.py", "design/src/js/data/tradepage.js"],
       "tests": ["tests/test_teams_board.py", "tests/test_trade_offers.py", "tests/test_trade_edit.py", "tests/test_js_trade_score.py",
-                "tests/test_trade_finder.py", "tests/test_js_finder.py", "tests/test_js_finder_signals.py", "tests/test_trade_lenses.py",
+                "tests/test_trade_finder.py", "tests/test_s13_team_leagues.py", "tests/test_js_finder.py", "tests/test_js_finder_signals.py", "tests/test_trade_lenses.py",
                 "tests/test_js_tradepage.py", "tests/test_trade_page.py", "tests/test_js_trade_pins.py", "tests/test_trade_pins.py"],
       "render": ["lboard", "finder"]
     },
@@ -120,7 +120,7 @@
     },
     "schedule": {
       "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
-      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_sos_label_contract.py","tests/test_polish_walk.py"],
+      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_sos_label_contract.py","tests/test_polish_walk.py", "tests/test_s16_players_views.py"],
       "render": ["schedule"]
     },
     "ranks": {
@@ -141,12 +141,12 @@
     },
     "usage": {
       "paths": ["design/src/js/surface/usage/", "design/src/css/surface/usage/", "design/src/js/data/usage.js", "design/usage.py"],
-      "tests": ["tests/test_usage_mine.py"],
+      "tests": ["tests/test_usage_mine.py", "tests/test_s16_players_views.py"],
       "render": ["usage"]
     },
     "board": {
       "paths": ["design/src/js/surface/board/", "design/src/css/surface/board/hero.css", "design/src/js/data/pool.js", "design/pool.py"],
-      "tests": ["tests/test_pool.py"],
+      "tests": ["tests/test_pool.py", "tests/test_s16_players_views.py"],
       "render": ["board"]
     },
     "role": {
@@ -172,7 +172,7 @@
       "tests": ["tests/test_brief.py", "tests/test_js_mates.py", "tests/test_clip_reel.py", "tests/test_clip_sheet.py", "tests/test_clips.py", "tests/test_player_names.py","tests/test_injury.py", "tests/test_mates.py", "tests/test_mates_page.py", "tests/test_polish_walk.py",
                 "tests/test_pack_stage.py", "tests/test_render_waivers.py", "tests/test_waiver_owner.py", "tests/test_js_waiver.py", "tests/test_js_proofshow.py", "tests/test_waiver_blank_stats.py", "tests/test_roster_cards.py",
                 "tests/test_roster_pack.py", "tests/test_roster_sheet.py", "tests/test_roster_matchup.py", "tests/test_js_matchupline.py", "tests/test_js_pointsbars.py", "tests/test_js_kdst.py", "tests/test_kdst.py", "tests/test_kdst_bars.py", "tests/test_js_supportback.py", "tests/test_roster_backs.py", "tests/test_js_packrip.py", "tests/test_pack_rip.py", "tests/test_js_weekstat.py", "tests/test_js_firstsentence.py","tests/test_reel_stat_fit.py", "tests/test_pack_centre.py", "tests/test_teamswitch.py", "tests/test_waiver.py", "tests/test_js_goldweeks.py", "tests/test_roster_gold.py", "tests/test_signed_weeks.py",
-                "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py", "tests/test_waiver_teams.py", "tests/test_waiver_teams_units.py", "tests/test_js_waiver_teams.py"],
+                "tests/test_wire_watch.py", "tests/test_yahoo_lineup.py", "tests/test_waiver_teams.py", "tests/test_waiver_teams_units.py", "tests/test_js_waiver_teams.py", "tests/test_s13_team_leagues.py"],
       "render": ["roster", "waivers"]
     },
     "bets": {
@@ -183,7 +183,7 @@
       "tests": ["tests/test_dfs_backtest.py", "tests/test_dfs_pool.py", "tests/test_polish_walk.py", "tests/test_js_dfs_heading.py", "tests/test_dfs_slate.py", "tests/test_dfs_solver.py", "tests/test_legsheet.py",
                 "tests/test_parlay_grid.py", "tests/test_prop_picks.py","tests/test_slip_reasons.py",
                 "tests/test_claude_record.py", "tests/test_js_bets.py", "tests/test_js_bets_mine.py", "tests/test_js_mine_rows.py", "tests/test_build_mine.py", "tests/test_mine_build.py","tests/test_mine_public.py", "tests/test_js_topcalls.py", "tests/test_js_kickwin.py", "tests/test_slate_kick.py", "tests/test_top_calls.py",
-                "tests/test_js_ourpicks.py", "tests/test_slips_windows.py", "tests/test_js_tdcard.py", "tests/test_slips_td.py", "tests/test_td_research.py", "tests/test_td_research_edges.py", "tests/test_js_tdcard_edges.py"],
+                "tests/test_js_ourpicks.py", "tests/test_slips_windows.py", "tests/test_js_tdcard.py", "tests/test_slips_td.py", "tests/test_td_research.py", "tests/test_td_research_edges.py", "tests/test_js_tdcard_edges.py", "tests/test_s15_prices.py"],
       "render": ["build", "dfs", "parlay"]
     },
     "chat": {
