@@ -4171,6 +4171,8 @@
   "tests/test_sources_behind.py::run": "d890f9df93b560e6",
   "tests/test_sources_behind.py::test_data_outside_a_checkout_is_none": "874fdb474a4972bd",
   "tests/test_sources_behind.py::test_it_counts_the_commits_the_checkout_lacks": "e80d00d645f79314",
+  "tests/test_sources_behind.py::test_s3_a_build_from_a_checkout_behind_origin_prints_the_warning": "af11a5e73ef460d3",
+  "tests/test_sources_behind.py::test_s3_a_current_or_unknown_checkout_prints_nothing": "33791cc4cfbda15f",
   "tests/test_sources_behind.py::test_the_jobs_data_path_is_ff_jarvis_own": "dac307c27a0b8403",
   "tests/test_stale_guards.py::<module>": "b40ac082ec88095c",
   "tests/test_stale_guards.py::FIXTURES": "f659a2adc372b598",

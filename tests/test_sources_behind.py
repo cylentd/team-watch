@@ -63,3 +63,20 @@ def test_the_jobs_data_path_is_ff_jarvis_own():
 def test_data_outside_a_checkout_is_none(tmp_path, monkeypatch):
     monkeypatch.setattr(sources, "DWR", tmp_path / "data")
     assert sources.ff_jarvis_behind() is None
+
+
+def test_s3_a_build_from_a_checkout_behind_origin_prints_the_warning(monkeypatch, capsys):
+    monkeypatch.setattr(sources, "ff_jarvis_behind", lambda: 2)
+
+    sources.warn_if_stale()
+
+    assert capsys.readouterr().out.startswith("WARNING: built from an ff-jarvis checkout 2 commit(s) behind origin/main")
+
+
+@pytest.mark.parametrize("behind", [0, None])
+def test_s3_a_current_or_unknown_checkout_prints_nothing(monkeypatch, capsys, behind):
+    monkeypatch.setattr(sources, "ff_jarvis_behind", lambda: behind)
+
+    sources.warn_if_stale()
+
+    assert capsys.readouterr().out == ""
