@@ -29,9 +29,13 @@ def live_sos(raw):
 
 
 def problems(block):
-    """K (2026-10-06) is a position beside QB, RB, WR and TE: when a team carries a `K` row, each of the file's windows
+    """The `label` must be a non-blank string: it is the Schedule's "context only" mark and an untested number must say
+    so (PRODUCT.md), so a missing one fails the build. K (2026-10-06) is a position beside QB, RB, WR and TE: when a team carries a `K` row, each of the file's windows
     has its numbers, null ones included (a kicker with no cached play-by-play). A file with no K at all is fine."""
     out = []
+    label = (block or {}).get("label")
+    if block and not (isinstance(label, str) and label.strip()):
+        out.append("LIVE_SOS.label")   # the page's only "context only" mark (data/sos.js reads it); no label, no build (2026-11-01)
     for team, entry in ((block or {}).get("teams") or {}).items():
         if not isinstance(entry, dict) or "K" not in entry:
             continue

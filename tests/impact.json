@@ -114,7 +114,7 @@
     },
     "schedule": {
       "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
-      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_polish_walk.py"],
+      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_sos_label_contract.py","tests/test_polish_walk.py"],
       "render": ["schedule"]
     },
     "ranks": {
