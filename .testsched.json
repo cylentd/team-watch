@@ -10,7 +10,7 @@
     "index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins",
     "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json"
   ],
-  "pre_build": ["python", "design/sources.py", "--fetch"],
+  "pre_build": ["python", "design/sources.py", "--fetch", "--refuse-stale"],
   "build": ["python", "design/build.py"],
   "after_land": {"argv": ["python", "scripts/postland.py", "--sha", "{sha}"], "detached": true},
   "record": ["python", "scripts/testlog.py", "land"],

@@ -43,7 +43,7 @@ def ff_jarvis_behind():
     fetch; None when DWR is not a checkout's data/ (the test fixtures) or git cannot say.
     Why (2026-09-29): landed ff-jarvis data (the 2018 Records lineups) sat on origin while the main
     checkout, which the jobs write into, could not fast-forward; the page built from the old copy.
-    build.py warns on it and scripts/land.ps1 refuses it. The fix is ff-jarvis's scripts/sync-main.py."""
+    build.py warns on it; scripts/land.ps1 and `ts.py land` refuse it. The fix is ff-jarvis's scripts/sync-main.py."""
     import subprocess
     repo = DWR.parent
     if not (repo / ".git").exists():
@@ -492,8 +492,6 @@ def load_claude_record():
 
 
 if __name__ == "__main__":
-    # scripts/land.ps1: `design/sources.py --fetch` fetches the ff-jarvis checkout, prints how far behind it is ("None": not a checkout).
-    import subprocess, sys  # noqa: E401
-    if "--fetch" in sys.argv and (DWR.parent / ".git").exists():
-        subprocess.run(["git", "-C", str(DWR.parent), "fetch", "--quiet", "origin", "main"])
-    print(ff_jarvis_behind(), DWR.parent)
+    import sys
+    from ffj_behind import main
+    sys.exit(main(sys.argv[1:]))

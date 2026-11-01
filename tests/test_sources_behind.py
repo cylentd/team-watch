@@ -80,3 +80,34 @@ def test_s3_a_current_or_unknown_checkout_prints_nothing(monkeypatch, capsys, be
     sources.warn_if_stale()
 
     assert capsys.readouterr().out == ""
+
+
+@pytest.mark.parametrize("behind, argv, code", [
+    (2, ["--refuse-stale"], 1),
+    (0, ["--refuse-stale"], 0),
+    (None, ["--refuse-stale"], 0),
+    (2, [], 0),
+])
+def test_s3_only_the_refuse_flag_fails_and_only_on_a_stale_checkout(monkeypatch, behind, argv, code):
+    import ffj_behind
+    monkeypatch.setattr(sources, "ff_jarvis_behind", lambda: behind)
+
+    assert ffj_behind.main(argv) == code
+
+
+def test_s3_a_refusal_says_how_far_behind_and_how_to_sync(monkeypatch, capsys):
+    import ffj_behind
+    monkeypatch.setattr(sources, "ff_jarvis_behind", lambda: 2)
+
+    ffj_behind.main(["--refuse-stale"])
+
+    out = capsys.readouterr().out
+    assert "ff-jarvis is 2 commit(s) behind origin/main" in out
+    assert "sync-main.py" in out
+
+
+def test_s3_the_ts_land_pre_build_refuses_a_stale_checkout():
+    import json
+    conf = json.loads((REPO / ".testsched.json").read_text(encoding="utf-8"))
+
+    assert conf["pre_build"] == ["python", "design/sources.py", "--fetch", "--refuse-stale"]

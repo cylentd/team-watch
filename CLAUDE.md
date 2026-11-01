@@ -131,7 +131,8 @@ and the main checkout stays on `main`, unedited. Notes that cost time to learn:
   exists; before that, and with `TEAM_WATCH_DATA` set, the old path.
 - `land.ps1` fetches the ff-jarvis checkout and refuses to build when it is behind origin/main
   (2026-09-29: the 2018 Records lineups landed in ff-jarvis and a build shipped without them). Fix it
-  with ff-jarvis's `python scripts/sync-main.py`; `-AllowStaleData` builds anyway. `build.py` prints a
+  with ff-jarvis's `python scripts/sync-main.py`; `-AllowStaleData` builds anyway. `ts.py land` refuses too
+  (since 2026-10-31, `pre_build` in `.testsched.json`) and has no such switch. `build.py` prints a
   WARNING line for the same case (`sources.ff_jarvis_behind`), so the scheduled rebuild's log shows it.
 - A fresh worktree has no `data/feed.json` (untracked). The build falls back to reading
   `ff-jarvis` directly, so it still works; copy the file in if you want the freshness badges.
