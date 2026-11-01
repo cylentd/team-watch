@@ -5,6 +5,7 @@
     "tests/test_week_ranks_pts.py",
     "tests/test_ranks_one_projection.py",
     "tests/test_ranks_fallback_pts.py",
+    "tests/test_untested_marks_market.py",
     "tests/test_flag_marks.py",
     "tests/test_honest_record.py",
     "tests/test_untested_marks_drawn.py",
