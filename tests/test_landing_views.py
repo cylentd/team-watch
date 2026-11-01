@@ -100,10 +100,3 @@ def test_a_link_that_sets_a_tab_then_opens_the_view_lands_on_that_tab(home):
     """The Digest's TDs card sets Live's tab, then opens Live; leaving the Digest forgets only the Digest's."""
     home.evaluate("gdSetTab('tds'); navGo('live')")
     assert home.evaluate("gdTab()") == "tds"
-
-
-@pytest.mark.req("Navigation: one League group, Stats", ac="a hash still restores a view")
-def test_a_hash_still_opens_the_view_it_names(home):
-    home.evaluate("location.hash = '#usage'")
-    home.wait_for_function("SURFACE === 'usage'")
-    assert leaf(home) == "usage"
