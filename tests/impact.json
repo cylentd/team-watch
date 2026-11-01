@@ -10,6 +10,7 @@
     "tests/test_untested_marks_drawn.py",
     "tests/test_budgets.py",
     "tests/test_build.py",
+    "tests/test_build_outputs_land.py",
     "tests/test_js_syntax.py",
     "tests/test_js_harness.py",
     "tests/test_js_kick.py",
