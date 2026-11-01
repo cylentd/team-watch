@@ -101,10 +101,14 @@ function trRankHTML(){
     ${cols}<ol class="tr-mgrs">${rows}</ol><p class="tr-note">${t("trades.rank.key")}</p></section>`;
 }
 
-/* League > Trade history: the same page for every reader. */
+/* ESPN's page says how its grades differ (2026-11-01): half-PPR, not the league's scoring, and trades before
+   2026 rebuilt from weekly rosters. */
+const trNoteHTML = () => lgTradesKey() === "espn" ? `<p class="tr-what" data-testid="trades-espn-note">${t("trades.espn.note")}</p>` : "";
+
+/* League > Trade history: the same page for every reader of a league. */
 function trPageHTML(){
   const D = trData();
-  if (!lgUsePicked()) return `<div class="wrap"><p class="tr-none">${t("trades.none")}</p></div>`;
+  if (!lgUse(lgTradesKey())) return `<div class="wrap"><p class="tr-none">${t("trades.none")}</p></div>`;
   // A league ff-jarvis has not graded trades for (AYO, 2026-09-29) says so under the switch.
   if (!D) return `<div class="wrap">${lgChipHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1></header>
     <p class="tr-none">${t("trades.empty")}</p></div></div>`;
@@ -112,7 +116,7 @@ function trPageHTML(){
   // the heists). The sections are siblings in one grid, not two columns: on a desktop the ranking pairs
   // with the curses (trades.css places them) and the decided trades take the full width.
   return `<div class="wrap">${lgChipHTML()}<div class="tr"><header class="tr-head"><h1>${esc(LG.league)}</h1>
-      <p class="tr-kick">${t("trades.page.kick", {a: D.since, b: D.through, n: D.n})}</p><p class="tr-what">${t("trades.page.what")}</p></header>
+      <p class="tr-kick">${t("trades.page.kick", {a: D.since, b: D.through, n: D.n})}</p><p class="tr-what">${t("trades.page.what")}</p>${trNoteHTML()}</header>
     ${trTopHTML()}
     <div class="tr-body">${trRankHTML()}${trDecidedBlockHTML()}${trCursesHTML()}</div></div></div>`;
 }

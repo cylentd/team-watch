@@ -69,7 +69,7 @@
     },
     "trades": {
       "paths": ["design/src/js/surface/trades/", "design/src/css/surface/trades/", "design/league_trades.py"],
-      "tests": ["tests/test_league_trades.py"],
+      "tests": ["tests/test_league_trades.py", "tests/test_espn_trades.py", "tests/test_espn_tradehist.py"],
       "render": ["trades"]
     },
     "lboard": {

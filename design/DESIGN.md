@@ -545,8 +545,20 @@ AYO is a second Yahoo login in the first Yahoo league's shape, read from ff-jarv
 **Its own League leaf, 2026-10-08 (David, ledger #74: "drop All-time and just have Records and Trade History now that we
 have more room"):** League's row reads Recap, Teams, Records, Trade history (four pills, 332px row at 360px with room
 to spare). Hash `#tradehist`, label key `nav.tab.tradehist`. The leaf shows only where `LG_TRADES` has graded trades
-for the league on screen (`navFacts().tradehist`: the Madden Curse; ESPN and AYO have none, so a `#tradehist` link there
-lands on Recap, `navFallback`). Records is only its records now: the All-time | Trade history mode row
+for the league on screen (`navFacts().tradehist`). ~~Only the Madden Curse; ESPN and AYO have none~~ **Since 2026-11-01 ESPN
+too** (David: the history for the ESPN league, "We're Big in Japan"): ff-jarvis's `espn_trade_verdicts.json` is
+`yahoo_trade_verdicts.json`'s shape and `espn_league_managers.json` is `yahoo_league_managers.json`'s (managers as first
+names), read by `myteams.espn_trades_block` into `LIVE_TRADES_ESPN` (null until both files exist, and then the leaf stays
+hidden and a `#tradehist` link lands on Recap, `navFallback`, as AYO's does). `LG_TRADES.espn` joins the other two;
+`lgTradesKey()` (`data/league.js`) picks the focus league when it has a block, else the Yahoo league
+`lgLeagueKey()` names, which stays Yahoo-only for Records and the back page. Records stays hidden on ESPN. The ESPN page
+carries one caption under the PAR line (`trades.espn.note`): grades use half-PPR rather than the league's scoring,
+kickers and D/ST count zero, and trades before 2026 are rebuilt from weekly rosters. The league was 10 teams in
+2022-2025, so the replacement levels below (QB12, RB30, WR30, TE12) are the Madden Curse's 12-team ones: ff-jarvis owns
+the ESPN ones. Players read first initial plus the full last name (`league_trades.short`, David 2026-11-01):
+`Ja'Marr Chase` is `J. Chase`, a name already in initials stays (`A.J. Brown`, `J.K. Dobbins`), and a defense stays whole
+(`Raiders D/ST`); before, `A.J. Brown` read `A. Brown` and `Raiders D/ST` read `R. D/ST`. AYO has none.
+Records is only its records now: the All-time | Trade history mode row
 (`surface/league/rctabs.js`, `navModes("records")`) and its copy keys are gone. No old hash opened the history tab (the
 tab was session state, not an address), so no `NAV_ALIAS`; `#trades` opens the finder.
 ~~**Moved 2026-10-06 (trade finder, unit U4):** the page below was the second tab of Records, drawn by `rctabs.js`.~~
@@ -645,7 +657,7 @@ only from the trade flow.
 | Team page | ~~**reached only from the trade flow since 2026-10-06; a card does not open it.** A team opened as a full page in the view (`lbpage.js`)...~~ **Retired 2026-10-06** (trade finder, unit U4): the page, its history entry and its Back handling went with `lbpage.js` and `tbpage.js`. "Trades with them ›" opens the finder filtered to that team, which is the one place "trades with X" lives; the lineup and bench are on the card |
 | Action | "This is my team" calls `pickTeam`, the team switch's own function and storage (`tw-team`), so My teams, Live and the rest follow, and the cards redraw with theirs pinned. A reader who already has a team here never sees it on another team: they switch with the team switch. "Trades with them ›" is the other action, below |
 | No team yet | ~~one quiet line above the grid said "Tap your team to set it"~~ (superseded 2026-10-06: every card's foot offers "This is my team") |
-| Leagues | all three. **Superseded 2026-10-05:** the board is the league of the reader's team, whichever of the three, set by the one chip (`surface/league/switch.js`, the team switch); the league switch and `tw-league` are gone. Records is the Yahoo leagues' alone (Trade history, its own leaf since 2026-10-08, is the Madden Curse's); Trades is the finder, for all three since 2026-10-06 |
+| Leagues | all three. **Superseded 2026-10-05:** the board is the league of the reader's team, whichever of the three, set by the one chip (`surface/league/switch.js`, the team switch); the league switch and `tw-league` are gone. Records is the Yahoo leagues' alone (Trade history, its own leaf since 2026-10-08, is the Madden Curse's ~~alone~~ and, since 2026-11-01, ESPN's); Trades is the finder, for all three since 2026-10-06 |
 | Empty | a league whose roster file is missing or names no starting slots gets the shared dashed empty block under the switch |
 
 - **Data:** `design/teams.py` -> `LIVE_TEAMS`, from the three roster files (`espn_rosters.json`,

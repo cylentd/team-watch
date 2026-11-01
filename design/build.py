@@ -50,7 +50,7 @@ from league_recap import live_league, report as league_report  # My teams > Leag
 from league_trades import report as trades_report  # League > Trades
 import leagues                 # design/leagues.py: David's leagues, their files and blocks
 from myteams import (live_yahoo, roster_file, roster_index, yahoo_rosters,  # noqa: F401 (live_yahoo: tests)
-                     yahoo_gameday, yahoo_league_blocks)                    # every Yahoo league's blocks
+                     yahoo_gameday, yahoo_league_blocks, espn_trades_block)  # every Yahoo league's blocks, ESPN's trades
 from sources import (                                    # design/sources.py: the ff-jarvis adapter
     ROOT, REPO, DWR, FEED, ESPN_ROSTERS, DFS_POOL,
     feed_block, read_first, warn_if_stale, load_status, load_props_raw, load_model_raw,
@@ -539,8 +539,8 @@ def add_market_stock(blocks, report):
                wire_report(blocks["LIVE_WIRE"]), pool_report(blocks["LIVE_POOL"]), usage_report(blocks["LIVE_USAGE"]),
                mates_report(blocks["LIVE_MATES"]), league_report(blocks["LIVE_LEAGUE"])]
     for lg in (x for x in leagues.LEAGUES if x.key in leagues.YAHOO):
-        report += [league_report(blocks[leagues.blocks(lg.key).league], lg.label),
-                   trades_report(blocks[leagues.blocks(lg.key).trades], lg.key)]
+        report += [league_report(blocks[leagues.blocks(lg.key).league], lg.label)]
+    report += [trades_report(blocks[leagues.blocks(k).trades], k) for k in (*leagues.YAHOO, "espn")]
 
 
 def report_sources(report, mine, props, liveDfsYahoo, news, profiles, missing):
@@ -613,7 +613,7 @@ def render():
         raise SystemExit("lint: " + "; ".join(f"{f.file}:{f.line} {f.rule} {f.text}" for f in bad))
 
     available = {p.stem for p in HEADS_SRC.glob("*.webp")}
-    live, yb = live_espn(available), yahoo_league_blocks(available)
+    live, yb = live_espn(available), {**yahoo_league_blocks(available), **espn_trades_block()}
     mine = [("espn", live)] + [(k, yb[leagues.blocks(k).roster]) for k in leagues.YAHOO]   # David's team per league
     yr = yahoo_rosters()          # {yahoo: file, ayo: file}: the first is live_mates' own argument, the rest `more`
     mates = live_mates(roster_file(ESPN_ROSTERS), yr.pop("yahoo"), available, status_badge(), slugify, **yr)

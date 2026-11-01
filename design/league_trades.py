@@ -8,12 +8,14 @@ lines ship as {k, m, seed, without}, and the JS words them.
 """
 import json
 import os
+import re
 
 import leagues
 
 SKIP =os.path.join(os.path.dirname(__file__), "league_record_skip.json")
 FEW = 4          # fewer trades than this and a manager's row is dimmed: too few to rank fairly
 HEISTS = 3
+DEFENSE = " D/ST"    # how ESPN names a team defense: "Raiders D/ST"
 SUFFIX = ("Jr.", "Jr", "Sr.", "Sr", "II", "III", "IV", "V")
 
 
@@ -23,10 +25,16 @@ def skip_keys(path=SKIP):
     return frozenset(m["key"] for m in json.load(open(path, encoding="utf-8")).get("managers", []))
 
 
+INITIALS = re.compile(r"^(?:[A-Z]\.)+$")     # "A.J." "J.K.": a first name that is already initials
+
+
 def short(name):
-    """ "Ja'Marr Chase" -> "J. Chase" (initials rule); a defense ("Bills") stays whole."""
+    """ "Ja'Marr Chase" -> "J. Chase": first initial plus the full last name (David, 2026-11-01). A first name
+    already in initials stays ("A.J. Brown"), and a defense stays whole ("Raiders D/ST", "Bills")."""
     parts = name.split()
-    return name if len(parts) < 2 else f"{parts[0][0]}. {' '.join(parts[1:])}"
+    if len(parts) < 2 or name.endswith(DEFENSE) or INITIALS.match(parts[0]):
+        return name
+    return f"{parts[0][0]}. {' '.join(parts[1:])}"
 
 
 def surname(name):

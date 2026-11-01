@@ -51,7 +51,8 @@ Blocks = namedtuple("Blocks", "roster league trades")
 
 def blocks(key):
     """A Yahoo league's injected blocks: its roster, its League pages, its Trades. The first league's
-    names predate the list and stay, so nothing that reads them moves."""
+    names predate the list and stay, so nothing that reads them moves. `blocks("espn").trades`, LIVE_TRADES_ESPN,
+    is the one ESPN block this rule names (its graded trades, 2026-11-01); ESPN's others are LIVE_ESPN and LIVE_LEAGUE."""
     if key == "yahoo":
         return Blocks("LIVE_YAHOO", "LIVE_LEAGUE_YAHOO", "LIVE_TRADES")
     k = key.upper()

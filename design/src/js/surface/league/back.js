@@ -14,8 +14,10 @@ let LG_DRAWN = null;
 
 /* The league-wide pages (Recap, Records, Trades) show the Yahoo league of the team on screen (data/league.js
    lgLeagueKey; the first Yahoo league when that team is ESPN's or none). */
-function lgUsePicked(){
-  const L = LGS[lgLeagueKey()] || null;
+function lgUsePicked(){ return lgUse(lgLeagueKey()); }
+/* The same for a league named by key: Trade history asks for ESPN's too (data/league.js lgTradesKey, 2026-11-01). */
+function lgUse(key){
+  const L = LGS[key] || null;
   if (LG !== L){ LG = L; LG_WEEK = null; }
   return LG;
 }

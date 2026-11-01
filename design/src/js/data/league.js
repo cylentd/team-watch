@@ -8,11 +8,13 @@ const LGS = {
   yahoo: (typeof LIVE_LEAGUE_YAHOO !== "undefined" && LIVE_LEAGUE_YAHOO) || null,
   ayo: (typeof LIVE_LEAGUE_AYO !== "undefined" && LIVE_LEAGUE_AYO) || null,   // the third league, 2026-09-29
 };
-/* Each Yahoo league's Trades block (design/league_trades.py), by the same keys: AYO has none until
-   ff-jarvis grades its trades, and Trades says so. */
+/* Each league's graded-trades block (design/league_trades.py), by the same keys: AYO has none until
+   ff-jarvis grades its trades, and Trades says so. ESPN's joined on 2026-11-01 (espn_trade_verdicts.json); it
+   is null until ff-jarvis writes the file, and the leaf stays hidden. */
 const LG_TRADES = {
   yahoo: (typeof LIVE_TRADES !== "undefined" && LIVE_TRADES) || null,
   ayo: (typeof LIVE_TRADES_AYO !== "undefined" && LIVE_TRADES_AYO) || null,
+  espn: (typeof LIVE_TRADES_ESPN !== "undefined" && LIVE_TRADES_ESPN) || null,
 };
 
 /* The League group's league (2026-10-05, David: one chip, "pick your team, the league follows"): the
@@ -42,6 +44,11 @@ function lgLeagueKey(){
 /* The league of a team: David's own two by key, a leaguemate's by its league. A connected league has
    none. */
 const lgOf = team => !team || team.connected ? null : LGS[team.mate ? team.league : team.key] || null;
+
+/* The league Trade history draws (2026-11-01): the focus league when it has graded trades, ESPN's included (the
+   leaf shows exactly then, chrome/nav.js navFacts), else the Yahoo league lgLeagueKey names, which is what it
+   drew before ESPN had any. lgLeagueKey stays Yahoo-only: Records and the back page read it too. */
+const lgTradesKey = () => LG_TRADES[lgFocusKey()] ? lgFocusKey() : lgLeagueKey();
 
 /* The league on screen. Recap (lgUsePicked, leagueHTML) sets it before drawing, so every helper below reads one league. */
 let LG = null;

@@ -462,6 +462,10 @@ CONTRACT = {
 }
 # Every other Yahoo league's blocks (design/leagues.py blocks(); AYO since 2026-09-29) are the first one's shape.
 CONTRACT.update({b: CONTRACT[a] for key in leagues.YAHOO for a, b in zip(leagues.blocks("yahoo"), leagues.blocks(key))})
+# The ESPN league's graded trades (2026-11-01) are the first league's shape, from espn_trade_verdicts.json. They
+# share its spec by name rather than a CONTRACT entry of their own: tests/test_build.py (frozen) lists every
+# CONTRACT block in its BLOCKS, and the block is null until ff-jarvis writes the file.
+SHARES_SPEC = {leagues.blocks("espn").trades: leagues.blocks("yahoo").trades}
 
 # design/claude_record.py (2026-10-05): Claude's hit rate where he took the model's side and where he did not, the second
 # row of the Slips record strip. None without ff-jarvis's file; `agree` and `alone` are null before a game is graded.
@@ -474,7 +478,7 @@ class ContractError(SystemExit):
 
 def problems(name, obj, limit=8):
     """Missing fields as `LIVE_X.key` / `LIVE_X.rows[i].key`, at most `limit` of them (the rules: contract_checks.py)."""
-    return contract_checks.problems(name, obj, CONTRACT[name], limit) if obj is not None else []
+    return contract_checks.problems(name, obj, CONTRACT[SHARES_SPEC.get(name, name)], limit) if obj is not None else []
 
 
 def validate(name, obj):

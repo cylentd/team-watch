@@ -2273,6 +2273,7 @@
  "trades.dec.tag": "Title",
  "trades.dec.title": "Won {m} the {y} title",
  "trades.empty": "No trade history for this league yet. Trades show once its past trades are graded.",
+ "trades.espn.note": "Grades use half-PPR rather than this league’s scoring, and kickers and D/ST count zero. Trades before 2026 are rebuilt from weekly rosters.",
  "trades.former": "A former manager",
  "trades.heist.deck": "By {n}. Then {a} went {ra}, {b} {rb}.",
  "trades.heist.head": "{a} robs {b}",

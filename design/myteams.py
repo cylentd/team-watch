@@ -56,6 +56,14 @@ def yahoo_league_blocks(available):
     return out
 
 
+def espn_trades_block():
+    """{LIVE_TRADES_ESPN: block or None}: the ESPN league's graded trades (2026-11-01), from ff-jarvis's
+    espn_trade_verdicts.json and espn_league_managers.json (first names). None until both land there."""
+    key = "espn"
+    return {leagues.blocks(key).trades: live_trades(load_trades(key), read_first(league_path(key, "league_managers")),
+                                                    slugify=slugify, key=key)}
+
+
 def yahoo_rosters():
     """{key: parsed roster file or None} for every Yahoo league, in list order (design/mates.py's input)."""
     return {k: roster_file(roster_path(k)) for k in leagues.YAHOO}

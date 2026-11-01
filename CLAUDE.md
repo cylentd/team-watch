@@ -154,7 +154,7 @@ Matchup is `week`, Players is `scouting`. Before: Week, League, Stats, Bets (202
 | Team (`team`) | Roster, Waivers, Trades (Waivers leads on a Tuesday) |
 | Matchup (`week`) | Live, Start/Sit (leaf `matchups`), Preview, Results (leaf `weekrecap`), Slips (leaf `parlay`), All lines (leaf `build`), DFS; Weather hidden. Highlights dropped 2026-10-08; `#highlights` opens Ranks |
 | Players (`scouting`) | News, Ranks, Leaders, Work vs points, Usage, Schedule |
-| League (`league`) | Recap, Teams, Records, Trade history (leaf `tradehist`, hash `#tradehist`, Yahoo's Madden Curse only; a tab of Records until 2026-10-08, David ledger #74) |
+| League (`league`) | Recap, Teams, Records, Trade history (leaf `tradehist`, hash `#tradehist`, ~~Yahoo's Madden Curse only~~ the Madden Curse's and, since 2026-11-01, ESPN's once ff-jarvis writes `espn_trade_verdicts.json`; a tab of Records until 2026-10-08, David ledger #74) |
 
 The table below is each view's history and detail; where it names a group, read the table above.
 Each group holds the views that answer one question; `SURFACE` is always the **leaf**, never the group, and the group is derived from it.
