@@ -200,10 +200,18 @@ class RosterPack:
     def stages(self):
         return self._stage.count()
 
+    def _until_the_page_is_idle(self):
+        """The page's main thread has nothing queued (an idle callback fires): a click is acknowledged only
+        when the page reaches an input task, so on a starved host a click sent while the load's own work
+        was still queued sat past its 5 s timeout. Waits on that condition, with no timeout of its own."""
+        self.page.evaluate("new Promise(r => requestIdleCallback(() => r()))")
+
     def skip_pack(self):
+        self._until_the_page_is_idle()
         self._gate.get_by_test_id("roster-pack-skip").click()
 
     def rip_gate(self):
+        self._until_the_page_is_idle()
         self._gate.get_by_test_id("roster-pack-rip").click()
 
     def open_stage(self):

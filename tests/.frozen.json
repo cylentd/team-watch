@@ -444,7 +444,7 @@
   "tests/pages/roster_motion.py::show_cards": "c3683238c9dad4da",
   "tests/pages/roster_pack.py::<module>": "09dd3fd656404442",
   "tests/pages/roster_pack.py::GLOW_STILL": "10052d5721c74028",
-  "tests/pages/roster_pack.py::RosterPack": "53ce65da9d79c4f5",
+  "tests/pages/roster_pack.py::RosterPack": "5cfc6f36155ac232",
   "tests/pages/roster_pack.py::SEAL": "ea35a01b37462020",
   "tests/pages/roster_pack.py::STAGE_GONE": "aa48f1178721afa7",
   "tests/pages/roster_pack.py::VCLOCK": "646ae6fe7bee0cba",
