@@ -12,6 +12,8 @@
     "tests/test_untested_marks_people.py",
     "tests/test_untested_marks_beside.py",
     "tests/test_one_number_every_view.py",
+    "tests/test_one_number_more_views.py",
+    "tests/test_s15_all_lines_price.py",
     "tests/test_budgets.py",
     "tests/test_build.py",
     "tests/test_build_outputs_land.py",
