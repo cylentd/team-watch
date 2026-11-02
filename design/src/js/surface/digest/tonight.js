@@ -21,9 +21,17 @@ function dgTnCard(g){
 
 /* `mnf` is the last game's card (mnf.js) when one shows: it stands in for the block of the same game, so that game is
    skipped here. A game still to kick off draws nothing here. */
-function dgTonightHTML(d, mnf){
+function dgTonightGames(d, mnf){
   const now = Date.now(), late = mnf ? dgMnfSlot(now) || [] : [];
   const held = g => late.some(x => gdSameClub(x.g.home, g.home) || gdSameClub(x.g.away, g.home));
-  const cards = (d.tn || []).filter(g => Date.parse(g.ko) <= now && !held(g)).map(dgTnCard).join("");
+  return (d.tn || []).filter(g => Date.parse(g.ko) <= now && !held(g));
+}
+
+/* How many blocks Tonight draws, for the Digest's five (dgDayBlocks): the last game's card is one block however many
+   games it holds, and each kicked-off game is one more. */
+const dgTonightCount = (d, mnf) => (mnf ? 1 : 0) + dgTonightGames(d, mnf).length;
+
+function dgTonightHTML(d, mnf){
+  const cards = dgTonightGames(d, mnf).map(dgTnCard).join("");
   return mnf || cards ? `<div class="dg-tns">${mnf || ""}${cards}</div>` : "";
 }

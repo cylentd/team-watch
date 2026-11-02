@@ -1176,6 +1176,10 @@ have data that day, five at most; superseding "today's job only". A strip chip a
   Wednesday's last (Top calls) is the one dropped when all six draw. Right now counts in the five (2026-11-01, David:
   a live game pushes one card out): on a day whose plan has no "now" card it leads the list and the last card
   drops, so a day draws five blocks at most (`dgDayBlocks`, `data/dayplan.js`).
+  Tonight's blocks count in the five too (2026-11-01, David): the last game's block and each kicked-off game's block
+  (`dgTonightCount`, `surface/digest/tonight.js`) each take a place ahead of the cards, so a Thursday or Monday with
+  one game on draws Tonight, Right now and three cards, and a second game leaves two. The job card always draws, so
+  a day with no place left still shows it (tests/test_js_digest_tonight_cap.py).
 - **Banner:** 128px, the day's label, its answer, a 96px headshot or the two team codes. Live headlines still lead
   once a game is on, and the Digest never names Recap's subject (`lspPick`).
 - **Row** (`surface/digest/row.js`): a 34px headshot (a team tile for a defense or a game), name, one meta line,

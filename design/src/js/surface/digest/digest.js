@@ -4,7 +4,8 @@
    (lead.js, day.js), the day's cards hold the decision (card.js, row.js, cards/), and "Rest of the week"
    links the views that are not today's job (strip.js). Which cards and links a day has is data
    (data/digest.js DG_PLAN). Game-day state still wins once a game is on, as before: Right now (now.js),
-   Tonight's card (tonight.js) and the last game's block (mnf.js).
+   Tonight's card (tonight.js) and the last game's block (mnf.js). Those blocks and Right now count in the day's
+   five (2026-11-01, David; dgDayBlocks, data/dayplan.js).
    Superseded: the ticker of seven rows and the wall of open panels (2026-09-26 to 2026-10-06).
    The packet is ff-jarvis's (data/weekly_digest.json); the page computes nothing. */
 
@@ -13,12 +14,14 @@ const DG_WIND = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 const DG_RAIN = `<svg class="dg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.3 1.5A3.5 3.5 0 0 1 17.5 15H7zM9 18l-1 3M13 18l-1 3M17 18l-1 3"/></svg>`;
 
 /* The day's cards, in the plan's order, skipping the empty ones; Need to know when every one is empty.
-   Right now leads them on a day whose plan does not place it (a Thursday or Monday game on). */
-function dgCardsHTML(d, plan, now){
+   Right now leads them on a day whose plan does not place it (a Thursday or Monday game on). A day draws five blocks
+   at most, Tonight's blocks (`tonight`, how many tonight.js drew) and Right now included (2026-11-01, David): the
+   count goes to dgDayBlocks, which decides how many cards stay, the job card always. */
+function dgCardsHTML(d, plan, now, tonight){
   const ctx = dgCardCtx(d, plan, now);
   const drawn = Object.fromEntries(dgCardOrder(plan).map(id => [id, dgCardDraw(id, ctx)]));
   const nowHTML = dgNowHTML();
-  const {now: leads, ids} = dgDayBlocks(plan, drawn, nowHTML);
+  const {now: leads, ids} = dgDayBlocks(plan, drawn, nowHTML, tonight);
   if (!(ids[0] in drawn)) drawn[ids[0]] = dgCardDraw(ids[0], ctx);
   return (leads ? nowHTML : "") + ids.map(id => drawn[id]).join("");
 }
@@ -39,7 +42,7 @@ function digestHTML(){
   // and Need to know left out once games are on and nothing in it is left to say.
   const tns = dgTonightHTML(d, mnf);
   const cls = [tns ? "has-tn" : "", dgNeedEmpty(d) ? "no-need" : ""].filter(Boolean).join(" ");
-  const cards = dgCardsHTML(d, plan, now);
+  const cards = dgCardsHTML(d, plan, now, dgTonightCount(d, mnf));
   DG_LAST = {lead, now: dgNowHTML(), mnf};
   DG_DRAWN = dgPhaseKey();
   return `<div class="dg" data-testid="digest-root">${lead}
