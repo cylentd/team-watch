@@ -194,7 +194,7 @@
     },
     "search": {
       "paths": ["design/src/js/data/search.js", "design/src/js/chrome/search.js"],
-      "tests": ["tests/test_search.py", "tests/test_js_search.py"],
+      "tests": ["tests/test_search.py", "tests/test_js_search.py", "tests/test_s16_search_leagues.py"],
       "render": ["search"]
     },
     "strip": {
