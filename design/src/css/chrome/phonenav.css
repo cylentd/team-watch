@@ -68,8 +68,10 @@
     font-family:var(--ui);font-size:var(--t-3);font-weight:600;color:var(--ink-2);background:none;box-shadow:none}
   .subnav .mode-sub[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--on-lime);box-shadow:none}
   .subnav .mode-sub[aria-pressed="true"] .tabcount{color:var(--on-lime)}
-  /* The open pill, opened into its view's tabs: its name in lime, then one segment per tab. */
-  .tr-x{flex:none;display:flex;align-items:center;gap:2px;padding:0;border:1px solid var(--lime);border-radius:99px}
+  /* The open pill, opened into its view's tabs: its name in lime, then one segment per tab. The ring is an inset
+     shadow, not a border, so an opened pill is the 40px of a closed one and the row keeps one height on every view
+     (2026-11-03: a 1px border made it 42px, and every view with tabs sat 2px lower than its neighbours). */
+  .tr-x{flex:none;display:flex;align-items:center;gap:2px;padding:0;border:0;border-radius:99px;box-shadow:inset 0 0 0 1px var(--lime)}
   .subnav .tr-x .mode-sub{min-height:40px;padding:0 6px 0 13px;border:0;background:none;color:var(--lime);font-weight:700}
   .tr-seg{appearance:none;cursor:pointer;flex:none;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;
     border:0;border-radius:99px;background:none;color:var(--ink-2);font-family:var(--ui);font-size:var(--t-3);font-weight:600;white-space:nowrap;
