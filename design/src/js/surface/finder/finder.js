@@ -60,7 +60,8 @@ function tfViewHTML(){
   if (TB_EDIT && TB) return tfEditPageHTML();             // page.js
   const route = tpRoute();                                 // a player's trade page, at its own hash (tpage.js)
   if (route) return tpViewHTML(route);
-  const lg = lbOf(lbLeagueKey()), head = lgChipHTML(), me = lg && tbMine(lg);
+  if (tvTab() === "value") return tvViewHTML();            // the Value tab (value.js, 2026-11-03)
+  const lg = lbOf(lbLeagueKey()), head = lgChipHTML() + tvTabsHTML(), me = lg && tbMine(lg);
   // No team picked, or a pick that is not in this league (a connected one): the picker. A league with no rosters: the empty block.
   if (!myTeamLoad() || (lg && !me)) return `<div class="wrap tf">${head}${tfNeedHTML()}</div>`;
   if (!lg) return `<div class="wrap tf">${head}${lbEmptyHTML()}</div>`;
@@ -83,6 +84,8 @@ function tfClick(e, lg, me){
   const hit = sel => e.target.closest(sel), v = document.getElementById("view");
   const pos = hit("[data-tfpos]"), who = hit("[data-tfwho]"), edit = hit("[data-tbedit]"), own = hit("[data-tbown]"), pick = hit("[data-pick]");
   if (pick) return pickTeam(pick.dataset.pick);
+  const tab = hit("[data-tvtab]");
+  if (tab) return tvSelectTab(tab.dataset.tvtab);
   if (pos){ TF.pos = pos.dataset.tfpos; TF.tapped = true; render(); return v.querySelector(`[data-tfpos="${TF.pos}"]`)?.focus({preventScroll: true}); }
   if (who){ TF.partner = who.dataset.tfwho; render(); window.scrollTo({top: 0}); return v.querySelector("[data-tfall]")?.focus({preventScroll: true}); }
   if (hit("[data-tfall]")){ TF.partner = null; render(); return v.querySelector(`[data-tfpos="${TF.pos}"]`)?.focus({preventScroll: true}); }
@@ -97,6 +100,7 @@ function tfClick(e, lg, me){
 function wireTf(v){
   if (TB_EDIT && TB) return wireTfPage(v);
   if (tpRoute()) return wireTp(v);
+  if (tvTab() === "value") return wireTv(v);
   wireLgChip(v);
   const root = v.querySelector(".tf"), lg = lbOf(lbLeagueKey()), me = lg && tbMine(lg);
   if (!root) return;

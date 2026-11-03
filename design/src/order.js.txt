@@ -226,6 +226,7 @@ surface/trades/alive.js
 # finder/tpdata.js (the pinned file's fetch), finder/tprows.js (its rows) and finder/tpage.js, which binds one
 # hashchange listener at load (it reads only names declared above it or inside functions).
 data/tradepage.js
+data/tradevalue.js
 surface/lboard/lboard.js
 surface/lboard/lbcard.js
 surface/lboard/tbscore.js
@@ -236,6 +237,7 @@ surface/finder/logic.js
 surface/finder/lenses.js
 surface/finder/signals.js
 surface/finder/finder.js
+surface/finder/value.js
 surface/finder/deep.js
 surface/finder/page.js
 surface/finder/tpdata.js

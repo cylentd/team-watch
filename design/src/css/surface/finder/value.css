@@ -1,0 +1,39 @@
+/* ============================================================
+   TEAM > TRADES > VALUE (2026-11-03, js/surface/finder/value.js)
+   One chip row, a caption, then rows: position rank, the name with his NFL team and who holds him and the research
+   under it, the PAR at the right edge. A row is a fixed grid (40px, the name's track, the number's), so the number
+   column lines up whatever a row holds. Two columns from 760px, so a name sits within 560px of its number
+   (STYLE.md, Layout). The reader's own players in lime, as every list.
+   ============================================================ */
+.tv-tabs{margin-bottom:2px}
+.tv-chips{flex-wrap:wrap;gap:6px}
+.tv-cap{margin:10px 0 0;font-size:var(--t-1);line-height:1.4;color:var(--ink-3);max-width:70ch}
+.tv-list{margin-top:10px;max-width:var(--list-w)}
+.tv-row{appearance:none;border:0;background:none;color:inherit;font:inherit;cursor:pointer;text-align:left;
+  display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;min-height:52px;padding:6px 12px;
+  border-bottom:1px solid var(--line)}
+.tv-row:hover{background:var(--panel-2)}
+.tv-row:active{transform:scale(var(--press))}
+.tv-row:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+.tv-pos{font:700 var(--t-1)/1 var(--mono);letter-spacing:.04em;color:var(--ink-3)}
+.tv-pos[data-pos="QB"]{color:var(--pos-qb)}
+.tv-pos[data-pos="RB"]{color:var(--pos-rb)}
+.tv-pos[data-pos="WR"]{color:var(--pos-wr)}
+.tv-pos[data-pos="TE"]{color:var(--pos-te)}
+.tv-nm{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tv-who{display:flex;align-items:baseline;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-who b{font-size:var(--t-2);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.tv-who small{font-size:var(--t-1);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis}
+.tv-why{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:var(--t-1);font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.tv-pill{font-style:normal;padding:1px 6px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);white-space:nowrap}
+.tv-pill.up{border-color:rgb(var(--lime-rgb) / .35);color:var(--up)}
+.tv-pill.dn{color:var(--down)}
+.tv-healthy{border-color:rgb(var(--amber-rgb) / .35);color:var(--amber)}
+.tv-par{font:700 var(--t-3)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);text-align:right;min-width:52px}
+.tv-par.dn{color:var(--ink-3)}
+.tv-row.mine .tv-who b{color:var(--lime)}
+.tv-more{margin-top:12px}
+@media (min-width:760px){
+  .tv-list{columns:2;column-gap:20px;max-width:none}
+  .tv-row{break-inside:avoid}
+}

@@ -67,6 +67,7 @@
     "surface/lboard/offers.css": ["trades"],
     "surface/lboard/tbedit.css": ["trades"],
     "surface/finder/finder.css": ["trades"],
+    "surface/finder/value.css": ["trades"],
     "surface/finder/tpage.css": ["trades"],
     "surface/trades/trades.css": ["tradehist"],
     "surface/trades/curses.css": ["tradehist"],

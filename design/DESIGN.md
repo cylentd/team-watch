@@ -767,6 +767,27 @@ Plan: ff-jarvis `trade-finder` (producer, `trade_offers.json` v2) and team-watch
   2026-10-05:** the sheets (`#lbsheet`, `#tbsheet`, their scrims and the `.lbs-body` scroller), which once shrank an 8-man lineup
   to five and a half rows; pages scroll with the document.
 
+## Trade value (Team > Trades > Value, 2026-11-03)
+
+David, 2026-11-03: "Jameson for Goedert is terrible. You have to think of PAR." A second tab on the Trades leaf
+(`navModes("trades")`: Offers · Value; a phone opens it in place in the Trades pill, a desktop draws the bar), so it
+costs no new leaf. It answers "is this a fair swap on paper?" before the finder scores a real package.
+
+- **The answer** per row is one signed number: the player's PAR, his rest-of-season points over replacement in his
+  league's scoring, (points a game - replacement at his position) x games left. The list is ff-jarvis's order
+  (`model.season.trade_value`, LIVE_TRADE_VALUE via `design/trade_value.py`); the page computes no points.
+- **The research** sits under the name: his points a game x games, and up to two pills. *If healthy +8.8*: a player
+  priced for missed games who is not ruled out today, at full attendance (a what-if, never the price; Rashee Rice on
+  2026-11-03). *League sees +4.7/g*: his manager's screen (the finder's `perc`: 2026 points a game, half his last-2
+  streak, the early-pick leash) against our rate, drawn from 2 points a game either way. Numbers, no verdict word:
+  neither is a tested trading rule (STYLE.md, "Answer first").
+- **One row of controls:** All, Mine (the reader's team, when it is in the league), QB, RB, WR, TE. All shows the top
+  40, then "Show all". The caption names the replacement level per position and the day the prices were made.
+- The league is the one chip's (`lgFocusKey`), as every Trades view. A row opens the player's profile.
+- Absent without ff-jarvis's file: no Value tab, and Trades reads as it did.
+- First data at 241px on a 360x800 phone, over STYLE.md's ~200px: the team switch heads every Trades view (the finder
+  too), and the caption is the one place the replacement level is said, which every number on the page is measured from.
+
 ## Trade page (League > Trades, a page per player, 2026-10-08, ledger #51)
 
 Storyboard trades-pin draft B, which David picked (VISION 2026-10-08). Code: `data/tradepage.js` (pure, `test_js_tradepage.py`),

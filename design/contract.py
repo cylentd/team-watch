@@ -23,6 +23,7 @@ import digest           # design/digest.py: LIVE_DIGEST's gains and practice sha
 import sos              # design/sos.py: LIVE_SOS's K shape check
 import usage_movers     # design/usage_movers.py: LIVE_USAGE_MOVERS's nested shape check
 import player_tags      # design/player_tags.py: LIVE_PLAYER_TAGS's entry shape check
+import trade_value      # design/trade_value.py: LIVE_TRADE_VALUE's order and positions
 from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTIONAL, WIRE_SUBS  # noqa: F401  re-exported for wire_watch.py
 
 # design/ranks.py: one row of Players > Ranks. `home`, `kick`, `inj`, `mu`, `mx` and `mxp` may be
@@ -355,6 +356,8 @@ CONTRACT = {
     "LIVE_ROS": {"keys": ["season", "week", "through_week", "last_week", "generated", "players", "po_weeks", "fp"],
                  "rows": [("players", ["slug", "n", "pos", "team", "rank", "ros_pg", "ros_pts", "games_left", "sched_left", "hist", "espn",
                                        "po_rank", "po_pts", "po_games", "fp"])]},
+    # design/trade_value.py, Team > Trades > Value (2026-11-03): None without ff-jarvis's file; each league's players in PAR order.
+    "LIVE_TRADE_VALUE": {"keys": ["generated", "week", "ros_generated", "leagues"], "checks": [trade_value.problems]},
     # design/player_tags.py (2026-10-08, ledger #41): the tags on Roster and Ranks rows and in the profile; None without ff-jarvis's
     # file. `effect` is null when the file has none (then `effect_signals` is []). Each entry's kind and numbers: player_tags.problems.
     "LIVE_PLAYER_TAGS": {"keys": ["season", "week", "through", "last_n", "hours", "effect", "effect_signals", "alias", "players"],
