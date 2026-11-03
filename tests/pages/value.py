@@ -32,6 +32,14 @@ class ValuePage:
         self._chips.and_(self.page.locator(f"[data-tvchip='{chip}']")).click()
         self.page.wait_for_function("c => TV_CHIP === c", arg=chip)
 
+    def pick_span(self, span):
+        self.page.get_by_test_id("value-span").and_(self.page.locator(f"[data-tvspan='{span}']")).click()
+        self.page.wait_for_function("s => TV_SPAN === s", arg=span)
+
+    def spans(self):
+        return [(c.get_attribute("data-tvspan"), c.inner_text(), c.get_attribute("aria-pressed") == "true")
+                for c in self.page.get_by_test_id("value-span").all()]
+
     def show_all(self):
         self._more.click()
         self.page.wait_for_function("() => TV_ALL")

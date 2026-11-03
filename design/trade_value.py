@@ -6,13 +6,13 @@ the replacement level per position it is measured from, and what his manager's s
 rate. The page computes nothing: this cut keeps the fields the page reads, in the page's names (`n` for the name, as
 the other blocks), and drops the rest (key, ros_pts, par_pg, seen, chips, draft_round, season_out, starters).
 
-    {generated, week, ros_generated,
+    {generated, week, ros_generated, po_weeks,
      leagues: {espn|yahoo|ayo: {replacement: {QB, RB, WR, TE}, me, teams, weeks_left,
-                                players: [{slug, n, pos, team, holder, ros_pg, games, par, po_par, games_healthy,
+                                players: [{slug, n, pos, team, holder, ros_pg, games, par, po_games, po_par, games_healthy,
                                            par_healthy, perc, gap, last2, injury, ir, rank, pos_rank}]}}}
     holder         the fantasy team that rosters him, null for a free agent or a waiver player
     par            (ros_pg - replacement[pos]) x games, rest of season, in that league's scoring; the list's order
-    po_par         the same over the fantasy playoff weeks; null on a file without them
+    po_par         the same over the fantasy playoff weeks (`po_weeks`, those still to play); null on a file without them
     games_healthy  a what-if: his games at full attendance, only when he is not ruled out and his price counts 0.5+
                    fewer; par_healthy is PAR at those games. Never the price.
     perc, gap      his manager's view, points a game (the trade finder's `perc`), and perc - ros_pg; gap null with
@@ -24,9 +24,9 @@ None when ff-jarvis has written no file: Trades then has no Value tab and reads 
 
 import sources
 
-TOP = ("generated", "week", "ros_generated")
+TOP = ("generated", "week", "ros_generated", "po_weeks")
 LEAGUE = ("replacement", "me", "teams", "weeks_left")
-PLAYER = ("slug", "pos", "team", "holder", "ros_pg", "games", "par", "po_par", "games_healthy", "par_healthy", "perc",
+PLAYER = ("slug", "pos", "team", "holder", "ros_pg", "games", "par", "po_games", "po_par", "games_healthy", "par_healthy", "perc",
           "gap", "last2", "injury", "ir", "rank", "pos_rank")
 POSITIONS = ("QB", "RB", "WR", "TE")
 

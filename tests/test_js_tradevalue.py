@@ -68,3 +68,22 @@ def test_the_replacement_caption_is_in_position_order(tv):
 def test_no_block_is_none(node_js):
     assert node_js("data/tradevalue.js", globals={"LIVE_TRADE_VALUE": None})("tvBlock") is None
     assert node_js("data/tradevalue.js")("tvBlock") is None
+
+
+@pytest.mark.req("Trade value", ac="a Playoffs toggle ranks the fantasy playoff weeks")
+def test_the_playoff_span_orders_by_playoff_par_and_ranks_each_position_in_that_order(tv):
+    assert tv("tvSpans", BLOCK, YAHOO) == ["ros", "po"]
+    rows = tv("tvRows", YAHOO, "all", ME, "po")
+    assert [r["show_par"] for r in rows] == sorted((r["show_par"] for r in rows), reverse=True)
+    assert all(r["show_par"] == r["po_par"] and r["show_games"] == r["po_games"] for r in rows)
+    te = tv("tvRows", YAHOO, "TE", ME, "po")
+    assert [r["show_rank"] for r in te] == list(range(1, len(te) + 1))
+    ros = tv("tvRows", YAHOO, "all", ME)
+    assert all(r["show_par"] == r["par"] and r["show_rank"] == r["pos_rank"] for r in ros), "the rest of season is the file's own"
+
+
+def test_no_playoff_weeks_or_numbers_is_one_span_and_the_what_if_is_rest_of_season_only(tv):
+    assert tv("tvSpans", {**BLOCK, "po_weeks": None}, YAHOO) == ["ros"]
+    assert tv("tvSpans", BLOCK, {**YAHOO, "players": [{**p, "po_par": None} for p in YAHOO["players"]]}) == ["ros"]
+    rice = next(p for p in YAHOO["players"] if p["n"] == "Rashee Rice")
+    assert tv("tvHealthyAdd", rice, "po") is None and tv("tvHealthyAdd", rice, "ros") == 8.8

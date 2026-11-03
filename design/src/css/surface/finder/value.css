@@ -37,3 +37,4 @@
   .tv-list{columns:2;column-gap:20px;max-width:none}
   .tv-row{break-inside:avoid}
 }
+.tv-spans{margin-top:8px}

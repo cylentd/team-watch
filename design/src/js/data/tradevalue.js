@@ -22,11 +22,26 @@ const tvFilters = (lg, me) => TV_FILTERS.filter(f => f !== "mine" || (!!me && lg
 /* A chip the league does not show is everyone. */
 const tvFilter = (lg, me, want) => (tvFilters(lg, me).includes(want) ? want : "all");
 
-/* The league's rows under a chip, in the file's PAR order. */
-function tvRows(lg, filter, me){
-  if (filter === "mine") return lg.players.filter(p => p.holder === me);
-  if (TV_POS.includes(filter)) return lg.players.filter(p => p.pos === filter);
-  return lg.players.slice();
+/* The spans the block can show: the rest of season always, the fantasy playoff weeks when the file names them and
+   prices someone over them (2026-11-03). */
+const tvSpans = (block, lg) => (block && (block.po_weeks || []).length && lg.players.some(p => p.po_par != null) ? ["ros", "po"] : ["ros"]);
+
+/* The league's players in a span's order, each with what the row draws: `show_par`, `show_games` and `show_rank` (his
+   place at his position). The rest of season is the file's PAR order and rank. The playoffs are PAR over those weeks,
+   best first, a tie to the name; a player with no playoff number is left out, and the rank is his place in that list. */
+function tvOrdered(lg, span){
+  if (span !== "po") return lg.players.map(p => ({...p, show_par: p.par, show_games: p.games, show_rank: p.pos_rank}));
+  const rows = lg.players.filter(p => p.po_par != null).sort((a, b) => b.po_par - a.po_par || a.n.localeCompare(b.n));
+  const at = {};
+  return rows.map(p => ({...p, show_par: p.po_par, show_games: p.po_games, show_rank: (at[p.pos] = (at[p.pos] || 0) + 1)}));
+}
+
+/* The league's rows under a chip, in the span's order (the rest of season by default). */
+function tvRows(lg, filter, me, span){
+  const rows = tvOrdered(lg, span || "ros");
+  if (filter === "mine") return rows.filter(p => p.holder === me);
+  if (TV_POS.includes(filter)) return rows.filter(p => p.pos === filter);
+  return rows;
 }
 
 /* The rows drawn: the All list stops at TV_CAP until the reader asks for the rest; a chip's list is short. */
@@ -39,8 +54,9 @@ function tvSigned(x){
   return r > 0 ? `+${r.toFixed(1)}` : r < 0 ? `−${(-r).toFixed(1)}` : "0.0";
 }
 
-/* How much PAR the what-if adds (healthy games), or null without one. */
-const tvHealthyAdd = p => (p.par_healthy == null ? null : Math.round((p.par_healthy - p.par) * 10) / 10);
+/* How much PAR the what-if adds (healthy games), or null without one. Rest of season only: the what-if counts his
+   games to week 17, so the playoff span draws none. */
+const tvHealthyAdd = (p, span) => (span === "po" || p.par_healthy == null ? null : Math.round((p.par_healthy - p.par) * 10) / 10);
 
 /* The gap between his manager's view and ours, or null when it is under TV_GAP_MIN or there is none. Above 0 the
    league sees more than our rate; below, less. A number, never a verdict word: nothing tested it as a trading rule. */

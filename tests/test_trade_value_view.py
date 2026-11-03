@@ -34,7 +34,7 @@ def test_trades_gets_offers_and_value_tabs_in_the_tab_row_and_value_opens_the_li
     assert value.tabs() == [("offers", False), ("value", True)]
     rows = value.rows()
     assert len(rows) == 40 and rows[0]["rank"] == "RB1" and rows[0]["par"] == "+101.3"
-    assert value.first_row_top() < 260, "the first row sits under one chip row and a caption"
+    assert value.first_row_top() < 300, "the first row sits under the chips, the span toggle and a caption"
     assert errors == []
 
 
@@ -103,4 +103,20 @@ def test_without_the_file_trades_has_no_value_tab(no_file):
     page, errors = no_file("trades", size=PHONE, init=(reader("espn"), serve(FIXTURE)))
     assert ValuePage(page).tabs() == []
     page.get_by_test_id("finder-offers").wait_for()
+    assert errors == []
+
+
+@pytest.mark.render
+@pytest.mark.req("Trade value", ac="a Playoffs toggle ranks the fantasy playoff weeks")
+def test_the_playoffs_toggle_draws_playoff_par_and_drops_the_healthy_what_if(mount):
+    page, errors, value = open_value(mount)
+    assert value.spans() == [("ros", "Rest of season", True), ("po", "Playoffs, weeks 15–17", False)]
+    value.pick("mine")
+    value.pick_span("po")
+    rows = value.rows()
+    assert value.spans()[1][2] and value.caption().startswith("Points over replacement in the playoff weeks.")
+    rice = next(r for r in rows if r["slug"] == "rashee-rice")
+    assert rice["rate"].startswith("12.0/g × ") and rice["healthy"] is None
+    pars = [float(r["par"].replace("−", "-")) for r in rows]
+    assert pars == sorted(pars, reverse=True)
     assert errors == []

@@ -785,8 +785,13 @@ costs no new leaf. It answers "is this a fair swap on paper?" before the finder 
   40, then "Show all". The caption names the replacement level per position and the day the prices were made.
 - The league is the one chip's (`lgFocusKey`), as every Trades view. A row opens the player's profile.
 - Absent without ff-jarvis's file: no Value tab, and Trades reads as it did.
-- First data at 241px on a 360x800 phone, over STYLE.md's ~200px: the team switch heads every Trades view (the finder
-  too), and the caption is the one place the replacement level is said, which every number on the page is measured from.
+- **Rest of season · Playoffs** (2026-11-03, the same day): a second row, the span, as Ranks' Rest of season has. Playoffs
+  orders by PAR over the fantasy playoff weeks still to play (`po_par`, the file's `po_weeks`), ranks each position in
+  that order, counts `po_games`, and draws no healthy what-if (it counts games to week 17). Absent when the file names no
+  playoff weeks.
+- First data at 285px on a 360x800 phone, over STYLE.md's ~200px: the team switch heads every Trades view (the finder
+  too), the span toggle is a second row (Ranks' precedent), and the caption is the one place the replacement level is
+  said, which every number on the page is measured from. Superseded the same day: 241px before the span row.
 
 ## Trade page (League > Trades, a page per player, 2026-10-08, ledger #51)
 

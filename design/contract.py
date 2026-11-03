@@ -357,7 +357,7 @@ CONTRACT = {
                  "rows": [("players", ["slug", "n", "pos", "team", "rank", "ros_pg", "ros_pts", "games_left", "sched_left", "hist", "espn",
                                        "po_rank", "po_pts", "po_games", "fp"])]},
     # design/trade_value.py, Team > Trades > Value (2026-11-03): None without ff-jarvis's file; each league's players in PAR order.
-    "LIVE_TRADE_VALUE": {"keys": ["generated", "week", "ros_generated", "leagues"], "checks": [trade_value.problems]},
+    "LIVE_TRADE_VALUE": {"keys": ["generated", "week", "ros_generated", "po_weeks", "leagues"], "checks": [trade_value.problems]},
     # design/player_tags.py (2026-10-08, ledger #41): the tags on Roster and Ranks rows and in the profile; None without ff-jarvis's
     # file. `effect` is null when the file has none (then `effect_signals` is []). Each entry's kind and numbers: player_tags.problems.
     "LIVE_PLAYER_TAGS": {"keys": ["season", "week", "through", "last_n", "hours", "effect", "effect_signals", "alias", "players"],

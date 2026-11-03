@@ -11,6 +11,7 @@
 let TV_TAB = "offers";
 let TV_CHIP = "all";
 let TV_ALL = false;           // the All list past its cap
+let TV_SPAN = "ros";          // the rest of season, or "po": the fantasy playoff weeks
 
 const tvTabs = () => tvLeague(tvBlock(), lbLeagueKey()) ? ["offers", "value"] : ["offers"];
 const tvTab = () => TV_TAB === "value" && tvTabs().includes("value") ? "value" : "offers";
@@ -26,7 +27,7 @@ function tvMe(lg){
 }
 
 /* Forgotten when the reader leaves Trades (ledger #91): a visit opens Offers. */
-navForget("trades", () => { TV_TAB = "offers"; TV_CHIP = "all"; TV_ALL = false; });
+navForget("trades", () => { TV_TAB = "offers"; TV_CHIP = "all"; TV_ALL = false; TV_SPAN = "ros"; });
 
 function tvSelectTab(id){
   if (id === tvTab() || !tvTabs().includes(id)) return;
@@ -47,33 +48,44 @@ function tvChipsHTML(lg, me, cur){
     `<button type="button" class="chip" data-testid="value-chip" data-tvchip="${f}" aria-pressed="${f === cur}">${tvChipName(f)}</button>`).join("")}</div>`;
 }
 
-/* Under the name: points a game x games, then the pills. */
-function tvResearchHTML(p){
-  const add = tvHealthyAdd(p), gap = tvGap(p);
-  const healthy = add == null ? "" : `<i class="tv-pill tv-healthy" data-testid="value-healthy" title="${esc(t("value.healthy.tip", {games: p.games_healthy}))}">${t("value.healthy", {par: tvSigned(add)})}</i>`;
-  const sees = gap == null ? "" : `<i class="tv-pill ${gap > 0 ? "up" : "dn"}" data-testid="value-sees" title="${esc(t("value.sees.tip", {perc: p.perc.toFixed(1), ours: p.ros_pg.toFixed(1)}))}">${t("value.sees", {gap: tvSigned(gap)})}</i>`;
-  return `<span class="tv-why"><span data-testid="value-rate">${t("value.rate", {pg: p.ros_pg.toFixed(1), games: p.games.toFixed(1)})}</span>${healthy}${sees}</span>`;
+/* The span: the rest of season, or the fantasy playoff weeks (Ranks' Rest of season has the same toggle). */
+const tvSpanName = (id, block) => id === "po" ? t("value.span.po", {from: block.po_weeks[0], to: block.po_weeks[block.po_weeks.length - 1]}) : t("value.span.ros");
+function tvSpanHTML(block, lg, cur){
+  const ids = tvSpans(block, lg);
+  return ids.length < 2 ? "" : `<div class="setrow tv-spans" role="group" aria-label="${t("value.span.label")}">${ids.map(id =>
+    `<button type="button" class="chip" data-testid="value-span" data-tvspan="${id}" aria-pressed="${id === cur}">${tvSpanName(id, block)}</button>`).join("")}</div>`;
 }
 
-function tvRowHTML(p, me){
+/* Under the name: points a game x games, then the pills. */
+function tvResearchHTML(p, span){
+  const add = tvHealthyAdd(p, span), gap = tvGap(p);
+  const healthy = add == null ? "" : `<i class="tv-pill tv-healthy" data-testid="value-healthy" title="${esc(t("value.healthy.tip", {games: p.games_healthy}))}">${t("value.healthy", {par: tvSigned(add)})}</i>`;
+  const sees = gap == null ? "" : `<i class="tv-pill ${gap > 0 ? "up" : "dn"}" data-testid="value-sees" title="${esc(t("value.sees.tip", {perc: p.perc.toFixed(1), ours: p.ros_pg.toFixed(1)}))}">${t("value.sees", {gap: tvSigned(gap)})}</i>`;
+  return `<span class="tv-why"><span data-testid="value-rate">${t("value.rate", {pg: p.ros_pg.toFixed(1), games: p.show_games.toFixed(1)})}</span>${healthy}${sees}</span>`;
+}
+
+function tvRowHTML(p, me, span){
   const mine = !!me && p.holder === me;
   const who = p.holder == null ? t("value.row.free") : mine ? t("value.row.yours") : esc(p.holder);
   return `<button type="button" class="tv-row${mine ? " mine" : ""}" data-testid="value-row" data-tvopen="${esc(p.slug)}">
-    <span class="tv-pos" data-pos="${p.pos}" data-testid="value-rank">${p.pos}${p.pos_rank}</span>
-    <span class="tv-nm"><span class="tv-who"><b data-testid="value-name">${esc(nameInitial(p.n))}</b><small>${esc(p.team || "")} · <span data-testid="value-holder">${who}</span></small></span>${tvResearchHTML(p)}</span>
-    <span class="tv-par${p.par < 0 ? " dn" : ""}" data-testid="value-par">${tvSigned(p.par)}</span>
+    <span class="tv-pos" data-pos="${p.pos}" data-testid="value-rank">${p.pos}${p.show_rank}</span>
+    <span class="tv-nm"><span class="tv-who"><b data-testid="value-name">${esc(nameInitial(p.n))}</b><small>${esc(p.team || "")} · <span data-testid="value-holder">${who}</span></small></span>${tvResearchHTML(p, span)}</span>
+    <span class="tv-par${p.show_par < 0 ? " dn" : ""}" data-testid="value-par">${tvSigned(p.show_par)}</span>
   </button>`;
 }
 
 function tvViewHTML(){
   const block = tvBlock(), key = lbLeagueKey(), lg = tvLeague(block, key), me = tvMe(lg);
-  const chip = tvFilter(lg, me, TV_CHIP), rows = tvRows(lg, chip, me), shown = tvShown(rows, chip, TV_ALL), more = tvMore(rows, chip, TV_ALL);
+  const span = tvSpans(block, lg).includes(TV_SPAN) ? TV_SPAN : "ros";
+  const chip = tvFilter(lg, me, TV_CHIP), rows = tvRows(lg, chip, me, span), shown = tvShown(rows, chip, TV_ALL), more = tvMore(rows, chip, TV_ALL);
   const repl = tvReplacement(lg).map(([pos, pg]) => `${pos} ${pg.toFixed(1)}`).join(" · ");
-  const cap = `<p class="tv-cap" data-testid="value-cap">${t("value.cap", {repl, date: esc(tvDate(block))})}</p>`;
-  const list = rows.length ? `<div class="tv-list" data-testid="value-list">${shown.map(p => tvRowHTML(p, me)).join("")}</div>`
+  const capArgs = {repl, date: esc(tvDate(block))};
+  const cap = `<p class="tv-cap" data-testid="value-cap">${span === "po"
+    ? t("value.cap.po", capArgs) : t("value.cap", capArgs)}</p>`;
+  const list = rows.length ? `<div class="tv-list" data-testid="value-list">${shown.map(p => tvRowHTML(p, me, span)).join("")}</div>`
     + (more ? `<button type="button" class="chip tv-more" data-tvmore data-testid="value-more">${t("value.more", {n: more})}</button>` : "")
     : `<div class="state-empty" data-testid="value-empty" style="min-height:160px"><div><b>${t("value.empty")}</b></div></div>`;
-  return `<div class="wrap tv">${lgChipHTML()}${tvTabsHTML()}${tvChipsHTML(lg, me, chip)}${cap}${list}</div>`;
+  return `<div class="wrap tv">${lgChipHTML()}${tvTabsHTML()}${tvChipsHTML(lg, me, chip)}${tvSpanHTML(block, lg, span)}${cap}${list}</div>`;
 }
 
 /* "Oct 28": the day the rest-of-season prices were made, which can be older than the file. */
@@ -89,7 +101,9 @@ function wireTv(v){
   if (!root) return;
   root.addEventListener("click", e => {
     const tab = e.target.closest("[data-tvtab]"), chip = e.target.closest("[data-tvchip]"), row = e.target.closest("[data-tvopen]");
+    const span = e.target.closest("[data-tvspan]");
     if (tab) return tvSelectTab(tab.dataset.tvtab);
+    if (span){ TV_SPAN = span.dataset.tvspan; TV_ALL = false; render(); return v.querySelector(`[data-tvspan="${TV_SPAN}"]`)?.focus({preventScroll: true}); }
     if (chip){ TV_CHIP = chip.dataset.tvchip; TV_ALL = false; render(); return v.querySelector(`[data-tvchip="${TV_CHIP}"]`)?.focus({preventScroll: true}); }
     if (e.target.closest("[data-tvmore]")){ TV_ALL = true; return render(); }
     if (row){

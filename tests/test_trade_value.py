@@ -11,7 +11,7 @@ import trade_value as tv
 
 FIXTURE = pathlib.Path(__file__).resolve().parent / "fixtures" / "data" / "trade_value.json"
 RAW = json.loads(FIXTURE.read_text(encoding="utf-8"))
-PLAYER_KEYS = {"slug", "n", "pos", "team", "holder", "ros_pg", "games", "par", "po_par", "games_healthy", "par_healthy",
+PLAYER_KEYS = {"slug", "n", "pos", "team", "holder", "ros_pg", "games", "par", "po_games", "po_par", "games_healthy", "par_healthy",
                "perc", "gap", "last2", "injury", "ir", "rank", "pos_rank"}
 
 
@@ -21,7 +21,8 @@ def one(block, league, name):
 
 def test_the_cut_keeps_only_what_the_page_reads():
     block = tv.live_trade_value(RAW)
-    assert set(block) == {"generated", "week", "ros_generated", "leagues"}
+    assert set(block) == {"generated", "week", "ros_generated", "po_weeks", "leagues"}
+    assert block["po_weeks"] == [15, 16, 17]
     assert set(block["leagues"]) == {"espn", "yahoo", "ayo"}
     yahoo = block["leagues"]["yahoo"]
     assert set(yahoo) == {"replacement", "me", "teams", "weeks_left", "players"}
