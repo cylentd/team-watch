@@ -89,7 +89,7 @@ def test_final_show_leads_to_player_focused_reporting(final_special):
     page, errors = final_special("recap")
     show = MidseasonPage(page)
     show.open()
-    assert show.news().locator("iframe").get_attribute("src") == "showcase/madden-curse/?embed"
+    assert show.news().locator("iframe").get_attribute("src") == "showcase/madden-curse/?embed&film"
     assert show.news().locator(".ms-form-row").count() == 0
     assert show.report().locator("article").count() == 4
     assert show.report().locator("h4").count() == 4

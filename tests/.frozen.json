@@ -3998,7 +3998,7 @@
   "tests/test_midseason_view.py::pytestmark": "1dc82ad8e00d4c15",
   "tests/test_midseason_view.py::special": "df92dfffffc58951",
   "tests/test_midseason_view.py::test_final_reporting_has_player_copy_without_template_tokens": "0db7b0f036a38a4a",
-  "tests/test_midseason_view.py::test_final_show_leads_to_player_focused_reporting": "434ea7878d22fb47",
+  "tests/test_midseason_view.py::test_final_show_leads_to_player_focused_reporting": "e7545eceed559ef1",
   "tests/test_midseason_view.py::test_opening_choreographs_identity_scores_then_the_desk_take": "ffe5262ffe195d63",
   "tests/test_midseason_view.py::test_preview_keeps_week_eight_editorial_hidden_until_final": "51695875b6b781f6",
   "tests/test_midseason_view.py::test_preview_next_story_keeps_week_eight_editorial_hidden": "671b6fb339d7d3f9",

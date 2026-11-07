@@ -25605,7 +25605,7 @@ function msSurgeHTML(league, edition){
 
 function msNewsHTML(league, edition, filmState){
   if (edition.final) return `<section class="ms-news ms-show" data-msnews data-testid="midseason-news">
-    <iframe data-mscinema src="showcase/madden-curse/?embed" title="${esc(t("midseason.show.title"))}" allow="autoplay" loading="lazy"></iframe>
+    <iframe data-mscinema src="showcase/madden-curse/?embed&film" title="${esc(t("midseason.show.title"))}" allow="autoplay" loading="lazy"></iframe>
     <button type="button" data-msreport>${t("midseason.report.read")}</button>
     </section>`;
   const scenes = msNewsScenes(league, edition);
