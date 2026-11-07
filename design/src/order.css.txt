@@ -136,6 +136,8 @@ surface/digest/wall.css
 surface/league/league.css
 surface/league/back.css
 surface/league/front.css
+surface/midseason/show.css
+surface/midseason/news.css
 surface/league/blip-lead.css
 surface/league/share.css
 surface/league/records.css

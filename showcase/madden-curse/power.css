@@ -1,0 +1,23 @@
+/* Chapter 5, Midseason power rankings (power-headline.mjs): the headline over the 3D riser. On a desktop it sits
+   at the upper left, clear of the riser's window (power-camera.mjs POWER_RIG.window); on a phone it spans the top,
+   above the subject. It slams in from below (--power-enter, 0..1) and is never tilted (rule 26). */
+.power{
+  --power-rise:var(--space-5);
+  --power-sub:3.4vh;            /* rule 23: a line's capitals at least 2% of the frame's height (waivers.css --pickups-sub) */
+  position:absolute;z-index:3;pointer-events:none;
+  top:var(--broadcast-safe-top);left:var(--edge);right:var(--edge);
+  opacity:var(--power-enter,1);transform:translateY(calc((1 - var(--power-enter,1)) * var(--power-rise)))}
+.power[hidden],.power [hidden]{display:none}
+.power-head,.power-sub{margin:0;text-shadow:var(--broadcast-shadow)}
+.power-head{font:900 var(--broadcast-head)/1 var(--display);letter-spacing:var(--tight);color:var(--foreground)}
+.power-sub{margin-top:var(--space-2);font:800 max(var(--film-floor),var(--power-sub))/1.1 var(--display);letter-spacing:var(--tracking);
+  text-transform:uppercase;color:var(--muted)}
+/* A phone's riser stands behind the headline, so the type gets a scrim of the room's own black. */
+.power[data-layout=phone]{text-align:center;padding:var(--space-3) 0;
+  background:radial-gradient(closest-side,var(--background),transparent)}
+.power[data-layout=phone] .power-head{font-size:var(--broadcast-phone-head)}
+
+/* The ident lands on the song's last hit (film-ident.mjs identPose): it settles from 104% and one glint crosses it. */
+body[data-film]{--power-glint-gain:.6}   /* the tag's extra brightness at the glint's peak */
+body[data-film] .brand{scale:var(--ident-scale,1);
+  filter:brightness(calc(1 + var(--power-glint-gain) * sin(var(--power-glint,0) * 180deg)))}

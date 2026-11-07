@@ -1,0 +1,35 @@
+/* The review menu on ?film (film-review.mjs). It has the class `controls`, so the exporter and the still
+   captures hide it with the rest. David 2026-11-04: the open list hid the scene, so it starts as a one-line
+   tab, the beat and the time, that stays up while the film plays; the tab or M opens the list. */
+body:not([data-film]) .film-review{display:none}
+body[data-film] .controls.film-review{top:var(--review-top);right:var(--edge);bottom:auto;left:auto;width:var(--review-width);
+  display:grid;gap:var(--space-2);font:var(--text-label)/1.3 var(--ui);color:var(--foreground)}
+body[data-film] .film-review:not([data-open]){width:var(--review-tab-width);gap:0}
+body[data-film] .film-review:not([data-open])::before{background:var(--review-tab-glass);box-shadow:none}
+.film-review:not([data-open]) .film-review-body{display:none}
+.film-review-head{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;gap:var(--space-3);
+  font-size:var(--text-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.film-review-head [data-review-now]{font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.film-review-body{display:grid;gap:var(--space-2)}
+.film-review input{width:100%;accent-color:var(--accent);margin:0}
+.film-review-list{list-style:none;margin:0;padding:0;display:grid;gap:1px}
+.film-review-list button,.film-review-loop{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;justify-content:space-between;
+  gap:var(--space-3);padding:var(--space-1) var(--space-2);border-radius:var(--round);font-variant-numeric:tabular-nums}
+.film-review-list button:hover{background:var(--surface)}
+.film-review-list button[aria-current]{background:var(--surface);color:var(--accent)}
+.film-review-list button span:last-child{color:var(--muted)}
+.film-review-loop{justify-content:center;border:1px solid var(--line)}
+.film-review-loop[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+.film-review button:focus-visible{outline:var(--focus) solid var(--accent);outline-offset:1px}
+.film-review-keys{margin:0;color:var(--muted)}
+/* The tab never sleeps with the playback bar (film.css); the open list dims while the film plays and clears on a hover. */
+body[data-film] .room[data-playing][data-phase] .controls.film-review{opacity:1;pointer-events:auto}
+body[data-film] .room[data-playing=true][data-phase] .controls.film-review[data-open]:not(:hover):not(:focus-within){opacity:var(--review-dim)}
+/* A phone: the tab rides above the playback bar at the right edge, and the list opens as a sheet from the bottom. */
+@media(max-width:640px){
+  body[data-film] .controls.film-review{top:auto;bottom:calc(var(--film-bar) + var(--space-2))}
+  body[data-film] .room .controls.film-review[data-open]{left:0;right:0;bottom:var(--film-bar);width:auto;max-height:var(--review-sheet);
+    overflow-y:auto;padding:var(--space-3) var(--edge);box-sizing:border-box}
+  body[data-film] .film-review[data-open]::before{inset:0;border-width:1px 0 0;background:var(--background)}
+  .film-review-keys{display:none}
+}

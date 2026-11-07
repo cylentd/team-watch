@@ -60,3 +60,7 @@ def test_the_stamp_is_the_pages_own_data_hash(written, built):
     stamp = json.loads((written / "build.json").read_text(encoding="utf-8"))
     assert stamp == built.stamp
     assert f"const BUILD = {json.dumps(stamp)};" in (written / "index.html").read_text(encoding="utf-8")
+
+
+def test_the_film_edition_is_folded_as_generated_build_output():
+    assert "showcase/madden-curse/edition.json" in folded_by_land()

@@ -1,0 +1,94 @@
+/* Chapter 2's trades card (trades-view.mjs), in Chapter 1's broadcast finish: a dark stage with a cool backlight
+   behind the fan, beams of light, silver-rimmed avatars and plates. It sits over the board's canvas and the
+   finale's lower third while the whip's light sweeps it in, and under the controls. JS sets every position and the
+   frame-scaled sizes; the posing variables (--trades-*) come from trades-motion.mjs. One temperature throughout,
+   the cool stadium white and blue of Chapter 1's backlight; lime is the 5-3's, red the 3-5's. */
+.trades{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;
+  --trades-light-at:62% 46%;
+  background:linear-gradient(to top,var(--trades-floor),transparent var(--trades-floor-height)),var(--background);
+  clip-path:inset(0 calc((1 - var(--trades-reveal,1)) * 100%) 0 0)}
+.trades[data-layout=phone]{--trades-light-at:50% 22%}
+.trades[hidden]{display:none}
+/* The warm-up draw before Play (rule 49): painted, never seen. */
+.trades[data-warm]{opacity:var(--trades-unseen)}
+/* The backlight behind the fan and the vignette round the frame: low-density haze, so blacks stay black. It swells
+   with the hold's breathing. */
+.trades::before{content:'';position:absolute;inset:0;pointer-events:none;
+  opacity:calc(var(--trades-backlight-floor) + (1 - var(--trades-backlight-floor)) * var(--trades-breathe,1));
+  background:radial-gradient(ellipse at center,transparent var(--trades-vignette-clear),var(--trades-vignette)),
+    radial-gradient(ellipse 50% 42% at var(--trades-light-at),var(--trades-backlight),transparent)}
+/* The left half of the whip's light, on the card's leading edge (film.css .wipe draws the half over the board). */
+.trades::after{content:'';position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:var(--wipe-glow,0);
+  --wipe-at:calc(var(--wipe,0) * 140% - 20%);
+  background:linear-gradient(100deg,transparent calc(var(--wipe-at) - var(--wipe-band)),var(--wipe-light) var(--wipe-at),transparent calc(var(--wipe-at) + var(--wipe-band)))}
+.trades-stage{position:absolute;inset:0;transform-origin:50% 50%;
+  transform:translateX(calc(var(--trades-slide,0) * -100%)) scale(var(--trades-push,1))}
+.trades-rails,.trades-sparks{position:absolute;inset:0;width:100%;height:100%}
+/* A beam: the haze trail the whole length, then from the middle a glow and a hot core brightening to the winner. */
+/* The haze and the glow are blurred to a feathered edge (rule 33); the core stays crisp. */
+.trades-rail{stroke-width:var(--trades-haze);stroke-linecap:round;filter:blur(calc(var(--trades-haze) / 3))}
+.trades-rail-glow{stroke-width:var(--trades-glow);stroke-linecap:round;stroke-opacity:var(--trades-bloom);filter:blur(calc(var(--trades-glow) / 2))}
+.trades-rail-lit{stroke-width:var(--trades-core);stroke-linecap:round}
+.trades-haze-from{stop-color:var(--trades-beam-glow);stop-opacity:0}
+.trades-haze-mid{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-haze-mid)}
+.trades-haze-to{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-haze-end)}
+.trades-beam-from{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-beam-start)}
+.trades[data-layout=phone] .trades-beam-from{stop-opacity:var(--trades-beam-start-phone)}
+.trades-beam-mid{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-beam-mid)}
+.trades-beam-to{stop-color:var(--trades-beam-core)}
+.trades-stem{stroke-width:var(--trades-glow);stroke-linecap:round}
+.trades-stem-from{stop-color:var(--trades-beam-glow);stop-opacity:0}
+.trades-stem-to{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-haze-end)}
+/* A light: a hot core in a cool glow. */
+.trades-light{fill:url(#trades-glow)}
+/* The hold's drifting pulse: no solid core, and feathered, so no hard edge rides the beam. */
+.trades-drift{fill:url(#trades-pulse);filter:blur(calc(var(--trades-glow) / 3))}
+.trades-pulse-core{stop-color:var(--trades-beam-core);stop-opacity:var(--trades-pulse-core)}
+.trades-node{fill:var(--trades-beam-core)}
+.trades-glow-core{stop-color:var(--trades-beam-core)}
+.trades-glow-mid{stop-color:var(--trades-beam-glow);stop-opacity:var(--trades-glow-mid)}
+.trades-glow-edge{stop-color:var(--trades-beam-glow);stop-opacity:0}
+.trades-glint-hot{stop-color:var(--trades-beam-core)}
+.trades-glint-edge{stop-color:var(--trades-beam-core);stop-opacity:0}
+.trades-mask-all{fill:var(--foreground)}
+.trades-mask-head{fill:var(--background)}
+/* An avatar in a polished silver rim, as Chapter 1's trade badge (draft-trade.mjs), with a cool rim light and a
+   key-to-shadow fall across the face (craft "Lighting"). */
+.trades-face{position:absolute;box-sizing:border-box;padding:var(--trades-rim-size);transform:translate(-50%,-50%);border-radius:50%;
+  background:conic-gradient(from 200deg,var(--trades-silver-hi),var(--silver),var(--trades-silver-low),var(--silver),
+    var(--trades-silver-hi),var(--silver),var(--trades-silver-low),var(--silver),var(--trades-silver-hi));
+  box-shadow:0 0 0 1px var(--trades-silver-edge),0 0 var(--space-5) var(--trades-rim-light),var(--broadcast-shadow)}
+.trades-face::after{content:'';position:absolute;inset:var(--trades-rim-size);border-radius:50%;
+  background:linear-gradient(155deg,var(--trades-key),transparent 45%,var(--trades-shade));box-shadow:inset 0 0 0 1px var(--trades-shade)}
+.trades-face-img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;background:var(--surface)}
+/* Every name in one case, as Chapter 1's board labels are (draft-textures.mjs). */
+.trades-name{position:absolute;margin:0;transform:translateX(-50%);white-space:nowrap;text-transform:uppercase;
+  font:900 var(--trades-name-size)/1 var(--display);letter-spacing:var(--tracking);color:var(--foreground);
+  text-shadow:0 2px var(--space-2) var(--trades-shade)}
+.trades[data-layout=phone] .trades-name:not(.trades-aura-name){transform:translate(-50%,-100%)}
+/* A broadcast plate: a lit top edge over a dark bevel, and a crisp inner rule. */
+.trades-badge,.trades-stamp{background:linear-gradient(180deg,var(--trades-plate-top),var(--trades-plate-bottom));
+  box-shadow:inset 0 1px 0 var(--trades-plate-shine),inset 0 0 0 var(--trades-plate-inset) var(--trades-plate-bottom),
+    inset 0 0 0 calc(var(--trades-plate-inset) + 1px) var(--trades-plate-inner),var(--broadcast-shadow)}
+/* A lead blooms where its light stopped: a plate touching the winner's avatar, the beam running behind it. */
+.trades-badge{--trades-badge-at:-50%,-50%;position:absolute;display:flex;align-items:center;height:var(--trades-badge-height);padding:0 .45em;
+  font:900 var(--trades-badge-font)/1 var(--display);color:var(--foreground);
+  border:1px solid var(--trades-plate-edge);border-radius:var(--round);white-space:nowrap;
+  opacity:var(--trades-lead,1);transform:translate(var(--trades-badge-at)) scale(calc(.8 + .2 * var(--trades-lead,1)))}
+.trades-badge[data-side=left]{--trades-badge-at:-100%,-50%;transform-origin:100% 50%}
+.trades-badge[data-side=below]{--trades-badge-at:-50%,0%;transform-origin:50% 0}
+/* Aura's record as it stands, stamped under his name on the bar line: the lead plates' bevel and inner shade, ruled in
+   red, with a red inner rule where theirs is white and their silver edge outside the rule. */
+.trades-stamp{position:absolute;margin:0;padding:.1em .3em;border:var(--trades-stamp-rule) solid currentColor;border-radius:var(--round);
+  box-shadow:inset 0 1px 0 var(--trades-plate-shine),inset 0 0 0 var(--trades-plate-inset) var(--trades-plate-bottom),
+    inset 0 0 0 calc(var(--trades-plate-inset) + 1px) var(--trades-stamp-inner),0 0 0 1px var(--trades-plate-edge),var(--broadcast-shadow);
+  font:900 var(--trades-stamp-size)/1 var(--display);color:var(--film-down);white-space:nowrap;
+  opacity:var(--trades-stamp,1);transform:translateX(-50%) scale(var(--trades-stamp-scale,1));transform-origin:50% 0}
+/* The headline beside Aura (above him on a phone), in with the stamp; its mask leaves room for the ink (rule 48). */
+.trades-head{position:absolute;margin:0;font:900 var(--broadcast-third-head)/1 var(--display);letter-spacing:var(--tight);
+  color:var(--foreground);text-wrap:balance;opacity:var(--headline,1);text-shadow:0 2px var(--space-4) var(--trades-shade);
+  transform:translateY(calc((1 - var(--headline,1)) * var(--space-5)));
+  clip-path:inset(calc((1 - var(--headline,1)) * 100% - var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)))}
+.trades-head [data-record]{color:var(--receipt-positive)}
+.trades[data-layout=phone] .trades-head{font-size:var(--broadcast-phone-head)}
+/* Reduced motion needs no rule: the film shows each beat's last frame (film.mjs), where every amount is 1. */

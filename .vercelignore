@@ -9,8 +9,12 @@
 !robots.txt
 !heads
 !avatars
+!showcase
 !icons
 !games
 !api
 !requirements.txt
 !vercel.json
+
+# Lossless music is a local rebuild input, never a browser asset.
+/showcase/madden-curse/assets/*.flac

@@ -1,5 +1,7 @@
 {
   "fenced": {
+    "surface/midseason/show.css": ["recap"],
+    "surface/midseason/news.css": ["recap"],
     "surface/builder/bets.css": ["parlay", "build", "dfs", "preview", "#legsheet"],
     "surface/builder/board.css": ["parlay"],
     "surface/builder/record.css": ["parlay"],

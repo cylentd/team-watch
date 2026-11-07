@@ -47,6 +47,7 @@ from yt_clips import live_clips, report as clips_report            # design/yt_c
 from player_names import live_names, report as names_report     # design/player_names.py: LIVE_NAMES
 from prop_math import implied, is_stale                         # design/prop_math.py: break-even odds, stale-line test
 from league_recap import live_league, report as league_report  # My teams > League
+from midseason_showcase import write_showcase
 from league_trades import report as trades_report  # League > Trades
 import leagues                 # design/leagues.py: David's leagues, their files and blocks
 from myteams import (live_yahoo, roster_file, roster_index, yahoo_rosters,  # noqa: F401 (live_yahoo: tests)
@@ -732,7 +733,7 @@ def main():
         written, skipped = pbp.write_games(pathlib.Path(DWR) / "cache", sched, REPO / "games")
         print(f"Games: {written} drive strips written to games/" +
               (f", {skipped} not played yet" if isinstance(skipped, int) else f" ({skipped})"))
-    print(trade_offers.build(REPO), trade_pins.build(REPO), preview_archive.write(REPO, slugify), sep="\n")   # files the page fetches, never injected
+    print(trade_offers.build(REPO), trade_pins.build(REPO), preview_archive.write(REPO, slugify), write_showcase(REPO, DWR), sep="\n")
     print(*b.report, sep="\n")
     warn_if_stale()
 

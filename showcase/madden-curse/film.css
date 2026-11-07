@@ -1,0 +1,137 @@
+/* Chapter 1's headline: a broadcast lower third across the foot of the frame, so the scene keeps the full
+   width with its subject centred above it (rule 21, revision 7; a left-half column until 2026-11-04).
+   Romo's finale is the one split frame: his five returns and the headline own the left half, the board
+   the right. No text in the film is under 2% of the frame's height (rule 19: --film-floor). */
+.receipt{position:absolute;left:var(--edge);right:var(--edge);top:var(--broadcast-rule-top);pointer-events:none;z-index:2;
+  display:grid;grid-template-columns:1fr auto;column-gap:var(--space-7);align-items:start;
+  padding:var(--space-4) 0 0}
+.receipt::before{content:'';position:absolute;top:0;left:0;width:100%;height:var(--broadcast-rule);background:var(--foreground);transform:scaleX(var(--rule,0));transform-origin:left}
+.receipt [data-receipt-chapter]{display:none}
+.receipt h2{opacity:var(--headline,1);transform:translateY(calc((1 - var(--headline,1)) * var(--space-5)));clip-path:inset(calc((1 - var(--headline,1)) * 100% - var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)))}
+.receipt [data-receipt-sub]{opacity:var(--subline,1);transform:translateY(calc((1 - var(--subline,1)) * var(--space-4)));clip-path:inset(calc((1 - var(--subline,1)) * 100% - var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)))}
+.receipt[hidden]{display:none}
+.receipt>*{grid-column:1}
+.receipt p{margin:0;font-size:var(--receipt-label);font-weight:700;letter-spacing:var(--tracking);color:var(--muted)}
+.receipt h2{font:900 var(--broadcast-third-head)/1 var(--display);letter-spacing:var(--tight);margin:var(--space-2) 0 var(--space-3);text-wrap:balance}
+.receipt [data-receipt-sub]{font-size:var(--broadcast-copy);line-height:1.3;letter-spacing:0;color:var(--foreground);font-weight:500}
+.receipt [data-receipt-sub][hidden]{display:none}
+.receipt .receipt-details{grid-column:2;grid-row:1 / span 3;align-self:end}
+.receipt-details[hidden]{display:none}
+/* Golden: what the draft paid against where he ranks now, one line at the bar's right end. */
+.receipt .receipt-comparison{display:flex;align-items:baseline;gap:var(--space-5);font:900 var(--receipt-rank)/1 var(--display);letter-spacing:var(--tight);color:var(--foreground)}
+.receipt .receipt-arrow{color:var(--muted);font-family:var(--ui);font-weight:400}
+.receipt .receipt-now{color:var(--receipt-positive)}
+/* Romo: the headline above five returns and the whole class's total. */
+/* Centred in the frame, equal space above and below (David 2026-11-05, note 4: "fill the top black area more so
+   that it's evenly spaced vertically"): both insets clear the controls bar, and auto margins centre the column's own
+   height between them. Its rows breathe a step more on a desktop, where the frame is tall enough. ~~Anchored to
+   the foot, --broadcast-safe-bottom, leaving the top fifth empty~~ (accepted 2026-11-04). */
+.receipt[data-beat=finale]{right:calc(100% - var(--broadcast-column) + var(--space-6));grid-template-columns:1fr;
+  top:var(--broadcast-safe-bottom);bottom:var(--broadcast-safe-bottom);height:fit-content;margin-block:auto}
+.receipt[data-beat=finale] .receipt-return{padding:var(--space-3) 0}
+.receipt[data-beat=finale] .receipt-details{grid-column:1;grid-row:auto;margin-top:var(--space-5)}
+.receipt[data-beat=finale]{border-top:var(--broadcast-rule) solid var(--foreground);padding-top:var(--space-4)}
+.receipt[data-beat=finale]::before{display:none}
+.receipt[data-beat=finale] [data-receipt-chapter]{border-top:var(--broadcast-rule) solid var(--foreground);padding-top:var(--space-4)}
+.receipt-returns{list-style:none;padding:0;margin:0 0 var(--space-4)}
+.receipt-return{display:grid;grid-template-columns:var(--receipt-face) 1fr auto;align-items:center;gap:var(--space-4);
+  padding:var(--space-2) 0;border-bottom:1px solid var(--line);font-size:var(--receipt-return)}
+.receipt-face{width:var(--receipt-face);height:var(--receipt-face);border-radius:50%;object-fit:cover;background:var(--surface)}
+.receipt-player{font-weight:700}
+.receipt-return .receipt-gain{font:900 var(--receipt-return)/1 var(--display);color:var(--receipt-positive);text-align:right}
+.receipt .receipt-total{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);letter-spacing:0;color:var(--foreground)}
+.receipt-total-value{font:900 var(--receipt-total)/1 var(--display);letter-spacing:var(--tight);color:var(--receipt-positive)}
+.receipt-next .receipt-total-value{font-size:var(--receipt-rank-next);color:var(--muted)}   /* secondary: smaller and grey, the total's style */
+/* A stat keeps its place in the line and stamps in on the frame its card's stamp lands. */
+.receipt [data-stat]{display:inline-block;opacity:var(--stat,1);transform:scale(calc(1 + (1 - var(--stat,1)) * .5));transform-origin:left center}
+.room:is([data-chapter=draft],[data-chapter=trades]) .identity{visibility:hidden}
+/* A scrim under the bar so nothing in the scene crosses its text; it sits under the controls too. */
+body[data-film] .room::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;opacity:var(--third,0);
+  background:linear-gradient(180deg,transparent 0%,transparent 66%,var(--broadcast-glass) var(--broadcast-rule-top),var(--background) 100%)}
+body[data-film] .room:has(.receipt[data-beat=finale]:not([hidden]))::after{background:linear-gradient(90deg,var(--background) 0%,var(--broadcast-glass) 40%,transparent var(--broadcast-column))}
+/* Revision 15: in the opening the title is the 3D letters in this bar, so the scrim would dim them. Chapter
+   17: the scrim is off for the whole opening. ~~Off from the logo chapter~~ (rev 15). */
+body[data-film] .room:is([data-chapter=trophy],[data-chapter=blip],[data-chapter=logo])::after{background:none}
+/* Chapter 17: a viewport taller than the stage (room.css: min(100svh, --stage-max)) showed the report's heading
+   under the film all the way through. It starts at the fold, so the reader meets it only by scrolling past the
+   film. ~~Hidden in the opening only~~ (ch17 first pass). */
+body[data-film] .report{margin-top:max(0px,calc(100svh - var(--stage-max)))}
+.room[data-chapter=draft] .controls{z-index:2}
+/* Every scene change is a light sweeping through the frame (rule 18, film.mjs transitionAt): down out of
+   the opening into the board, across between beats. It sits under the scrim and the bar, so it never
+   crosses a headline (rule 34). */
+body[data-film] .wipe{position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:screen;opacity:var(--wipe-glow,0);
+  --wipe-at:calc(var(--wipe,0) * 140% - 20%);
+  background:linear-gradient(100deg,transparent calc(var(--wipe-at) - var(--wipe-band)),var(--wipe-light) var(--wipe-at),transparent calc(var(--wipe-at) + var(--wipe-band)))}
+/* Chapter 17: the opening's hand-over is a zoom into the trophy's ball (film-zoom.mjs); the chrome's white fills
+   the frame to `--flare` (app.mjs, timing.json opening.handover) on the board's first frame, then fades.
+   ~~A light sweeping down~~ (rule 18, rev 9). */
+body[data-film] .room[data-wipe=zoom] .wipe{mix-blend-mode:normal;opacity:var(--flare,0);z-index:2;
+  background:radial-gradient(circle at 50% 45%,var(--foreground) 0%,var(--foreground) 45%,var(--silver) 100%)}
+body:not([data-film]) .wipe{display:none}
+/* The title slams in on its hit: it lands from a size and a half (rule 16). Chapter 17: the tagline slides out of
+   frame with the title as the camera pushes into the ball (`--zoom`, 0..1). */
+body[data-film] .identity{transform:translateY(calc(var(--zoom,0) * var(--film-slide))) scale(calc(1 + (1 - var(--logo,1)) * .5));transform-origin:left bottom}
+/* Golden's WR7 and Romo's rows and total enter on their own beats (rule 17: nothing pre-drawn). */
+.receipt .receipt-now{display:inline-block;opacity:var(--stat,1);transform:scale(calc(1 + (1 - var(--stat,1)) * .5));transform-origin:left center}
+.receipt-return,.receipt .receipt-total{opacity:var(--enter,1);transform:translateX(calc((1 - var(--enter,1)) * var(--space-6)))}
+/* The film's opening title: the 3D words, and the tagline as one line of tracked caps in warm ink, no box (ch17,
+   David). A wide desktop sets it at the title row's right end on CURSE's baseline; a narrower frame, under CURSE,
+   left-aligned with it. Both numbers come from the letters (film-title-place.mjs, set by app.mjs).
+   ~~A boxed bar wrapped to two lines beside the words~~ (ch17 first pass). */
+body[data-film] .identity{bottom:auto;right:auto;top:calc((var(--film-title-baseline-desk) + var(--film-tag-gap)) * 100%);left:calc(var(--film-title-left-desk) * 100%);width:auto;z-index:2;display:block}
+body[data-film] .identity h1{position:absolute;left:0;bottom:100%}
+body[data-film] .identity .tagline{background:none;border:0;padding:0;color:var(--film-tag-ink);letter-spacing:var(--film-tag-tracking);white-space:nowrap;line-height:1}
+@media(max-width:1400px){
+  body[data-film] .identity{bottom:auto;right:auto;top:calc((var(--film-title-baseline-desk) + var(--film-tag-gap)) * 100%);left:calc(var(--film-title-left-desk) * 100%)}
+}
+body[data-film] .identity::before{position:absolute;left:0;top:calc(-1 * var(--space-5));margin:0}
+body[data-film] .identity h1{font-size:var(--film-title)}
+/* Revision 14: the film's title is the 3D letters that slam into this bar (film-title-drop.mjs, placed there rev 15); the lower third
+   keeps its rule and tagline in place, and the heading stays for screen readers. */
+body[data-film] .identity h1,body[data-film] .identity::before{opacity:0}
+body[data-film] .identity h1 span{display:inline}
+body[data-film] .identity h1 span:last-child{margin:0 0 0 .22em}
+body[data-film] .tagline{margin:0}
+/* The film's own type floor for the chrome it shares with the promo: the brand and the intro's tagline. */
+body[data-film] .brand,body[data-film] .tagline{font-size:var(--film-floor)}
+body[data-film] .brand{opacity:var(--ident,1)}
+body[data-film] .room[data-ident=hidden] .brand{visibility:hidden}
+/* While the film plays the controls fade out of the way; a touch, a move or keyboard focus brings them back. */
+body[data-film] .controls{transition:opacity var(--transition) ease;z-index:4;isolation:isolate;width:min(var(--broadcast-controls),calc(100% - var(--edge) * 2))}
+body[data-film] .controls::before{content:'';position:absolute;inset:calc(-1 * var(--space-3));z-index:-1;background:var(--broadcast-glass);border:1px solid var(--line);box-shadow:var(--broadcast-shadow)}
+body[data-film] .room[data-playing=true]:not([data-awake]) .controls:not(:focus-within){opacity:0;pointer-events:none}
+body[data-film] [data-inspect]{display:none}
+@media(max-width:640px){
+  .receipt{display:flex;flex-direction:column;align-items:stretch;top:var(--broadcast-rule-top-phone);padding:var(--space-3) 0 0}
+  body[data-film] .room::after{background:linear-gradient(180deg,transparent 0%,transparent 56%,var(--broadcast-glass) var(--broadcast-rule-top-phone),var(--background) 100%)}
+  .receipt h2{font-size:var(--broadcast-phone-head);margin:var(--space-1) 0 var(--space-2)}
+  .receipt [data-receipt-sub]{font-size:var(--film-floor)}
+  .receipt .receipt-details{margin-top:var(--space-3);align-self:stretch}
+  .receipt .receipt-comparison{font-size:var(--broadcast-phone-head)}
+  .receipt[data-beat=finale]{right:34%;top:var(--space-6);bottom:var(--space-6)}
+  .receipt[data-beat=finale] h2{font-size:var(--report-headline)}
+  .receipt-return,.receipt[data-beat=finale] .receipt-return{grid-template-columns:var(--receipt-face) 1fr;gap:var(--space-2);font-size:var(--film-floor);padding:var(--space-1) 0}   /* tighter, so Next best fits under the badge */
+  .receipt-return .receipt-player{grid-column:2}
+  .receipt-return .receipt-gain{grid-column:2;text-align:left;font-size:var(--film-floor)}
+  .receipt .receipt-total{display:block}
+  .receipt[data-beat=board] [data-receipt-sub],.receipt[data-beat=board] [data-receipt-chapter]{display:none}
+  body[data-film] .room:has(.receipt[data-beat=finale]:not([hidden]))::after{background:linear-gradient(90deg,var(--background) 0%,var(--broadcast-glass) 58%,transparent 68%)}
+  body[data-film] .identity{bottom:auto;right:auto;top:calc((var(--film-title-baseline-phone) + var(--film-tag-gap)) * 100%);left:calc(var(--film-title-left-phone) * 100%)}
+  body[data-film] .identity h1 span{display:block}
+  body[data-film] .identity h1 span:last-child{margin:var(--space-1) 0 0}
+  body[data-film] .identity .tagline{font-size:var(--film-tag-phone);letter-spacing:var(--film-tag-tracking-phone)}
+}
+@media(prefers-reduced-motion:reduce){.receipt,.receipt [data-stat]{transform:none;opacity:1}}
+
+body[data-film]{--endcard-black:#000;--endcard-type:min(11vw,16vh);--endcard-mark:min(40vw,30vh);--end-eye-close:.08}
+body[data-film] .room::before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:var(--endcard-black);opacity:var(--end-black,0)}
+body[data-film] .room[data-endcard=true] .masthead{inset:0;display:grid;place-items:center;place-content:center;pointer-events:none}
+body[data-film] .room[data-endcard=true] .brand{flex-direction:column;gap:var(--space-5);font-size:var(--endcard-type);
+  opacity:var(--end-logo,0);pointer-events:auto}
+body[data-film] .room[data-endcard=true] .brand-mark{width:var(--endcard-mark);height:var(--endcard-mark);top:0}
+body[data-film] .room[data-endcard=true] .brand-mark .blip-eye:first-child{transform-box:fill-box;transform-origin:center;
+  transform:scaleY(calc(1 - var(--end-wink,0) * (1 - var(--end-eye-close))))}
+body[data-film] .room[data-endcard=true] .back{display:none}
+@media(prefers-reduced-motion:reduce){body[data-film] .room[data-endcard=true] .brand{scale:1}}

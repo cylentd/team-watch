@@ -1,0 +1,96 @@
+.ms-news{--ms-chart-row:28px;--ms-result-size:14px;--ms-show-title:clamp(var(--t-6),5vw,var(--t-hero-sm));
+  --ms-form-number:clamp(var(--t-7),12vw,var(--t-hero));--ms-mini-face:16px;--ms-reveal:9;--ms-form-progress:1;
+  display:grid;gap:var(--ms-gap);min-width:0;background:var(--panel);border:var(--ms-line) solid var(--line-2);border-radius:var(--ms-radius);overflow:hidden;scroll-margin-top:var(--ms-face)}
+.ms-news-heading{display:flex;justify-content:space-between;align-items:center;gap:var(--ms-gap);padding:var(--ms-gap) var(--ms-gap) 0;
+  color:var(--ink-2);font-family:var(--mono);font-size:var(--t-1)}
+.ms-news-heading>span:last-child{white-space:nowrap}
+.ms-theatre{padding:0 var(--ms-gap);min-width:0}
+.ms-theatre>h2{margin:0 0 var(--ms-gap);font-family:var(--tab);font-size:var(--ms-show-title);font-weight:900;line-height:1;text-transform:uppercase}
+.ms-panels{display:grid;min-width:0}
+.ms-film-panel{grid-area:1 / 1;visibility:hidden;min-width:0}
+.ms-film-panel.ms-active{visibility:visible;animation:ms-arrive var(--ms-motion) var(--ms-ease) backwards}
+.ms-news-script{margin:var(--ms-gap) 0 0;border-top:var(--ms-line) solid var(--line-2);padding-top:var(--ms-gap);
+  font-size:var(--t-3);line-height:1.55;text-wrap:pretty;min-width:0}
+.ms-captions{display:grid}
+.ms-captions .ms-news-script{grid-area:1 / 1;visibility:hidden}
+.ms-captions .ms-active{visibility:visible}
+.ms-form-head,.ms-form-row{display:grid;grid-template-columns:minmax(0,1fr) auto 4ch;gap:var(--ms-unit);align-items:center;min-width:0}
+.ms-form-head{font-size:var(--t-1);color:var(--ink-2);padding-bottom:var(--ms-unit)}
+.ms-form-head>span:last-child{text-align:right;white-space:nowrap}
+.ms-form-row{min-height:var(--ms-chart-row);font-size:var(--t-1);border-top:var(--ms-line) solid var(--line)}
+.ms-form-name{display:flex;align-items:center;gap:var(--ms-xs);min-width:0}
+.ms-form-name>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-form-name .ms-avatar,.ms-racer-name .ms-avatar{--ms-face:var(--ms-mini-face);font-size:var(--t-1);border-radius:var(--ms-xs);flex:none}
+.ms-form-weeks{display:grid;grid-template-columns:repeat(var(--ms-weeks),var(--ms-result-size));gap:var(--ms-xs);text-align:center;font-family:var(--mono)}
+.ms-result{display:grid;place-items:center;height:var(--ms-result-size);border-radius:var(--ms-xs);font-size:var(--t-1);line-height:1;
+  background:var(--panel-3);color:var(--ink-2);opacity:clamp(0,calc(var(--ms-reveal) - var(--ms-week)),1)}
+.ms-result-W{background:var(--lime);color:var(--on-lime)}
+.ms-result-T{border:var(--ms-line) solid var(--line-2);color:var(--ink)}
+.ms-form-row>b{font-family:var(--mono);text-align:right;font-weight:500}
+.ms-front .ms-form-name{color:var(--lime)}
+.ms-race{display:grid;gap:var(--ms-unit);min-width:0}
+.ms-race-meta,.ms-race-axis{display:flex;justify-content:space-between;gap:var(--ms-unit);font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2)}
+.ms-race-meta>b{color:var(--lime);font-weight:500}
+.ms-racers{position:relative;height:calc(var(--ms-count) * var(--ms-chart-row));min-width:0}
+.ms-racer{position:absolute;inset:0 0 auto;min-width:0;height:var(--ms-chart-row);transform:translateY(calc(var(--ms-place) * var(--ms-chart-row)))}
+.ms-racer-name{display:flex;align-items:center;gap:var(--ms-xs);font-size:var(--t-1);min-width:0}
+.ms-racer-name>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ms-racer-name>b{margin-left:auto;padding-left:var(--ms-unit);font-family:var(--mono);font-weight:500;flex:none}
+.ms-racer-track{display:block;height:var(--ms-xs);margin-top:var(--ms-xs);background:var(--panel-2);overflow:hidden;border-radius:var(--ms-xs)}
+.ms-racer-track>span{display:block;height:100%;background:var(--ink-3);transform-origin:left}
+.ms-leading .ms-racer-track>span{background:var(--lime)}
+.ms-leading .ms-racer-name{color:var(--lime)}
+.ms-surge{display:grid;gap:var(--ms-wide);align-content:center;min-width:0;padding:var(--ms-pad) 0}
+.ms-surge-team{display:flex;gap:var(--ms-gap);align-items:center;min-width:0}
+.ms-surge-team .ms-avatar{--ms-face:72px;flex:none}
+.ms-surge-team h3{margin:0;font-size:var(--t-5);line-height:1.2;overflow-wrap:anywhere}
+.ms-surge-number{display:grid;gap:var(--ms-unit)}
+.ms-surge-number>strong{font-family:var(--tab);font-size:var(--ms-form-number);font-weight:900;line-height:1;color:var(--lime)}
+.ms-surge-number>span{font-size:var(--t-3);color:var(--ink-2)}
+.ms-surge-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--ms-unit);font-size:var(--t-3)}
+.ms-surge-row>b{font-family:var(--mono);font-weight:500}
+.ms-surge-track{grid-column:1 / -1;height:var(--ms-bar);background:var(--panel-3);border-radius:var(--ms-xs);overflow:hidden}
+.ms-surge-track>span{display:block;height:100%;background:var(--ink-3);transform-origin:left;transform:scaleX(calc(var(--ms-share) * var(--ms-form-progress)))}
+.ms-recent .ms-surge-track>span{background:var(--lime)}
+.ms-player{display:grid;gap:var(--ms-unit);padding:0 var(--ms-gap) var(--ms-gap)}
+.ms-play-row{display:flex;gap:var(--ms-unit);align-items:center;flex-wrap:wrap;padding:0 var(--ms-gap)}
+.ms-news button{min-height:var(--ms-control);padding:var(--ms-unit) var(--ms-gap);background:var(--panel-2);color:var(--ink);border:var(--ms-line) solid var(--line-2);border-radius:var(--ms-unit);font-size:var(--t-2);cursor:pointer}
+.ms-news [data-msplay]{background:var(--lime);color:var(--on-lime);border-color:var(--lime);font-weight:700}
+.ms-news button:hover:not(:disabled){border-color:var(--lime)}
+.ms-news button:disabled{opacity:.5;cursor:default}
+.ms-news [data-msrestart]{margin-left:auto;padding-inline:var(--ms-unit);background:none}
+.ms-time{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-2);white-space:nowrap}
+.ms-news input[type=range]{width:100%;accent-color:var(--lime);min-height:var(--ms-control);margin:0;cursor:pointer}
+.ms-news-controls{display:flex;flex-wrap:wrap;gap:var(--ms-unit)}
+.ms-news-controls [data-msreport]{color:var(--lime)}
+.ms-film-status{font-size:var(--t-1);line-height:1.5;color:var(--ink-2)}
+.ms-film-status:empty{display:none}
+.ms-report{display:grid;gap:var(--ms-wide);border-top:var(--ms-line) solid var(--line-2);padding-top:var(--ms-wide);min-width:0}
+.ms-report header h2,.ms-film>h2{margin:0;font-family:var(--tab);font-size:var(--t-7);line-height:1;font-weight:900;text-transform:uppercase}
+.ms-report-lede{margin:var(--ms-gap) 0 0;font-size:var(--t-4);line-height:1.6;text-wrap:pretty;max-width:75ch}
+.ms-report-teams{display:grid;gap:var(--ms-wide);min-width:0}
+.ms-report-teams article{min-width:0;padding-bottom:var(--ms-pad);border-bottom:var(--ms-line) solid var(--line)}
+.ms-report-name{display:flex;gap:var(--ms-unit);align-items:center;min-width:0}
+.ms-report-name .ms-avatar{--ms-face:44px;flex:none;border-radius:var(--ms-unit);font-size:var(--t-4)}
+.ms-report-name h3{margin:0;font-size:var(--t-4);line-height:1.2;overflow-wrap:anywhere}
+.ms-report-teams article>p{margin:var(--ms-gap) 0 0;font-size:var(--t-3);line-height:1.7;text-wrap:pretty;max-width:65ch}
+.ms-report-source{margin:0;font-size:var(--t-1);line-height:1.5;color:var(--ink-2)}
+.ms-film{display:grid;gap:var(--ms-pad);min-width:0}
+#ms-report-title{scroll-margin-top:var(--ms-face)}
+@media (min-width:760px){
+  .ms-news{--ms-chart-row:40px;--ms-result-size:24px;--ms-mini-face:24px}
+  .ms-news-heading{padding:var(--ms-pad) var(--ms-wide) 0}
+  .ms-theatre{padding:0 var(--ms-wide)}
+  .ms-form-row,.ms-form-head,.ms-racer-name{font-size:var(--t-3)}
+  .ms-form-weeks{gap:var(--ms-unit)}
+  .ms-form-head,.ms-form-row{grid-template-columns:minmax(0,1fr) auto 5ch;gap:var(--ms-pad)}
+  .ms-racer-track{height:var(--ms-unit)}
+  .ms-player{padding:0 var(--ms-wide) var(--ms-pad)}
+  .ms-play-row{padding:0 var(--ms-wide)}
+  .ms-report-teams{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ms-wide)}
+}
+@media (prefers-reduced-motion:reduce){.ms-film-panel.ms-active{animation:none}.ms-result{opacity:1}}
+.ms-show{--ms-stage-height:720px}
+.ms-show iframe{display:block;width:100%;height:var(--ms-stage-height);border:0;background:var(--panel)}
+.ms-report article{scroll-margin-top:var(--ms-face)}
+.ms-report h4{font-family:var(--tab);font-size:var(--t-5);margin:var(--ms-unit) 0 0;line-height:1.2}

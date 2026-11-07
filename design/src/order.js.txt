@@ -201,6 +201,15 @@ surface/recap/claude.js
 surface/recap/accuracy.js
 surface/recap/recap.js
 data/league.js
+data/constants-midseason.js
+data/midseason.js
+data/midseason-film.js
+vendor/anime-4.5.0.js
+surface/midseason/view.js
+surface/midseason/news.js
+surface/midseason/film-draw.js
+surface/midseason/film-player.js
+surface/midseason/events.js
 surface/league/recap.js
 surface/league/history.js
 surface/league/slate.js

@@ -1,0 +1,160 @@
+{
+  "about": "The film's timing sheet. Seconds into each beat; a beat starts where the one before it ends, after the opening. Edit a number, reload ?film, and the film re-times. `hold` is how long the headline holds after the motion settles. An event has `at`, or `from` and `to`; `hit` marks an impact that must land on a drum onset or a bar line, except the documented Saints half-bar entrance at 59.077 (tests/test_draft_film.py). The music is 120 BPM: bar lines every 2 s from film 4.077. `opening.titleWords`: the film second each title word (THE, MADDEN, CURSE) lands, on the three-hit \"dun dun dunnn\" (asset 10.077, 10.461, 10.832 s); CURSE, the longest, hits biggest. `opening.duration`: the opening's length, where the board starts, on the guitar's entry (onset 13.584 s); the 1 s hand-over is centred on it, so it starts on the fanfare's last hit (13.084 s, film 7.084). `opening.handover`: the zoom into the trophy's ball (film-zoom.mjs). From `from` (the fanfare's last hit) the camera dollies straight into the chrome, the frame going white to `flare` (0..1, the white overlay's opacity) on the board's first frame; the white then fades over `fade` seconds, so the board's fly-by starts from inside the flare. `chapter` (default 1): the film chapter a beat belongs to; Chapter 2 (`trades`, docs/madden-film-chapter2.md) is a flat card after the board, so the board's camera never blends toward it. The music has no onset from film 41 to 54, so its hits sit on bar lines. Chapters 4 and 5 are 3D sets (docs/madden-film-chapter4.md and chapter5.md, cinematic revision, David 2026-11-05): 8 s per lineup beat, 10 s for power-board and 14 s for power-close; the film ends at 98.077. Best pickups takes 8 s, so Chapter 4 starts at 58.077 and Chapter 5 at 74.077. The original song's closing passage replaces the loop at 74.077; the final chord and ident land at 92.077, with the tail held until 98.077; the `ident` span is where the TEAM WATCH tag returns. A negative `from` starts a fall during the incoming whip, so the object lands on the beat's first frame. The lineup beats' `camera`, `hop` and `token` serve the DOM animatic until the 3D set replaces it.",
+  "opening": {"titleWords": [4.077, 4.461, 4.832], "duration": 7.584, "handover": {"from": 7.084, "flare": 0.55, "flashIn": 0.045, "fade": 0.14}},
+  "beats": [
+    {"id": "board", "duration": 8.493, "hold": 2.5, "pace": 1, "stat": null,
+     "camera": {"type": "dolly", "duration": 5.5, "ease": "cosine", "ramp": [0.6, 1.4]},
+     "events": [
+       {"name": "dolly", "from": 0, "to": 5.5},
+       {"name": "stand", "from": 5.05, "to": 5.5, "hit": true, "label": "Board stands"}
+     ]},
+    {"id": "steal", "duration": 4, "hold": 2.1, "pace": 1, "stat": 1.5,
+     "camera": {"type": "push", "duration": 4, "ease": "linear"},
+     "events": [
+       {"name": "rise", "from": 0.25, "to": 0.6},
+       {"name": "lights", "at": 0.5},
+       {"name": "blipIn", "from": 1.1, "to": 1.33},
+       {"name": "stamp", "from": 1.33, "to": 1.5, "hit": true, "label": "WR7 stamp"},
+       {"name": "blipOut", "from": 1.55, "to": 1.85}
+     ]},
+    {"id": "traded", "duration": 4, "hold": 2.1, "pace": 1, "stat": 1.5,
+     "camera": {"type": "track", "duration": 1.2, "ease": "inOutCubic"},
+     "events": [
+       {"name": "lift", "from": 0.1, "to": 0.3},
+       {"name": "badge", "from": 0.1, "to": 0.45},
+       {"name": "travel", "from": 0.3, "to": 1.5, "hit": true, "label": "Card lands by Aura"},
+       {"name": "track", "from": 0.3, "to": 1.5},
+       {"name": "tagFade", "from": 0.9, "to": 1.25},
+       {"name": "stamp", "from": 1.36, "to": 1.5, "hit": true, "label": "WR111 stamp"},
+       {"name": "push", "from": 1.2, "to": 2.2},
+       {"name": "dim", "from": 1.6, "to": 1.9}
+     ]},
+    {"id": "sleeper", "duration": 4, "hold": 2, "pace": 1, "stat": 2,
+     "camera": {"type": "push", "duration": 4, "ease": "linear"},
+     "events": [
+       {"name": "rise", "from": 0.7, "to": 1.05},
+       {"name": "lights", "at": 1},
+       {"name": "lastLight", "at": 2, "hit": true, "label": "Eighth week light"}
+     ]},
+    {"id": "curse", "duration": 8, "hold": 2.496, "pace": 1, "stat": 5.504,
+     "camera": {"type": "wide, whip, push", "duration": 0.42, "ease": "expoInOut"},
+     "move": 0.4, "minHold": 0.6,
+     "events": [
+       {"name": "leave", "at": 0.1},
+       {"name": "stop", "at": 0.5, "hit": true, "label": "Godwin stop 1"},
+       {"name": "stop", "at": 1.5, "hit": true, "label": "Godwin stop 2"},
+       {"name": "stop", "at": 2.5, "hit": true, "label": "Godwin stop 3"},
+       {"name": "stop", "at": 3.5, "hit": true, "label": "Godwin stop 4"},
+       {"name": "leap", "at": 4.583},
+       {"name": "pan", "from": 4.803, "to": 5.223},
+       {"name": "stop", "at": 5.223, "hit": true, "label": "Godwin stop 5"},
+       {"name": "push", "from": 5.223, "to": 5.343},
+       {"name": "flip", "from": 5.224, "to": 5.504, "hit": true, "label": "0.0 flip"}
+     ]},
+    {"id": "injury", "duration": 4, "hold": 2.25, "pace": 1, "stat": 0.758,
+     "camera": {"type": "push", "duration": 4, "ease": "linear"},
+     "events": [
+       {"name": "forward", "from": 0.1, "to": 0.4},
+       {"name": "lights", "at": 0.2},
+       {"name": "status", "from": 0.558, "to": 0.758, "hit": true, "label": "IR stamp"},
+       {"name": "cut", "at": 1.513, "hit": true, "label": "Card cut"},
+       {"name": "fade", "from": 1.613, "to": 2.012},
+       {"name": "build", "at": 1.51, "hit": true, "label": "Build: board anticipation"},
+       {"name": "build", "at": 1.971, "hit": true, "label": "Build: nearest columns dim"},
+       {"name": "build", "at": 2.854, "hit": true, "label": "Build: next columns dim"}
+     ]},
+    {"id": "finale", "duration": 4, "hold": 2, "pace": 1, "stat": null,
+     "camera": {"type": "pull back", "duration": 2, "ease": "outCubic"},
+     "events": [
+       {"name": "home", "from": 0, "to": 0.5},
+       {"name": "build", "at": 0, "hit": true, "label": "Build: last columns dim"},
+       {"name": "reveal", "at": 0, "hit": true, "label": "Romo's column lit"},
+       {"name": "glow", "from": 0, "to": 0.1},
+       {"name": "rise", "from": 0, "to": 0.494, "hit": true, "label": "Romo avatar lands"},
+       {"name": "rows", "at": 0.5},
+       {"name": "total", "at": 2, "hit": true, "label": "Class total lands"},
+       {"name": "next", "at": 2, "hit": true, "label": "Next best lands"}
+     ]},
+    {"id": "trades", "chapter": 2, "duration": 6, "hold": 3.7, "pace": 1, "stat": 2,
+     "camera": {"type": "whip, push", "duration": 2, "ease": "outCubic"},
+     "events": [
+       {"name": "rails", "from": 0.1, "to": 0.5},
+       {"name": "lights", "from": 0.35, "to": 1.2},
+       {"name": "leads", "from": 1.223, "to": 1.45},
+       {"name": "push", "from": 0, "to": 2},
+       {"name": "record", "from": 1.86, "to": 2, "hit": true, "label": "3-5 stamp"},
+       {"name": "headline", "from": 2, "to": 2.3},
+       {"name": "drift", "from": 2.3, "to": 6}
+     ]},
+    {"id": "waiver-claim", "chapter": 3, "duration": 6, "hold": 2, "pace": 1, "stat": 2,
+     "camera": {"type": "whip, still", "duration": 0.8, "ease": "outCubic"},
+     "events": [
+       {"name": "headline", "from": 0.25, "to": 0.8},
+       {"name": "sub", "from": 0.5, "to": 1.05},
+       {"name": "third", "from": 1.72, "to": 2, "hit": true, "label": "#3 card lands"},
+       {"name": "second", "from": 1.72, "to": 2, "hit": true, "label": "#2 card lands"},
+       {"name": "room", "from": 3.2, "to": 3.7},
+       {"name": "first", "from": 3.7, "to": 4, "hit": true, "label": "#1 card lands"},
+       {"name": "drift", "from": 4, "to": 6}
+     ]},
+    {"id": "waiver-starts", "chapter": 3, "duration": 2, "hold": 1, "pace": 1, "stat": null,
+     "camera": {"type": "same-stage slow push", "duration": 1.5, "ease": "linear"},
+     "events": [
+       {"name": "dim", "from": 0, "to": 0.4},
+       {"name": "weeks", "from": -0.85, "to": 0},
+       {"name": "push", "from": 0.5, "to": 2}
+     ]},
+    {"id": "lineup-defense", "chapter": 4, "duration": 8, "hold": 2, "pace": 1, "stat": 6,
+     "camera": {"type": "whip in, socket push, ledge track", "duration": 0.8, "ease": "expoInOut"},
+     "events": [
+       {"name": "camera", "from": 0.4, "to": 5.523},
+       {"name": "hop", "from": 0, "to": 0.5},
+       {"name": "token", "from": 0, "to": 0.65},
+       {"name": "saints", "from": 0.65, "to": 1, "hop": true, "hit": true, "label": "Saints deduction"},
+       {"name": "saintsWin", "at": 2, "hit": true, "label": "Saints win"},
+       {"name": "raiders", "from": 3.65, "to": 4, "hop": true, "hit": true, "label": "Raiders deduction"},
+       {"name": "peek", "from": 4.3, "to": 5.5},
+       {"name": "track", "from": 5.5, "to": 6},
+       {"name": "outcome", "at": 6, "hit": true, "label": "Negative-week wins"}
+     ]},
+    {"id": "lineup-tightends", "chapter": 4, "duration": 8, "hold": 2, "pace": 1, "stat": 6,
+     "camera": {"type": "same desk whip, cranes to the bench rack", "duration": 0.6, "ease": "inOutCubic"},
+     "events": [
+       {"name": "camera", "from": 1.4, "to": 2},
+       {"name": "hop", "from": 0, "to": 0.5},
+       {"name": "players5", "at": 0, "hit": true, "label": "Week 5 starters settle"},
+       {"name": "crane", "from": 1.4, "to": 2},
+       {"name": "bench5", "at": 2, "hit": true, "label": "Week 5 bench result"},
+       {"name": "switch", "from": 3.4, "to": 4},
+       {"name": "swap", "at": 4, "hit": true, "label": "Week 8 swap lands"},
+       {"name": "starter8", "at": 4.2},
+       {"name": "crane", "from": 5.4, "to": 6},
+       {"name": "bench8", "at": 6, "hit": true, "label": "Week 8 bench result"}
+     ]},
+    {"id": "power-board", "chapter": 5, "duration": 10, "hold": 2, "pace": 1, "stat": 8,
+     "camera": {"type": "crane in, held wide over the shuffle, feature push", "duration": 0.8, "ease": "inOutCubic"},
+     "events": [
+       {"name": "standings", "at": 2, "hit": true, "label": "Standings land"},
+       {"name": "shuffle", "from": 3, "to": 4, "hit": true, "label": "Power order"},
+       {"name": "feature", "at": 6, "hit": true, "label": "Sausage plate lifts"},
+       {"name": "verdict", "at": 8, "hit": true, "label": "Better than the record."}
+     ]},
+    {"id": "power-close", "chapter": 5, "duration": 14, "hold": 8, "pace": 1, "stat": 4,
+     "camera": {"type": "top four, pull back to the riser, fly into the trophy, lock for the tag", "duration": 0.6, "ease": "inOutSine"},
+     "events": [
+       {"name": "four", "at": 0, "hit": true, "label": "Top four settle"},
+       {"name": "pull", "from": 1.4, "to": 2, "hit": true, "label": "Wide"},
+       {"name": "trophy", "from": 2, "to": 4, "hit": true, "label": "Trophy lands"},
+       {"name": "hops", "from": 4.6, "to": 6, "hit": true, "label": "Blip lands"},
+       {"name": "wave", "at": 6},
+       {"name": "flyin", "from": 6, "to": 7.5},
+       {"name": "dive", "from": 7.5, "to": 8},
+       {"name": "blackout", "from": 7.5, "to": 7.85},
+       {"name": "endLogo", "from": 7.85, "to": 8},
+       {"name": "wink", "from": 8.5, "to": 8.8},
+       {"name": "ident", "from": 7.5, "to": 8},
+       {"name": "identIn", "at": 7.5, "hit": false, "label": "Ident returns"},
+       {"name": "last", "at": 8, "hit": true, "label": "Ident lands"}
+     ]}
+  ]
+}

@@ -123,12 +123,14 @@ function lgRecapPageHTML(){
   if (!L) return `<div class="wrap">${lgChipHTML()}<p class="lg-none">${t("league.none")}</p></div>`;
   if (TEAMS[f].site !== "yahoo") return lgEspnPageHTML(f);
   lgUsePicked();
-  return `<div class="wrap" style="--lg-tint:${lgTint()}">${lgChipHTML()}<div class="lg lg-one">${lgBackWeekHTML(lgMineId())}</div></div>`;
+  if (MS_STATE.open && msData(LG)) return `<div class="wrap">${msPageHTML(LG, msData(LG), MS_STATE.id)}</div>`;
+  return `<div class="wrap" style="--lg-tint:${lgTint()}">${lgChipHTML()}${msEntryHTML(LG)}<div class="lg lg-one">${lgBackWeekHTML(lgMineId())}</div></div>`;
 }
 
 function wireRecapPage(v){
   const f = lgFocusKey();
   if (f && LGS[f] && TEAMS[f].site !== "yahoo") return wireEspnPage(v, f);
+  if (wireMidseason(v)) return;
   wireLeague(v, () => lgBackWeekHTML(lgMineId()));
   wireLgChip(v);
 }

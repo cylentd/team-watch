@@ -1,0 +1,73 @@
+{
+ "season": 2026,
+ "through": 8,
+ "teams": [
+  {
+   "id": 10,
+   "player": "Jaxon Smith-Njigba",
+   "motif": "spotlight"
+  },
+  {
+   "id": 11,
+   "player": "Jaylen Warren",
+   "motif": "collision"
+  },
+  {
+   "id": 3,
+   "player": "Josh Allen",
+   "motif": "stamp"
+  },
+  {
+   "id": 1,
+   "player": "Javonte Williams",
+   "motif": "charge"
+  },
+  {
+   "id": 2,
+   "player": "D'Andre Swift",
+   "motif": "heat"
+  },
+  {
+   "id": 12,
+   "player": "Jordan Love",
+   "motif": "charge"
+  },
+  {
+   "id": 9,
+   "player": "Matthew Stafford",
+   "motif": "gauntlet"
+  },
+  {
+   "id": 6,
+   "player": "Drake Maye",
+   "motif": "restore"
+  },
+  {
+   "id": 8,
+   "player": "Joe Burrow",
+   "motif": "rise"
+  },
+  {
+   "id": 5,
+   "player": "Brock Bowers",
+   "motif": "ceiling"
+  },
+  {
+   "id": 7,
+   "player": "Dak Prescott",
+   "motif": "gauntlet"
+  },
+  {
+   "id": 4,
+   "player": "Chuba Hubbard",
+   "motif": "stamp"
+  }
+ ],
+ "draft": {
+  "steal": "Matthew Golden",
+  "traded": "A.J. Brown",
+  "sleeper": "Chuba Hubbard",
+  "curse": "Chris Godwin Jr.",
+  "injury": "De'Von Achane"
+ }
+}

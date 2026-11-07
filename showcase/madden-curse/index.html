@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050b14">
+  <title>The Madden Curse — Trophy room</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="room.css">
+  <link rel="stylesheet" href="film.css">
+  <link rel="stylesheet" href="film-review.css">
+  <link rel="stylesheet" href="film-bar.css">
+  <link rel="stylesheet" href="trades.css">
+  <link rel="stylesheet" href="waivers.css">
+  <link rel="stylesheet" href="lineups.css">
+  <link rel="stylesheet" href="power.css">
+  <link rel="stylesheet" href="loading.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/"}}</script>
+</head>
+<body>
+  <main class="room" data-room data-phase="loading" aria-busy="true">
+    <header class="masthead"><a class="brand" href="../../#recap" data-copy="brand" aria-label="Team Watch"><span class="brand-mark" aria-hidden="true"><svg class="blip smug smug" viewBox="0 0 100 100" aria-hidden="true"><path class="blip-bulb" d="M35.65 29.5H42.15L51.85 5.5H45.35ZM48.15 29.5H54.65L64.35 5.5H57.85Z"/><rect class="blip-screen" x="4" y="30" width="92" height="65" rx="17"/><g transform="translate(50 62.5)"><path class="blip-eye" d="M-26 -1A10 10 0 0 0 -6 -1Z"/>
+    <path class="blip-eye" d="M6 -1A10 10 0 0 0 26 -1Z"/><path class="blip-mouth" d="M7 -14.6L26 -22.3"/>
+    <path class="blip-mouth" d="M-10 15.5Q4 18.5 13 10"/></g></svg></span><span class="brand-name" aria-hidden="true">Team<i class="slashes">//</i>Watch</span></a><a class="back" href="../../#recap" data-copy="back">Back to the league</a></header>
+    <div class="viewport" data-viewport></div>
+    <section class="loading-screen" data-loading role="status" aria-live="polite">
+      <div class="loading-lockup">
+        <p class="loading-edition" data-copy="tagline">Midseason special · Week 8</p>
+        <h2 class="loading-title"><span data-copy="titleTop">THE MADDEN</span><span data-copy="titleBottom">CURSE</span></h2>
+        <div class="loading-state"><span class="loading-signal" data-loading-signal aria-hidden="true"><i></i><i></i><i></i></span><p data-copy="loadingFilm">Getting the film ready.</p></div>
+      </div>
+    </section>
+    <div class="wipe" data-wipe aria-hidden="true"></div>
+    <div class="static-trophy" aria-hidden="true"><svg viewBox="0 0 180 400"><path d="M73 154L45 383H139L111 154Z"/><ellipse cx="91" cy="97" rx="43" ry="87" transform="rotate(-28 91 97)"/><path class="lace" d="M79 28l39 106M78 40l17-6M83 54l17-6M88 68l17-6M93 82l17-6"/></svg></div>
+    <section class="identity" aria-labelledby="league-title" data-identity>
+      <h1 id="league-title"><span data-copy="titleTop">THE MADDEN</span><span data-copy="titleBottom">CURSE</span></h1>
+      <p class="tagline" data-copy="tagline">Midseason special · Week 8</p>
+    </section>
+    <section class="story" data-story hidden aria-hidden="true"><p data-story-name></p><h2 data-story-title></h2><p data-story-player></p></section>
+    <section class="receipt" data-receipt hidden><p data-receipt-chapter></p><h2 data-receipt-head></h2><p data-receipt-sub></p></section>
+    <footer class="controls" data-controls inert>
+      <div class="actions"><button class="primary" type="button" data-play disabled data-copy="play">Play the opening</button><button type="button" data-inspect disabled aria-pressed="false" data-copy="inspect">Inspect trophy</button><button class="sound" type="button" data-sound aria-pressed="false" data-copy="soundOff">Sound off</button></div>
+      <p class="status" role="status" data-status data-copy="loading">Preparing the trophy room…</p>
+      <p class="notice" data-notice hidden></p>
+      <input class="seek" type="range" min="0" max="40" step="0.1" value="40" data-seek aria-label="Show position">
+      <div class="progress" role="progressbar" aria-label="Show progress" aria-valuemin="0" aria-valuemax="40" aria-valuenow="40"><span data-progress></span></div>
+      <button class="read-report" type="button" data-read data-copy="read">Read the report</button>
+      <a class="film-back" href="../../#recap" data-copy="back">Back to the league</a>
+    </footer>
+  </main>
+  <section class="report" id="report" data-report></section>
+  <p class="provenance" data-copy="provenance">Opening prototype · Lombardi-reference trophy generated with Tripo · Blip built in 3D</p>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

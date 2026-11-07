@@ -53,7 +53,8 @@ param(
     [switch]$Full,    # every test, not only the ones this diff can break (scripts/impact.py)
     [switch]$AllowStaleData,  # build even when the ff-jarvis checkout is behind its origin/main
     [switch]$SkipMutate,      # leave the mutation check out of the land gate (tests/README.md "Proving a test")
-    [switch]$NoPostland       # do not start the after-land full run (scripts/postland.py)
+    [switch]$NoPostland,      # do not start the after-land full run (scripts/postland.py)
+    [switch]$NoRepeat         # skip the 10x run of new tests; only with David's waiver for that land (2026-11-06)
 )
 
 # The global pre-push hook refuses main without this marker: tests run here, `git land` alone runs none.
@@ -95,7 +96,7 @@ function Timed($name, [scriptblock]$block) {
 # `preview_archive.json` is Preview's earlier weeks (design/preview_archive.py), the same kind of file.
 # `tests/.frozen.json` is the frozen tests' hashes (the testing skill's freeze.py, 2026-10-06), written below once
 # the gate has passed: a branch that carried it would conflict with every other branch, exactly like build.json.
-$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins", "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
+$generated = @("index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins", "preview_archive.json", "games", "heads", "avatars", "showcase/madden-curse/edition.json", "tests/.frozen.json")
 
 # Call git.exe explicitly, and never name a helper `Git`: PowerShell resolves a function name
 # before an external command, case-insensitively, so `function Git { & git ... }` calls itself
@@ -248,8 +249,11 @@ function RebaseAndTest {
         # skill has (test-first, backlog, lint, frozen tests, mutation), and any failure blocks. Both
         # run once: a retest after origin moved changes neither the branch's tests nor its code.
         if ($script:testRuns -eq 1) {
-            Timed repeat { & python $runner --repeat-new 10 --base "origin/$Base" --committed }
-            if ($LASTEXITCODE -ne 0) { throw "a new or changed test failed one of 10 runs -- nothing landed" }
+            if ($NoRepeat) { Write-Host "repeat: skipped (-NoRepeat, David's waiver for this land)" -ForegroundColor Yellow }
+            else {
+                Timed repeat { & python $runner --repeat-new 10 --base "origin/$Base" --committed }  # magic-ok: unchanged repeat count, only re-indented under -NoRepeat
+                if ($LASTEXITCODE -ne 0) { throw "a new or changed test failed one of 10 runs -- nothing landed" }
+            }
             # Configured by .testing.json (mutate, limits, freeze); mutation's tests come from
             # scripts/mutate_tests.py. TW_RUN_KIND=mutate tags its pytest runs in the test history
             # (tests/runlog.py) apart from the land's own.

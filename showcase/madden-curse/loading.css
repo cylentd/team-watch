@@ -1,0 +1,17 @@
+.loading-screen{display:none}
+.room[data-phase=loading] .loading-screen{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:var(--edge);background:var(--background)}
+.loading-lockup{width:min(100%,var(--loading-width))}
+.loading-edition{margin:0 0 var(--space-5);font-size:var(--loading-text);font-weight:700;letter-spacing:var(--tracking);text-transform:uppercase;color:var(--silver)}
+.loading-title{margin:0;font:900 var(--loading-title)/.9 var(--display);letter-spacing:var(--tight)}
+.loading-title span{display:block}
+.loading-title span:last-child{color:var(--accent);margin-top:var(--space-2)}
+.loading-state{display:flex;align-items:center;gap:var(--space-4);margin-top:var(--space-7)}
+.loading-state p{margin:0;color:var(--silver);font-size:var(--loading-text);line-height:1.5}
+.loading-signal{display:grid;gap:var(--space-1);flex:none;width:var(--loading-signal-width)}
+.loading-signal i{display:block;height:var(--loading-signal-height);background:var(--brand-lime);transform-origin:left;animation:loading-signal var(--loading-cycle) ease-in-out infinite}
+.loading-signal i:nth-child(2){animation-delay:var(--loading-stagger)}
+.loading-signal i:nth-child(3){animation-delay:calc(var(--loading-stagger) * 2)}
+.room[data-phase=loading] :is(.identity,.viewport,.controls,.static-trophy){visibility:hidden!important;pointer-events:none!important}
+.room[data-phase=loading] .masthead{z-index:5}
+@keyframes loading-signal{0%,100%{transform:scaleX(.25);opacity:var(--loading-dim)}50%{transform:scaleX(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.loading-signal i{animation:none}}

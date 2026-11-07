@@ -1,0 +1,189 @@
+{
+  "season": 2026,
+  "league": 75203,
+  "through": 8,
+  "source": {
+    "lineups": "yahoo_league_box.json",
+    "outcomes": "yahoo_league.json",
+    "verified": "2026-11-05"
+  },
+  "defense": [
+    {
+      "week": 1,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Rams",
+        "position": "DEF",
+        "nfl": "LAR",
+        "points": 2,
+        "projection": 6.05
+      },
+      "points": 128.12,
+      "opponent": 70.66
+    },
+    {
+      "week": 2,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Chiefs",
+        "position": "DEF",
+        "nfl": "KC",
+        "points": 1,
+        "projection": 6.43
+      },
+      "points": 83.36,
+      "opponent": 101.12
+    },
+    {
+      "week": 3,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Chiefs",
+        "position": "DEF",
+        "nfl": "KC",
+        "points": 8,
+        "projection": 7.55
+      },
+      "points": 141.28,
+      "opponent": 86.6
+    },
+    {
+      "week": 4,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Saints",
+        "position": "DEF",
+        "nfl": "NO",
+        "points": -3,
+        "projection": 5.57
+      },
+      "points": 82.78,
+      "opponent": 80.28
+    },
+    {
+      "week": 5,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Raiders",
+        "position": "DEF",
+        "nfl": "LV",
+        "points": -1,
+        "projection": 5.43
+      },
+      "points": 133.94,
+      "opponent": 70.64
+    },
+    {
+      "week": 6,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Chiefs",
+        "position": "DEF",
+        "nfl": "KC",
+        "points": 15,
+        "projection": 7.75
+      },
+      "points": 118.54,
+      "opponent": 126.6
+    },
+    {
+      "week": 7,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Chiefs",
+        "position": "DEF",
+        "nfl": "KC",
+        "points": 3,
+        "projection": 5.75
+      },
+      "points": 79.48,
+      "opponent": 138.66
+    },
+    {
+      "week": 8,
+      "team": 5,
+      "slot": "DEF",
+      "starter": {
+        "name": "Chiefs",
+        "position": "DEF",
+        "nfl": "KC",
+        "points": 0,
+        "projection": 5.58
+      },
+      "points": 104.5,
+      "opponent": 119.16
+    }
+  ],
+  "tightends": [
+    {
+      "week": 5,
+      "team": 11,
+      "slot": "TE",
+      "starter": {
+        "name": "Harold Fannin Jr.",
+        "position": "TE",
+        "nfl": "CLE",
+        "points": 0.9,
+        "projection": 8.41
+      },
+      "bench": {
+        "name": "Hunter Henry",
+        "position": "TE",
+        "nfl": "NE",
+        "points": 11.9,
+        "projection": 8.31
+      },
+      "points": 126.04,
+      "opponent": 108.4
+    },
+    {
+      "week": 7,
+      "team": 11,
+      "slot": "TE",
+      "starter": {
+        "name": "Hunter Henry",
+        "position": "TE",
+        "nfl": "NE",
+        "points": 10.6,
+        "projection": 7.42
+      },
+      "bench": {
+        "name": "Harold Fannin Jr.",
+        "position": "TE",
+        "nfl": "CLE",
+        "points": 10.1,
+        "projection": 8.01
+      },
+      "points": 133.52,
+      "opponent": 94.5
+    },
+    {
+      "week": 8,
+      "team": 11,
+      "slot": "TE",
+      "starter": {
+        "name": "Hunter Henry",
+        "position": "TE",
+        "nfl": "NE",
+        "points": 4.5,
+        "projection": 8.89
+      },
+      "bench": {
+        "name": "Harold Fannin Jr.",
+        "position": "TE",
+        "nfl": "CLE",
+        "points": 18.4,
+        "projection": 8.03
+      },
+      "points": 87.9,
+      "opponent": 111.38
+    }
+  ]
+}

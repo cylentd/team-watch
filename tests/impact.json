@@ -157,6 +157,16 @@
       "tests": ["tests/test_role.py"],
       "render": ["role"]
     },
+    "midseason_pickups": {
+      "paths": ["design/midseason_pickups.py"],
+      "tests": ["tests/test_midseason_pickups.py"],
+      "render": []
+    },
+    "midseason_trades": {
+      "paths": ["design/midseason_trades.py"],
+      "tests": ["tests/test_midseason_trades.py"],
+      "render": []
+    },
     "recap": {
       "paths": ["design/recap.py", "design/src/js/data/accuracy.js", "design/src/js/surface/recap/", "design/src/css/surface/recap/"],
       "tests": ["tests/test_recap_data.py", "tests/test_recap_view.py", "tests/test_accuracy_view.py"],
@@ -222,6 +232,92 @@
     "designdoc": {
       "paths": ["design/DESIGN.md"],
       "tests": ["tests/test_trace.py"],
+      "render": []
+    },
+    "madden_film": {
+      "paths": [
+        "showcase/madden-curse/",
+        "scripts/build_lineup_music.py"
+      ],
+      "tests": [
+        "tests/test_draft_film.py",
+        "tests/test_draft_receipts.py",
+        "tests/test_madden_board_floor.py",
+        "tests/test_madden_board_stage_depth.py",
+        "tests/test_madden_border_lights.py",
+        "tests/test_madden_broadcast.py",
+        "tests/test_madden_chapter2.py",
+        "tests/test_madden_chapter3.py",
+        "tests/test_madden_chapter4.py",
+        "tests/test_madden_chapter5.py",
+        "tests/test_madden_clarity.py",
+        "tests/test_madden_colored_path.py",
+        "tests/test_madden_defense_cards.py",
+        "tests/test_madden_defense_story.py",
+        "tests/test_madden_endcard.py",
+        "tests/test_madden_ending_splice.py",
+        "tests/test_madden_film_sets.py",
+        "tests/test_madden_finale_integration.py",
+        "tests/test_madden_flyby_finish.py",
+        "tests/test_madden_flyby_polish.py",
+        "tests/test_madden_headline_entrance.py",
+        "tests/test_madden_ident.py",
+        "tests/test_madden_lineup_music.py",
+        "tests/test_madden_listening_sync.py",
+        "tests/test_madden_loading.py",
+        "tests/test_madden_logo_wink.py",
+        "tests/test_madden_mobile_framing.py",
+        "tests/test_madden_mobile_rhythm.py",
+        "tests/test_madden_music_clock.py",
+        "tests/test_madden_opening_clear.py",
+        "tests/test_madden_pickup_rank_strip.py",
+        "tests/test_madden_polish_review.py",
+        "tests/test_madden_power_data.py",
+        "tests/test_madden_power_timing.py",
+        "tests/test_madden_presentation.py",
+        "tests/test_madden_returns.py",
+        "tests/test_madden_rev17.py",
+        "tests/test_madden_rev8.py",
+        "tests/test_madden_romo_spacing.py",
+        "tests/test_madden_scene_clarity.py",
+        "tests/test_madden_scene_refinements.py",
+        "tests/test_madden_sky_lights.py",
+        "tests/test_madden_stage_fill.py",
+        "tests/test_madden_stage_polish.py",
+        "tests/test_madden_title_show.py",
+        "tests/test_madden_title_words.py",
+        "tests/test_madden_trophy_flyin.py",
+        "tests/test_madden_visible_hits.py",
+        "tests/test_madden_waiver_feature.py",
+        "tests/test_trophy_opening.py",
+        "tests/test_trophy_room.py"
+      ],
+      "render": []
+    },
+    "midseason": {
+      "paths": [
+        "design/midseason.py",
+        "design/midseason_contract.py",
+        "design/midseason_draft.py",
+        "design/midseason_film.py",
+        "design/midseason_power.py",
+        "design/midseason_showcase.py",
+        "design/src/js/data/midseason.js",
+        "design/src/js/data/midseason-film.js",
+        "design/src/js/surface/midseason/",
+        "design/src/css/surface/midseason/"
+      ],
+      "tests": [
+        "tests/test_js_midseason.py",
+        "tests/test_league_show_timeline.py",
+        "tests/test_midseason.py",
+        "tests/test_midseason_contract.py",
+        "tests/test_midseason_draft.py",
+        "tests/test_midseason_playback.py",
+        "tests/test_midseason_power.py",
+        "tests/test_midseason_showcase.py",
+        "tests/test_midseason_view.py"
+      ],
       "render": []
     }
   },

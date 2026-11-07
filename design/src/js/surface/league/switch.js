@@ -45,5 +45,6 @@ function wireLgChip(v){
 /* What a view held (an open manager, a picked head to head) belongs to the league it came from, so
    each starts over when the league changes. Called by pickTeam. */
 function lgLeagueChanged(){
+  MS_STATE.open = false; MS_STATE.id = null;
   TR_OPEN = null; RC_MGR = null;
 }

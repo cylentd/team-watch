@@ -1,0 +1,148 @@
+/* Chapter 3, Best pickups (waivers-view.mjs), in Chapter 2's broadcast finish: the same dark stage, cool backlight,
+   plates and silver rims. Sizes are shares of the frame's height (--waivers-unit, 1% of it, set by the view), so a
+   1080p export and a phone frame the same picture. The posing variables (--waivers-*, --pickup-*) come from
+   waivers-motion.mjs. Lime-green (--receipt-positive) is the points added, blue (--accent) a week's rank. */
+.waivers{
+  /* Chapter 3's tokens: every size a factor of the frame unit. */
+  --waivers-unit:1vh;
+  --pickups-pad-top:13;--pickups-pad-bottom:9;--pickups-gap:1.2;--pickups-pad:2;--pickups-week-gap:.8;
+  --pickups-face:26;--pickups-rank:6.4;--pickups-name:4.2;--pickups-team:3;--pickups-badge:3.8;
+  --pickups-added:4.8;--pickups-starts:3;--pickups-sub:3.2;
+  --pickups-week-label:3;--pickups-week-rank:3.6;--pickups-week-pad:.9;
+  --pickups-top-scale:1.3;      /* #1's card against the other two, desktop */
+  --pickups-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.55fr);
+  --pickups-drop:5;--pickups-land-scale:.06;--pickups-top-land:.14;--pickups-week-rise:2;
+  --pickups-dim:.45;--pickups-desaturate:.6;
+  --pickups-push:.025;--pickups-drift:.01;--pickups-focus:78% 52%;   /* drift: #1's 2 s hold, before the push */
+  --pickups-glow:6;--pickups-glow-spread:.6;
+  --pickups-lift:0;
+  --pickups-sheen-travel:140%;--pickups-sheen-start:70%;
+  --pickups-face-max:256px;     /* heads/lg is 256px: never upscaled (rule 24) */
+  --u:var(--waivers-unit);
+  position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;
+  --trades-light-at:62% 50%;
+  background:linear-gradient(to top,var(--trades-floor),transparent var(--trades-floor-height)),var(--background);
+  clip-path:inset(0 calc((1 - var(--waivers-reveal,1)) * 100%) 0 0)}
+.waivers[data-layout=phone]{
+  --pickups-pad-top:4;--pickups-pad-bottom:7;--pickups-gap:1.4;--pickups-pad:1.6;--pickups-week-gap:.7;
+  --pickups-face:20;--pickups-rank:6;--pickups-name:4.4;--pickups-added:4.4;--pickups-sub:3;
+  --pickups-week-pad:.7;--pickups-focus:50% 38%;--pickups-lift:19;--trades-light-at:50% 34%;
+  --pickups-pair-face:7;        /* #3 and #2 under #1, once he lands */
+  --pickups-pair-face-big:18;   /* #3 and #2 as the subject, before him: the card's full width, at most 256px */
+  --pickups-pair-rank:3.6}
+.waivers[hidden],.waivers [hidden]{display:none}
+.waivers[data-warm]{opacity:var(--trades-unseen)}
+/* The backlight and vignette, as Chapter 2's. */
+.waivers::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent var(--trades-vignette-clear),var(--trades-vignette)),
+    radial-gradient(ellipse 50% 42% at var(--trades-light-at),var(--trades-backlight),transparent)}
+/* The whip's light on the card's leading edge (film.css .wipe draws the half over the trades card). */
+.waivers::after{content:'';position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:var(--wipe-glow,0);
+  --wipe-at:calc(var(--wipe,0) * 140% - 20%);
+  background:linear-gradient(100deg,transparent calc(var(--wipe-at) - var(--wipe-band)),var(--wipe-light) var(--wipe-at),transparent calc(var(--wipe-at) + var(--wipe-band)))}
+
+/* The stage: title over #3 and #2 on the left, #1 the full height on the right, every card on one floor. */
+.waivers-stage{position:absolute;inset:0;box-sizing:border-box;display:grid;
+  grid-template-columns:var(--pickups-columns);grid-template-rows:auto 1fr;column-gap:var(--space-7);
+  padding:calc(var(--u) * var(--pickups-pad-top)) var(--edge) calc(var(--u) * var(--pickups-pad-bottom));
+  transform-origin:var(--pickups-focus);
+  transform:translateX(calc(var(--waivers-slide,0) * -100%)) scale(calc(1 + var(--waivers-drift,0) * var(--pickups-drift) + var(--waivers-push,0) * var(--pickups-push)))}
+.waivers-cards{display:contents}
+.waivers p,.waivers h2{margin:0}
+.waivers-title{grid-column:1 / 3;grid-row:1;align-self:start;min-width:0}
+.waivers-head{font:900 var(--broadcast-third-head)/1 var(--display);letter-spacing:var(--tight);color:var(--foreground);
+  text-shadow:0 2px var(--space-4) var(--trades-shade);opacity:var(--waivers-head-in,1);
+  transform:translateY(calc((1 - var(--waivers-head-in,1)) * var(--space-5)));
+  clip-path:inset(calc((1 - var(--waivers-head-in,1)) * 100% - var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)) calc(-1 * var(--receipt-ink-bleed)))}
+.waivers .waivers-sub{margin-top:var(--space-2);font:800 max(var(--film-floor),calc(var(--u) * var(--pickups-sub)))/1.1 var(--display);
+  letter-spacing:var(--tracking);text-transform:uppercase;color:var(--muted);opacity:var(--waivers-sub-in,1);
+  transform:translateY(calc((1 - var(--waivers-sub-in,1)) * var(--space-4)))}
+
+/* A card: a broadcast plate, portrait in its own backlit window, the rank beside it. */
+.pickup{--k:1;--pickup-shift:0px;position:relative;box-sizing:border-box;display:grid;grid-template-columns:auto 1fr;
+  grid-template-areas:"rank face" "name name" "team team" "gain gain" "weeks weeks";
+  gap:calc(var(--u) * var(--pickups-gap));padding:calc(var(--u) * var(--pickups-pad));align-content:start;align-self:end;
+  background:linear-gradient(165deg,var(--trades-plate-top),var(--trades-plate-bottom));
+  border:1px solid var(--trades-plate-edge);border-radius:var(--round);
+  box-shadow:inset 0 1px 0 var(--trades-plate-shine),inset 0 0 0 var(--trades-plate-inset) var(--trades-plate-bottom),
+    inset 0 0 0 calc(var(--trades-plate-inset) + 1px) var(--trades-plate-inner),var(--broadcast-shadow),
+    0 0 calc(var(--pickup-glow,0) * var(--u) * var(--pickups-glow)) calc(var(--pickup-glow,0) * var(--u) * var(--pickups-glow-spread)) var(--trades-rim-light);
+  opacity:calc(var(--pickup-in,1) * (1 - var(--pickup-dim,0) * (1 - var(--pickups-dim))));
+  filter:saturate(calc(1 - var(--pickup-dim,0) * var(--pickups-desaturate)));
+  transform-origin:50% 100%;
+  transform:translateY(calc((1 - var(--pickup-in,1)) * var(--u) * -1 * var(--pickups-drop) + var(--pickup-shift)))
+    scale(calc(1 + (1 - var(--pickup-in,1)) * var(--pickups-land-scale)))}
+.pickup[data-pickup="3"]{grid-column:1;grid-row:2}
+.pickup[data-pickup="2"]{grid-column:2;grid-row:2}
+.pickup[data-pickup="1"]{--k:var(--pickups-top-scale);--pickups-land-scale:var(--pickups-top-land);grid-column:3;grid-row:1 / 3}
+.pickup-face{grid-area:face;justify-self:center;position:relative;overflow:hidden;
+  width:min(var(--pickups-face-max),calc(var(--u) * var(--pickups-face) * var(--k)));aspect-ratio:1;
+  background:radial-gradient(ellipse 60% 55% at 50% 42%,var(--trades-backlight),transparent),
+    linear-gradient(180deg,var(--surface),var(--trades-plate-bottom));
+  border-radius:var(--round);box-shadow:inset 0 0 0 1px var(--trades-silver-edge)}
+/* The landing's light: one sheen across the portrait window, never over the words (rule 36). */
+.pickup-face::after{content:'';position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
+  background:linear-gradient(110deg,transparent 40%,var(--wipe-light) 50%,transparent 60%);
+  opacity:var(--pickup-glow,0);
+  transform:translateX(calc(var(--pickups-sheen-start) - var(--pickup-glow,0) * var(--pickups-sheen-travel)))}
+.pickup-portrait{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.pickup-rank{grid-area:rank;align-self:start;font:900 calc(var(--u) * var(--pickups-rank) * var(--k))/.85 var(--display);
+  letter-spacing:var(--tight);color:var(--silver);text-shadow:0 2px var(--space-2) var(--trades-shade)}
+.pickup-name{grid-area:name;font:900 calc(var(--u) * var(--pickups-name) * var(--k))/1 var(--display);
+  letter-spacing:var(--tight);color:var(--foreground);white-space:nowrap}
+.pickup-team{grid-area:team;display:flex;align-items:center;gap:calc(var(--u) * var(--pickups-gap));
+  font:900 calc(var(--u) * var(--pickups-team) * var(--k))/1 var(--display);letter-spacing:var(--tracking);
+  text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.pickup-badge{flex:none;box-sizing:border-box;width:calc(var(--u) * var(--pickups-badge) * var(--k));aspect-ratio:1;
+  border-radius:50%;object-fit:cover;border:var(--trades-stamp-rule) solid var(--silver);
+  box-shadow:0 0 0 1px var(--trades-silver-edge),var(--broadcast-shadow)}
+.pickup-gain{grid-area:gain;display:flex;flex-wrap:wrap;align-items:center;gap:calc(var(--u) * var(--pickups-gap))}
+.pickup-added{padding:.1em .3em;font:900 calc(var(--u) * var(--pickups-added) * var(--k))/1 var(--display);
+  color:var(--receipt-positive);white-space:nowrap;border:1px solid var(--trades-plate-edge);border-radius:var(--round);
+  background:linear-gradient(180deg,var(--trades-plate-top),var(--trades-plate-bottom));
+  box-shadow:inset 0 1px 0 var(--trades-plate-shine),inset 0 0 0 var(--trades-plate-inset) var(--trades-plate-bottom),
+    inset 0 0 0 calc(var(--trades-plate-inset) + 1px) var(--trades-plate-inner)}
+.pickup-starts{font:900 calc(var(--u) * var(--pickups-starts) * var(--k))/1 var(--display);letter-spacing:var(--tracking);
+  text-transform:uppercase;color:var(--muted);white-space:nowrap}
+
+/* #1's weeks: one plate per start, filling left to right under him. */
+.pickup-weeks{grid-area:weeks;display:grid;grid-template-columns:repeat(var(--pickups-weeks),1fr);gap:calc(var(--u) * var(--pickups-week-gap));
+  margin-top:calc(var(--u) * var(--pickups-week-gap))}
+.pickup-week{display:grid;grid-template-areas:"label" "rank";justify-items:center;row-gap:calc(var(--u) * var(--pickups-week-gap) / 2);
+  padding:calc(var(--u) * var(--pickups-week-pad)) 0;border:1px solid var(--trades-plate-edge);border-radius:var(--round);
+  background:linear-gradient(180deg,var(--trades-plate-top),var(--trades-plate-bottom));box-shadow:inset 0 1px 0 var(--trades-plate-shine);
+  opacity:var(--pickup-week-in,1);transform:translateY(calc((1 - var(--pickup-week-in,1)) * var(--u) * var(--pickups-week-rise)))}
+.pickup-week-label{grid-area:label;font:900 calc(var(--u) * var(--pickups-week-label))/1 var(--display);color:var(--muted)}
+.pickup-week-rank{grid-area:rank;font:900 calc(var(--u) * var(--pickups-week-rank))/1 var(--display);color:var(--accent)}
+
+/* A phone: #1 on top, portrait beside his words, his weeks two rows of three; #2 and #3 side by side under him.
+   Before he lands they are the subject: portraits the card's width, the pair lifted to the frame's centre, and on
+   the room event (--waivers-room 0 -> 1) they shrink and step down under him. */
+.waivers[data-layout=phone] .waivers-stage{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;
+  column-gap:var(--space-3);row-gap:calc(var(--u) * var(--pickups-gap));align-content:start;
+  padding-left:var(--space-4);padding-right:var(--space-4)}
+.waivers[data-layout=phone] .waivers-head{font-size:var(--broadcast-phone-head)}
+.waivers[data-layout=phone] .pickup{--k:1;align-self:start}
+.waivers[data-layout=phone] .pickup[data-pickup="1"]{grid-column:1 / 3;grid-row:2;grid-template-columns:auto 1fr;
+  grid-template-rows:auto auto auto 1fr auto;grid-template-areas:"face rank" "face name" "face team" "face gain" "weeks weeks";
+  column-gap:calc(var(--u) * var(--pickups-pad))}
+.waivers[data-layout=phone] .pickup[data-pickup="2"],.waivers[data-layout=phone] .pickup[data-pickup="3"]{
+  --pair-big:calc(1 - var(--waivers-room,1));
+  --pickups-face:calc(var(--pickups-pair-face) + var(--pair-big) * (var(--pickups-pair-face-big) - var(--pickups-pair-face)));
+  --pickups-rank:var(--pickups-pair-rank);--pickups-name:3.2;--pickups-added:3.6;--pickups-badge:3;--pickups-gap:.6;--pickups-pad:1;
+  grid-template-areas:"face face" "rank name" "team team" "gain gain";align-items:baseline;
+  --pickup-shift:calc(var(--pair-big) * var(--u) * -1 * var(--pickups-lift));grid-row:3}
+.waivers[data-layout=phone] .pickup[data-pickup="2"] .pickup-face,.waivers[data-layout=phone] .pickup[data-pickup="3"] .pickup-face{
+  justify-self:start;align-self:start;width:min(var(--pickups-face-max),100%,calc(var(--u) * var(--pickups-face)))}
+.waivers[data-layout=phone] .pickup[data-pickup="2"] .pickup-rank,.waivers[data-layout=phone] .pickup[data-pickup="3"] .pickup-rank{
+  align-self:baseline}
+.waivers[data-layout=phone] .pickup[data-pickup="2"]{grid-column:1}
+.waivers[data-layout=phone] .pickup[data-pickup="3"]{grid-column:2}
+.waivers[data-layout=phone] .pickup-team,.waivers[data-layout=phone] .pickup-starts{letter-spacing:var(--film-tag-tracking-phone)}
+.waivers[data-layout=phone] .pickup-face{justify-self:end}
+.waivers[data-layout=phone] .pickup[data-pickup="1"] .pickup-face{justify-self:start}
+.waivers[data-layout=phone] .pickup-weeks{grid-template-columns:repeat(3,1fr)}
+.waivers[data-layout=phone] .pickup-week{grid-template-areas:"label rank";justify-items:stretch;column-gap:var(--space-2);
+  padding-left:var(--space-2);padding-right:var(--space-2)}
+.waivers[data-layout=phone] .pickup-week-rank{justify-self:end}
+/* Reduced motion needs no rule: the film shows each beat's story as a still (waivers-motion.mjs). */

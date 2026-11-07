@@ -1,0 +1,29 @@
+/* The film's playback controls (rev 16, David: the panel sat over the lower-third headline): one slim bar
+   along the frame's bottom edge, under the lower third's foot (--broadcast-safe-bottom), so it never covers
+   the bar text. Once the film has started it fades after AWAKE_MS without a move (app.mjs) and comes back on
+   a move, a hover or focus. Before the first play it stays, since Play is the page's first action. */
+body[data-film] footer.controls{top:auto;bottom:0;left:0;right:0;width:auto;height:var(--film-bar);
+  display:flex;align-items:center;gap:var(--space-3);padding:0 var(--edge);box-sizing:border-box}
+body[data-film] footer.controls::before{inset:0;border-width:1px 0 0;box-shadow:none}
+body[data-film] footer.controls .actions{flex-wrap:nowrap;gap:var(--space-1)}
+body[data-film] footer.controls button{min-height:var(--film-bar-button);padding:0 var(--space-3);font-size:var(--text-label);white-space:nowrap}
+body[data-film] footer.controls .seek{flex:1;width:auto;min-width:0;margin:0}
+body[data-film] footer.controls .read-report{padding:0}
+/* The status line stays for screen readers; the bar itself shows only the controls. */
+body[data-film] footer.controls .status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0}
+body[data-film] footer.controls .progress{display:none}
+body[data-film] footer.controls .notice{margin:0;font-size:var(--text-small);color:var(--muted);white-space:nowrap}
+/* Asleep it stays hoverable (film.css turns pointer events off for the rest of the controls). */
+body[data-film] .room[data-playing][data-phase]:not([data-awake]) footer.controls:not(:focus-within){pointer-events:auto}
+body[data-film] .room[data-started=true][data-phase]:not([data-awake]) footer.controls:not(:hover):not(:focus-within){opacity:0}
+body[data-film] .room[data-phase]:not([data-awake]) footer.controls:hover{opacity:1}
+/* "Back to the league" joins the bar on the film (David 2026-11-04), so the top-right corner is the scene's. */
+body[data-film] .masthead .back{display:none}
+body:not([data-film]) .film-back{display:none}
+body[data-film] .film-back{font-size:var(--text-label);white-space:nowrap;color:var(--muted)}
+body[data-film] .film-back:hover,body[data-film] .film-back:focus-visible{color:var(--foreground)}
+@media(max-width:640px){
+  body[data-film] footer.controls{gap:var(--space-2);padding:0 var(--space-3)}
+  body[data-film] footer.controls button{padding:0 var(--space-2)}
+  body[data-film] footer.controls .seek{display:none}   /* a phone scrubs in the beat sheet (film-review.css) */
+}

@@ -19,6 +19,8 @@ Where this page is going. The conductor reads it before sizing work here and app
 
 ## Decisions
 
+- 2026-11-02: chose a Madden Curse-only midseason special with broadcast-style team spotlights, factual receipts, affectionate roasts and sincere hype for every team. The first edition previews through seven complete weeks and finishes through Week 8.
+
 - 2026-09-29: chose a Preview slate plus a dossier per game, after David asked for "more research and evaluation of this matchup".
 - 2026-10-05: chose yards and TDs over fantasy points in Digest headlines because "every league scores differently" (David).
 - 2026-10-05: chose a bottom tab bar on a phone, for one-handed reach (David).

@@ -48,7 +48,8 @@ DESIGN_DOC = "design/DESIGN.md"
 # tests/test_impact.py), so one in a diff tests nothing of its own and must not force the whole suite
 # (2026-10-13: a rebuild-only land ran 240 test files for "no area owns index.html").
 GENERATED = ("index.html", "design/index.html", "build.json", "trade_offers.json", "trade_pins",
-             "preview_archive.json", "games", "heads", "avatars", "tests/.frozen.json")
+             "preview_archive.json", "games", "heads", "avatars", "showcase/madden-curse/edition.json",
+             "tests/.frozen.json")
 ORDERS = {SRC + "order.js.txt": SRC + "js/", SRC + "order.css.txt": SRC + "css/"}
 
 

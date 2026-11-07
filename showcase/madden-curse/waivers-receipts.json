@@ -1,0 +1,6 @@
+{
+  "about": "Chapter 3's pointer (docs/madden-film-chapter3.md): its numbers live only in edition.json's pickups block, built by design/midseason_pickups.py. app.mjs fetches this file; waivers-view.mjs reads the block it names.",
+  "edition": "./edition.json",
+  "key": "pickups",
+  "throughWeek": 8
+}

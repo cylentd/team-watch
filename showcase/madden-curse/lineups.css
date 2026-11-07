@@ -1,0 +1,36 @@
+/* Chapter 4, Start/sit regrets (lineups-headline.mjs): the headlines over the 3D lineup desk. Each beat's title is
+   a chyron at the upper left (the nameplate's side; the slot and the rack stand right); "Won both negative weeks." sits
+   upper right over the socket's side and "Again." upper left over START (lineups-camera.mjs framings). On a phone
+   every line spans the top, the title on one line. Each fades in over --lineup-enter (0..1) and slams down from
+   --lineup-slam; the line itself is never moved or tilted (rule 26). Shown only while the room draws Chapter 4: a DOM
+   chapter returns before the set can hide it (scene.mjs drawRoom). */
+.lineups{
+  /* A phone's title on one line at 360 px: 62% of the phone headline (24 px at 390), still over rule 19's 2% cap. */
+  --lineup-title-phone:calc(var(--broadcast-phone-head) * .62);
+  --lineup-manager-phone:calc(var(--broadcast-phone-head) * .88);
+  --lineup-avatar-phone:calc(var(--broadcast-phone-head) * 1.5);
+  --lineup-defense-title-phone:calc(var(--broadcast-phone-head) * .74);
+  position:absolute;z-index:3;pointer-events:none;display:none;
+  --lineup-safe-top:6%;
+  top:var(--lineup-safe-top);left:var(--edge);right:var(--edge);
+  opacity:var(--lineup-enter,1);scale:var(--lineup-slam,1);transform-origin:left top}
+[data-room][data-chapter="lineups"] .lineups{display:block}
+[data-room] .lineups[hidden]{display:none}
+.lineup-outcome{margin:0;font:900 var(--broadcast-third-head)/1 var(--display);letter-spacing:var(--tight);
+  color:var(--foreground);text-shadow:var(--broadcast-shadow)}
+.lineups[data-layout=desk][data-key=outcome]{text-align:right;transform-origin:right top}
+.lineups[data-layout=desk]:is([data-key=payoff],[data-kind=title]){text-align:left}
+.lineups[data-layout=phone]{--lineup-safe-top:3%;text-align:center;transform-origin:center top}
+.lineups[data-layout=phone] .lineup-outcome{font-size:var(--broadcast-phone-head)}
+.lineups[data-layout=phone][data-kind=title] .lineup-outcome{font-size:var(--lineup-title-phone);white-space:nowrap}
+/* A phone's rack card can stand behind the title in the down shot, so the type gets a scrim of the room's own black
+   (power.css does the same over the riser). */
+.lineup-manager{display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);
+  font:800 var(--lineup-title-phone)/1 var(--display);color:var(--foreground)}
+.lineup-manager[hidden]{display:none}
+.lineup-manager img{width:var(--broadcast-phone-head);height:var(--broadcast-phone-head);border-radius:50%;object-fit:cover}
+.lineups[data-layout=phone] .lineup-manager{justify-content:center;font-size:var(--lineup-manager-phone)}
+.lineups[data-layout=phone] .lineup-manager img{width:var(--lineup-avatar-phone);height:var(--lineup-avatar-phone)}
+.lineups[data-layout=phone][data-key^=defense] .lineup-outcome{font-size:var(--lineup-defense-title-phone)}
+.lineups[data-layout=phone]::before{content:'';position:absolute;inset:calc(var(--space-5) * -1) calc(var(--edge) * -1);z-index:-1;
+  background:radial-gradient(closest-side,var(--background),transparent)}

@@ -16,6 +16,7 @@ Nothing here advises anyone: results, awards and history are already public insi
 import re
 
 import leagues
+from midseason import midseason_special
 from avatars import avatar_path
 from league_back import (add_meets, add_standings, add_streaks, add_tape, book, enrich_weeks, last_places, next_grudge,
                          private_pairs, record_skip, withhold)
@@ -282,6 +283,9 @@ def live_league_yahoo(season, history, owners, rosters, slugify, box=None, recap
     add_tape(block["teams"], games, champs, lasts)
     b = book(fx, games, block["teams"], lasts, skip)
     block["book"] = {k: _named(v, names, mgr) for k, v in b.items()}
+    special = midseason_special(season) if key == "yahoo" else None
+    if special:
+        block["midseason"] = special
     return block
 
 

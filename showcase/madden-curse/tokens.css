@@ -1,0 +1,65 @@
+@font-face{font-family:Archivo;src:url('./assets/archivo.ttf') format('truetype');font-display:swap}
+@font-face{font-family:'Bricolage Grotesque';src:url('./assets/bricolage-grotesque.ttf') format('truetype');font-weight:800;font-display:swap}
+@font-face{font-family:Shoulders;src:url('./assets/big-shoulders.ttf') format('truetype');font-display:swap;font-weight:900}
+:root{
+  color-scheme:dark;
+  --background:#090b0e;--surface:#161b22;--foreground:#f4f5f6;--muted:#9ca6b1;
+  --accent:#8ab3f5;--line:#ffffff29;--silver:#cbd0d6;--ink:#111923;--brand-lime:#c8ff2e;
+  --broadcast-blue:#377ce8;--broadcast-red:#c62e38;--broadcast-glass:#090b0ef2;
+  --broadcast-shadow:0 12px 40px #00000040;--broadcast-rule:2px;
+  --broadcast-controls:430px;
+  /* The review menu on ?film (film-review.css): its width, and how far down it sits, under the masthead. */
+  --review-width:260px;--review-top:96px;--review-tab-width:160px;--review-dim:.35;--review-tab-glass:#090b0ea6;--review-sheet:60vh;
+  /* The film's playback bar (film-bar.css), along the bottom edge under the lower third's 6% foot. */
+  --film-bar:44px;--film-bar-button:32px;
+  /* The film's smallest type: 2.2% of the frame's height, 24px at 1080p, never under 17px (rule 19). */
+  --film-floor:max(17px,2.2svh);--broadcast-column:50%;
+  --receipt-rank:clamp(64px,6.2vw,120px);--receipt-return:max(var(--film-floor),clamp(24px,1.9vw,36px));
+  --broadcast-copy:max(var(--film-floor),clamp(22px,1.8vw,34px));--receipt-label:max(var(--film-floor),1.2vw);
+  --receipt-face:clamp(44px,6.5svh,72px);--receipt-total:clamp(64px,9svh,112px);--receipt-rank-next:clamp(40px,5.5svh,68px);
+  --receipt-positive:#a4e2bd;--receipt-ink-bleed:.2em;
+  --broadcast-head:clamp(58px,6vw,92px);--broadcast-phone-head:clamp(38px,10.5vw,48px);
+  --broadcast-safe-top:12%;
+  /* The lower-third bar (rule 21): its foot, its one-line headline, and the film title set in it. */
+  --broadcast-safe-bottom:max(6%,calc(var(--film-bar) + var(--space-3)));--broadcast-third-head:clamp(48px,4.4vw,84px);--film-title:clamp(64px,6.6vw,128px);
+  /* The film tagline (ch17, David): one line of tracked caps in the site's warm ink (design/src/css/base/tokens.css
+     --ink), no box. A phone sets it a size down with less tracking so it holds one line at 390px.
+     ~~--film-tagline-width, a boxed bar beside the title~~. */
+  --film-tag-ink:#f3f1ea;--film-tag-tracking:.12em;--film-tag-phone:15px;--film-tag-tracking-phone:.08em;
+  /* How far the tagline drops out of frame during the zoom into the ball, as the 3D title does (film-zoom.mjs
+     HANDOVER.slide, .7 of the frame). */
+  --film-slide:70svh;
+  --broadcast-title-rule:clamp(76px,12vw,150px);
+  /* The bar's rule line (rule 26): fixed down the frame, so the scene above keeps 4% clear of it
+     (draft-camera.mjs RIG.ruleLine holds the same two numbers). */
+  --broadcast-rule-top:76%;--broadcast-rule-top-phone:66%;
+  /* The light that sweeps through every scene change (rule 18): its colour and half its band's width. */
+  --wipe-light:#f4f5f6b3;--wipe-band:16%;
+  /* Chapter 2's trades card (trades.css): the site's --down for the real record (design/src/css/base/tokens.css,
+     constants.mjs PALETTE.down) and the stamp's rule. Positions and the sizes that scale with the frame come from
+     trades-layout.mjs. Its light is Chapter 1's: cool stadium white and the broadcast blue's backlight. */
+  --film-down:#ff5a52;--trades-stamp-rule:3px;
+  --trades-beam-core:#eef4ff;--trades-beam-glow:#8ab3f5;--trades-backlight:#377ce838;--trades-backlight-floor:.85;
+  --trades-floor:#8ab3f50f;--trades-floor-height:26%;--trades-vignette:#000000a6;--trades-vignette-clear:45%;
+  /* A beam fades in from nothing at Aura's rim; on a phone it starts lit, at the junction light it fans from. */
+  --trades-haze-mid:.06;--trades-haze-end:.22;--trades-beam-start:0;--trades-beam-start-phone:.5;--trades-beam-mid:.35;
+  --trades-bloom:.45;--trades-glow-mid:.35;--trades-pulse-core:.75;
+  --trades-silver-hi:#ffffff;--trades-silver-low:#69727e;--trades-silver-edge:#ffffff40;--trades-rim-light:#8ab3f540;
+  --trades-key:#ffffff1f;--trades-shade:#00000080;
+  --trades-plate-top:#2a313b;--trades-plate-bottom:#0d1116;--trades-plate-edge:#cbd0d673;--trades-plate-shine:#ffffff47;
+  --trades-plate-inner:#ffffff1a;--trades-plate-inset:3px;--trades-stamp-inner:#ff5a5259;--trades-unseen:.001;
+  --broadcast-cut:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
+  --ui:Archivo,'Segoe UI',sans-serif;--display:Shoulders,Impact,sans-serif;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;
+  --space-6:32px;--space-7:48px;--space-8:64px;--edge:clamp(20px,5vw,80px);
+  --text-small:11px;--text-label:12px;--text-body:14px;--text-intro:18px;
+  --title:clamp(82px,10vw,158px);--tracking:.16em;--tight:-.025em;
+  --round:3px;--focus:2px;--control-height:46px;--transition:180ms;
+  --stage-min:680px;--stage-max:1000px;
+  --loading-title:clamp(64px,13vw,128px);--loading-width:720px;
+  --loading-text:clamp(14px,2vw,18px);--loading-cycle:1200ms;--loading-stagger:160ms;
+  --loading-signal-width:36px;--loading-signal-height:4px;--loading-dim:.25;
+  --shot-title:clamp(56px,6vw,100px);--shot-title-phone:clamp(40px,12vw,65px);
+  --final-title:clamp(64px,10vw,140px);--final-title-phone:clamp(54px,14vw,90px);
+  --report-title:clamp(38px,5vw,64px);--report-headline:30px;--report-width:1000px;
+}

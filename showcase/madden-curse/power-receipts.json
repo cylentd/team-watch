@@ -1,0 +1,226 @@
+{
+ "season": 2026,
+ "league": 75203,
+ "through": 8,
+ "comparisons": 88,
+ "order": "all-play wins, then points scored",
+ "tieBreak": "points",
+ "teams": [
+  {
+   "id": 10,
+   "name": "Jaxon The Box",
+   "power": 1,
+   "standing": 1,
+   "record": {
+    "w": 6,
+    "l": 2,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 56,
+    "l": 32,
+    "t": 0
+   },
+   "points": 954.28,
+   "luck": 0.9
+  },
+  {
+   "id": 11,
+   "name": "Lamarley & Me",
+   "power": 2,
+   "standing": 2,
+   "record": {
+    "w": 5,
+    "l": 3,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 55,
+    "l": 33,
+    "t": 0
+   },
+   "points": 946.7,
+   "luck": 0.0
+  },
+  {
+   "id": 12,
+   "name": "Sausage Egg McCaffrey 🍳",
+   "power": 3,
+   "standing": 6,
+   "record": {
+    "w": 4,
+    "l": 4,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 55,
+    "l": 33,
+    "t": 0
+   },
+   "points": 935.86,
+   "luck": -1.0
+  },
+  {
+   "id": 3,
+   "name": "WE SELL EXTENDED WARREN-TY",
+   "power": 4,
+   "standing": 3,
+   "record": {
+    "w": 5,
+    "l": 3,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 55,
+    "l": 33,
+    "t": 0
+   },
+   "points": 905.02,
+   "luck": 0.0
+  },
+  {
+   "id": 9,
+   "name": "Chat Take the Wheel 👾",
+   "power": 5,
+   "standing": 8,
+   "record": {
+    "w": 4,
+    "l": 4,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 47,
+    "l": 41,
+    "t": 0
+   },
+   "points": 850.04,
+   "luck": -0.3
+  },
+  {
+   "id": 5,
+   "name": "Gibbs Me TDs",
+   "power": 6,
+   "standing": 7,
+   "record": {
+    "w": 4,
+    "l": 4,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 46,
+    "l": 42,
+    "t": 0
+   },
+   "points": 872.0,
+   "luck": -0.2
+  },
+  {
+   "id": 1,
+   "name": "Let Romo Take the Wheel",
+   "power": 7,
+   "standing": 4,
+   "record": {
+    "w": 5,
+    "l": 3,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 45,
+    "l": 43,
+    "t": 0
+   },
+   "points": 864.32,
+   "luck": 0.9
+  },
+  {
+   "id": 2,
+   "name": "Am I COOKed? 👨🏽‍🍳",
+   "power": 8,
+   "standing": 5,
+   "record": {
+    "w": 5,
+    "l": 3,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 41,
+    "l": 47,
+    "t": 0
+   },
+   "points": 836.42,
+   "luck": 1.3
+  },
+  {
+   "id": 8,
+   "name": "Something Burrowed👰🏻‍♀️",
+   "power": 9,
+   "standing": 9,
+   "record": {
+    "w": 3,
+    "l": 5,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 38,
+    "l": 50,
+    "t": 0
+   },
+   "points": 807.7,
+   "luck": -0.5
+  },
+  {
+   "id": 6,
+   "name": "OBJ - AuraFarming",
+   "power": 10,
+   "standing": 10,
+   "record": {
+    "w": 3,
+    "l": 5,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 36,
+    "l": 52,
+    "t": 0
+   },
+   "points": 786.38,
+   "luck": -0.3
+  },
+  {
+   "id": 7,
+   "name": "Honey Bijan",
+   "power": 11,
+   "standing": 11,
+   "record": {
+    "w": 2,
+    "l": 6,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 30,
+    "l": 58,
+    "t": 0
+   },
+   "points": 784.98,
+   "luck": -0.7
+  },
+  {
+   "id": 4,
+   "name": "Bo-Bo Milk Tea",
+   "power": 12,
+   "standing": 12,
+   "record": {
+    "w": 2,
+    "l": 6,
+    "t": 0
+   },
+   "allPlay": {
+    "w": 24,
+    "l": 64,
+    "t": 0
+   },
+   "points": 726.14,
+   "luck": -0.2
+  }
+ ]
+}

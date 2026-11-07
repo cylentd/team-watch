@@ -12,6 +12,7 @@ import d_starters       # design/d_starters.py: LIVE_D_STARTERS's nested shape c
 import td_research      # design/td_research.py: LIVE_TD_RESEARCH's tier and check words
 import kdst             # design/kdst.py: LIVE_KDST's row shape check
 import leagues
+import midseason_contract
 import startsit_board   # design/startsit_board.py: LIVE_SSB's nested shape check
 import startsit_v3      # design/startsit_v3.py: LIVE_SS3's nested shape check
 import teams            # design/teams.py: LIVE_TEAMS's nested shape check
@@ -47,6 +48,7 @@ LEAGUE_SPEC = {
 # The Yahoo back page (design/league_back.py) reads more: each team's record, titles and last places, each week's
 # headline, dek and report (null when the roast skipped it), the book, and `history` (a past-seasons file was read).
 LEAGUE_YAHOO_SPEC = {
+    "checks": [midseason_contract.problems_league],
     "keys": LEAGUE_SPEC["keys"] + ["book", "grudge", "withheld", "spoons", "history"],
     "rows": [("teams", ["id", "name", "key", "w", "l", "t", "all", "titles", "lasts", "avatar"]),
              ("weeks", ["week", "games", "awards", "head", "dek", "report", "table", "lead", "blip", "streaks"]),
