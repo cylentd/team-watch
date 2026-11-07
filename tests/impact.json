@@ -265,6 +265,7 @@
         "tests/test_madden_lineup_music.py",
         "tests/test_madden_listening_sync.py",
         "tests/test_madden_loading.py",
+        "tests/test_madden_sound_default.py",
         "tests/test_madden_logo_wink.py",
         "tests/test_madden_mobile_framing.py",
         "tests/test_madden_mobile_rhythm.py",

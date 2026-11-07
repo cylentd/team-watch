@@ -124,9 +124,20 @@ function tick(timestamp) {
   else state.frame = requestAnimationFrame(tick);
 }
 
+async function toggleSound() {
+  try {
+    const enabled = await sound.toggle();
+    select('sound').textContent = TEXT[enabled ? 'soundOn' : 'soundOff'];
+    select('sound').setAttribute('aria-pressed', enabled);
+  } catch { notice('soundError'); }
+}
+
 function play() {
   if (!state.room || still()) return;
   if (state.playing) return pause();
+  // The first Play turns the sound on, inside the click that browsers require for audio, unless the viewer
+  // already pressed Sound (David, 2026-11-06; it was opt-in until then).
+  if (!state.soundChosen) { state.soundChosen = true; toggleSound(); }
   if (state.time >= program.duration) { state.time = 0; sound.start(); }
   state.started = true; state.playing = true; state.inspection = false; state.rotation = 0;
   sound.play(state.time);
@@ -173,13 +184,7 @@ function wire() {
   }, options);
   select('play').addEventListener('click', play, options);
   select('inspect').addEventListener('click', inspect, options);
-  select('sound').addEventListener('click', async () => {
-    try {
-      const enabled = await sound.toggle();
-      select('sound').textContent = TEXT[enabled ? 'soundOn' : 'soundOff'];
-      select('sound').setAttribute('aria-pressed', enabled);
-    } catch { notice('soundError'); }
-  }, options);
+  select('sound').addEventListener('click', () => { state.soundChosen = true; toggleSound(); }, options);
   document.addEventListener('visibilitychange', () => { if (document.hidden && state.playing) pause(); }, options);
   motion.addEventListener('change', () => { if (motion.matches) { state.time = program.duration; pause('reduced'); } else { status('ready'); draw(); } }, options);
   root.addEventListener('keydown', event => {
