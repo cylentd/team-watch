@@ -27,6 +27,11 @@ os.environ["TEAM_WATCH_FEED"] = str(FIXTURES / "feed.json")
 sys.path.insert(0, str(DESIGN))
 
 
+@pytest.hookimpl(optionalhook=True)
+def pytest_xdist_auto_num_workers(config):  # shape: allow a pytest hook, called by xdist not by a test
+    return 2
+
+
 def pytest_addoption(parser):
     parser.addoption("--update-golden", action="store_true", default=False,
                      help="rewrite tests/golden/*.json from the current render")

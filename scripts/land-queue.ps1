@@ -11,7 +11,7 @@
       try { ...fetch, rebase, test, build, push... } finally { Exit-LandQueue $ticket }
 
   The queue is `ts.py queue enter|exit` (testsched/queue.py): tickets in <git common dir>/land-queue,
-  `<ticks:D20>-<pid>.ticket`, the oldest live one holds main, a dead or 30-minute-old ticket is cleared by
+  `<ticks:D20>-<pid>.ticket`, the oldest live one holds main, a dead owner or malformed ticket is cleared by
   whoever finds it, a wait over -TimeoutMinutes gives up with nothing landed. Why it exists: 2026-09-26.
 
   With LOADGATE=off (TESTSCHED=off, TW_SLOTS=off) or no ts.py ($env:LOADGATE_CODE, ~/.agents/testsched),
@@ -46,8 +46,6 @@ function Use-Testsched { return (-not (Test-LoadgateOff)) -and [bool](Find-Tests
 
 # --- the old queue: a ticket file per land in <git common dir>/land-queue, no testsched ---------------
 
-$script:LandQueueStaleMinutes = 30
-
 function Get-LandQueueDir([string]$Repo) {
     $common = (& git.exe -C $Repo rev-parse --path-format=absolute --git-common-dir).Trim()
     $dir = Join-Path $common "land-queue"
@@ -57,14 +55,16 @@ function Get-LandQueueDir([string]$Repo) {
 
 # Live tickets, oldest first, after removing the dead ones.
 function Get-LandQueue([string]$Dir) {
-    $now = (Get-Date).ToUniversalTime()
     $live = @()
     foreach ($f in Get-ChildItem -Path $Dir -Filter "*.ticket" -File | Sort-Object Name) {
         $t = $null
-        try { $t = Get-Content -Raw -Path $f.FullName | ConvertFrom-Json } catch { }
-        $age = if ($t) { ($now - [datetime]::Parse($t.since).ToUniversalTime()).TotalMinutes } else { 999 }
+        try {
+            $t = Get-Content -Raw -Path $f.FullName | ConvertFrom-Json
+            $null = [datetime]::Parse($t.since)
+            if ([int]$t.pid -le 0) { $t = $null }
+        } catch { $t = $null }
         $alive = $t -and (Get-Process -Id ([int]$t.pid) -ErrorAction SilentlyContinue)
-        if (-not $alive -or $age -gt $script:LandQueueStaleMinutes) {
+        if (-not $alive) {
             Write-Host "land queue: clearing a stale ticket ($($f.Name))" -ForegroundColor Yellow
             Remove-Item -Path $f.FullName -Force -ErrorAction SilentlyContinue
             continue

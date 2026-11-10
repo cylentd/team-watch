@@ -33,4 +33,4 @@ design/src/**      text eol=lf
 design/src/js/vendor/** linguist-vendored
 showcase/madden-curse/vendor/** linguist-vendored
 showcase/madden-curse/assets/*.glb binary linguist-generated
-showcase/madden-curse/edition.json linguist-generated=true
+showcase/madden-curse/edition.json merge=ours linguist-generated=true

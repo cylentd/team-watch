@@ -49,6 +49,22 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import impact  # noqa: E402
+DEFAULT_WORKERS = 2
+
+
+def worker_request(extra):
+    """Bound automatic runs and reserve explicit xdist counts without silently clamping them."""
+    selected = "auto"
+    for index, option in enumerate(extra):
+        if option in ("-n", "--numprocesses"):
+            if index + 1 >= len(extra):
+                raise ValueError(f"{option} requires a worker count")
+            selected = extra[index + 1]
+        elif option.startswith("--numprocesses="):
+            selected = option.partition("=")[2]
+        elif option.startswith("-n") and option != "-n":
+            selected = option[2:]
+    return DEFAULT_WORKERS if selected in ("auto", "logical") else max(1, int(selected))
 
 
 def parallel(extra, workers=None, auto=False):
@@ -106,12 +122,12 @@ def would_claim(sched, kind, lg=None):
     return f"  loadgate {kind}: would claim up to {s['budget']['cpu']} workers ({s['free']['cpu']} free)"
 
 
-def hold(sched, kind, lg=None, serial=False):
+def hold(sched, kind, lg=None, serial=False, cpu=DEFAULT_WORKERS):
     """(Claim or None, workers or None) for a run this script starts itself. A serial run holds 1 and passes
     no `-n`. No library, or a refused claim: (None, None), which leaves the workers to `-n auto`."""
     if sched is None:
         return None, None
-    claim = sched.admit.claim(kind, cpu=1 if serial else None, browser_workers=True,
+    claim = sched.admit.claim(kind, cpu=1 if serial else cpu, browser_workers=True,
                               label=f"run_tests {kind}", **(lg or {}))
     if claim is None:
         return None, None
@@ -120,9 +136,9 @@ def hold(sched, kind, lg=None, serial=False):
     return claim, (None if serial else workers)
 
 
-def run_direct(make, ids, limit, env, sched, kind, lg=None, serial=False):
+def run_direct(make, ids, limit, env, sched, kind, lg=None, serial=False, cpu=DEFAULT_WORKERS):
     """Claim workers, run the pytest command `make(workers)` builds, release the claim: pytest's exit code."""
-    claim, workers = hold(sched, kind, lg, serial)
+    claim, workers = hold(sched, kind, lg, serial, cpu)
     try:
         return run_pytest(make(workers), ids, limit, env=env)
     finally:
@@ -386,7 +402,8 @@ def repeat_new(a, extra, lg=None):
         print("  python -m pytest " + " ".join(make(None)[3:]))
         return 0
     env = with_path(os.environ, ROOT / "scripts", skill_dir())
-    code = run_direct(make, ids, getattr(a, "argv_limit", ARGV_LIMIT), env, sched, kind, lg)
+    code = run_direct(make, ids, getattr(a, "argv_limit", ARGV_LIMIT), env, sched, kind, lg,
+                      cpu=worker_request(extra))
     return 0 if code == 5 else code    # 5 = every test deselected (all quarantined): nothing to prove, not a failure
 
 
@@ -413,7 +430,7 @@ def run_units(a, extra, picked, kind, sched, lg):
         print(would_claim(sched, kind, lg))
         print(f"  testsched {kind} plan: {len(hits)} hit, {len(misses)} miss, {len(never)} never of {len(units)} units")
         return 0
-    res = sched.runner.run(ROOT, units, args, kind, environ=env, browser=True, lg=lg)
+    res = sched.runner.run(ROOT, units, args, kind, environ=env, browser=True, lg=lg, cpu=worker_request(extra))
     print(f"  testsched {kind}: {len(res['ran'])} ran, {len(res['hits'])} cached, {len(res['failed'])} failed")
     if a.results_json:
         write_results(a.results_json, res)
@@ -433,7 +450,7 @@ def run_alone(a, extra, picked, kind, sched, lg):
         print(would_claim(sched, kind, lg) if sched else "  loadgate not found: no claim")
         make(None)
         return 0
-    return run_direct(make, picked, a.argv_limit, env, sched, kind, lg, serial)
+    return run_direct(make, picked, a.argv_limit, env, sched, kind, lg, serial, cpu=worker_request(extra))
 
 
 def main(argv=None, lg=None):

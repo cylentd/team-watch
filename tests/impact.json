@@ -31,6 +31,8 @@
     "tests/test_style_rules.py",
     "tests/test_gaps.py",
     "tests/test_impact.py",
+    "tests/test_harness_resource_contract.py",
+    "tests/test_land_queue_live_owner.py",
     "tests/test_sources_behind.py",
     "tests/test_land_stale_data.py",
     "tests/test_page_leak.py",
@@ -226,7 +228,7 @@
     },
     "testtools": {
       "paths": ["scripts/run_tests.py", "scripts/trace.py", "scripts/mutate_tests.py", ".testing.json", ".testing-backlog.json", ".testsched.json", "scripts/flake_run.py", "scripts/postland.py"],
-      "tests": ["tests/test_run_tests.py", "tests/test_run_tests_plugin.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_mutate_picker.py", "tests/test_flake_run.py", "tests/test_flake_run_cloud.py", "tests/test_flake_worker_cap.py", "tests/test_postland.py", "tests/test_testlog.py", "tests/test_profile_log.py", "tests/test_e2e_select.py"],
+      "tests": ["tests/test_run_tests.py", "tests/test_run_tests_plugin.py", "tests/test_trace.py", "tests/test_mutate_tests.py", "tests/test_mutate_picker.py", "tests/test_flake_run.py", "tests/test_flake_run_cloud.py", "tests/test_flake_worker_cap.py", "tests/test_scheduled_worker_budget.py", "tests/test_postland.py", "tests/test_testlog.py", "tests/test_profile_log.py", "tests/test_e2e_select.py"],
       "render": []
     },
     "designdoc": {
