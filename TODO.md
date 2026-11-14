@@ -4,6 +4,12 @@ Tick an item in the commit that finishes it. Newest at the top of each section. 
 
 ## Now
 
+- [ ] **Outcome ranges, not one number (David, 2026-11-13).** Show each player's spread of outcomes so a reader looking for upside can find it. Producer first: ff-jarvis TODO "Outcome ranges" O1-O3; record the pair on each consumer branch. Storyboard each view at 360px first (STYLE.md). Worked example: Pollard wk 10, projection 12.2, but 35.0 and 27.2 in wks 7-8.
+  - (a) **Ranks: boom/bust and an Upside sort** (after O1). A boom % and bust % on each row beside floor and ceiling; a Projection / Upside / Safe switch reorders the list (Upside by boom %, Safe by bust %, lowest first). Contract check on `boom`/`bust`. Done when each sort's order is pinned by a test and the row fits 360px. Size: small.
+  - (b) **Profile: scenario ladder** (after O2). A Range pane: 4-6 rows (name, stat line, points, chance as a bar), the projection marked as the average. Done when the pane draws from the new data file, hides cleanly for a player without scenarios, and passes STYLE.md. Size: feature.
+  - (c) **Start/Sit: pick for the reader's matchup** (after O1). Trailing in the matchup, lean to the higher boom %; favored, the lower bust %. Says why in one line. Needs the reader's projected matchup margin (Live has scores, not projections: check before sizing). Size: feature.
+  - (d) **Schedule and Preview: defense form** (after O3). Last 3 games beside the season figure with a trend arrow, labelled context, not a call (form failed as a price, ff-jarvis METHODOLOGY 12.73). Size: small.
+
 - [ ] **Private ESPN league served to the wrong visitor (SECURITY).** `api/league.py` `read_league` memoizes on `(lid, bool(s2))`, so for 60 s (`MEMO_S`) anyone who sends any non-empty `espn_s2` for that league id gets the owner's cached body (rosters, teams). Key on the credentials themselves (a hash of s2+swid), or skip the memo for private leagues. Test-first: two calls, different s2, the second must hit ESPN. Checked by reading the code 2026-11-10. Size: small. (implicit state machines audit, 2026-11-10)
 - [ ] **Implicit state machines: bugs found (audit 2026-11-10, read-only, nothing fixed).** Three read-only subagents swept the JS, Python and PowerShell. (a) and (b) were checked by reading the code; the rest are agent reports, not reproduced. Fix test-first, one per commit.
   - (a) `surface/chat/chat.js` `chatSend`: a network throw sets `CHAT_ERR`, which skips `CHAT_LOG.pop()`, so the next send posts two user turns in a row.
