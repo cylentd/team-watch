@@ -7549,5 +7549,49 @@
    "games": 4,
    "rank": 20
   }
- }
+ },
+ "defense_recent": {
+  "JAX": {
+   "games": 4,
+   "QB": {"last3_pts_pg": 17.1, "season_pts_pg": 16.4, "trend": null},
+   "RB": {"last3_pts_pg": 20.0, "season_pts_pg": 12.5, "trend": "up",
+          "last3_rush_yds_pg": 112.0, "season_rush_yds_pg": 68.2, "rush_trend": "up"},
+   "WR": {"last3_pts_pg": 30.2, "season_pts_pg": 29.0, "trend": null},
+   "TE": {"last3_pts_pg": 8.1, "season_pts_pg": 7.9, "trend": null}
+  },
+  "LA": {
+   "games": 4,
+   "QB": {"last3_pts_pg": 15.0, "season_pts_pg": 15.8, "trend": null},
+   "RB": {"last3_pts_pg": 18.0, "season_pts_pg": 17.1, "trend": null,
+          "last3_rush_yds_pg": 95.0, "season_rush_yds_pg": 90.1, "rush_trend": null},
+   "WR": {"last3_pts_pg": 14.0, "season_pts_pg": 19.5, "trend": "down"},
+   "TE": {"last3_pts_pg": 6.0, "season_pts_pg": 6.4, "trend": null}
+  },
+  "CIN": {
+   "games": 4,
+   "QB": {"last3_pts_pg": 18.2, "season_pts_pg": 17.9, "trend": null},
+   "RB": {"last3_pts_pg": 24.3, "season_pts_pg": 19.1, "trend": "up",
+          "last3_rush_yds_pg": 121.0, "season_rush_yds_pg": 110.4, "rush_trend": null},
+   "WR": {"last3_pts_pg": 27.0, "season_pts_pg": 26.1, "trend": null},
+   "TE": {"last3_pts_pg": 9.0, "season_pts_pg": 8.8, "trend": null}
+  },
+  "NYJ": {
+   "games": 4,
+   "QB": {"last3_pts_pg": 14.0, "season_pts_pg": 14.3, "trend": null},
+   "RB": {"last3_pts_pg": 13.0, "season_pts_pg": 18.4, "trend": "down",
+          "last3_rush_yds_pg": 70.0, "season_rush_yds_pg": 101.0, "rush_trend": "down"},
+   "WR": {"last3_pts_pg": 22.0, "season_pts_pg": 23.0, "trend": null},
+   "TE": {"last3_pts_pg": 7.0, "season_pts_pg": 7.2, "trend": null}
+  },
+  "LV": {
+   "games": 2,
+   "QB": {"last3_pts_pg": null, "season_pts_pg": 19.0, "trend": null},
+   "RB": {"last3_pts_pg": null, "season_pts_pg": 25.0, "trend": null,
+          "last3_rush_yds_pg": null, "season_rush_yds_pg": 140.0, "rush_trend": null},
+   "WR": {"last3_pts_pg": null, "season_pts_pg": 21.0, "trend": null},
+   "TE": {"last3_pts_pg": null, "season_pts_pg": 9.5, "trend": null}
+  }
+ },
+ "recent": {"games": 3, "trend_margin_pts": 3.0, "trend_margin_rush_yds": 25.0,
+            "note": "Last 3 games against the season, per defense and position. Context only: form did not price."}
 }

@@ -65,7 +65,8 @@
                 "design/src/js/ui/dstarters.js", "design/src/css/component/dstarters.css"],
       "tests": ["tests/test_preview.py", "tests/test_js_preview_wx.py", "tests/test_js_preview_answer.py",
                 "tests/test_preview_archive.py", "tests/test_d_starters.py", "tests/test_js_dstarters.py",
-                "tests/test_d_starters_view.py", "tests/test_js_preview_dossier.py", "tests/test_preview_dossier.py"],
+                "tests/test_d_starters_view.py", "tests/test_js_preview_dossier.py", "tests/test_preview_dossier.py",
+                "tests/test_js_defform.py", "tests/test_defform_view.py"],
       "render": ["preview"]
     },
     "league": {
@@ -124,8 +125,10 @@
       "render": []
     },
     "schedule": {
-      "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py"],
-      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_sos_label_contract.py","tests/test_polish_walk.py", "tests/test_s16_players_views.py"],
+      "paths": ["design/src/js/surface/sos/", "design/src/css/surface/sos/", "design/src/js/data/sos.js", "design/sos.py",
+                "design/src/js/data/defform.js", "design/src/js/ui/defform.js"],
+      "tests": ["tests/test_js_sos.py", "tests/test_sos_view.py", "tests/test_sos_label_contract.py","tests/test_polish_walk.py", "tests/test_s16_players_views.py",
+                "tests/test_js_defform.py", "tests/test_sos_form.py", "tests/test_defform_view.py"],
       "render": ["schedule"]
     },
     "ranks": {

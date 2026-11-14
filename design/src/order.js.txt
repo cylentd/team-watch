@@ -145,6 +145,8 @@ data/wxhistory.js
 surface/weather/card.js
 surface/weather/weather.js
 data/sos.js
+data/defform.js
+ui/defform.js
 surface/sos/sos.js
 data/preview.js
 data/pvdossier.js
@@ -152,6 +154,7 @@ surface/preview/slate.js
 surface/preview/record.js
 surface/preview/dossier.js
 surface/preview/research.js
+surface/preview/form.js
 surface/preview/handoff.js
 surface/preview/preview.js
 data/tiers.js

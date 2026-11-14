@@ -340,7 +340,7 @@ CONTRACT = {
     # design/kdst.py (2026-10-07): each club's D/ST and K points per played game, the Roster's K and D/ST bars; None without the file.
     "LIVE_KDST": {"keys": ["generated", "season", "through_week", "teams"], "checks": [kdst.problems]},
     # K (2026-10-06): `k` and `source` are null without it; a team's `K` window has the other positions' fields (sos.problems).
-    "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams", "k", "source"], "checks": [sos.problems]},
+    "LIVE_SOS": {"keys": ["label", "season", "from_week", "playoff_weeks", "windows", "teams", "k", "source"], "checks": [sos.problems, sos.problems_form]},   # defense form (2026-11-14): optional, shape-checked when sent
     # design/usage_movers.py, the Digest's Usage movers (2026-10-06): None without ff-jarvis's file. A row's `line` is Claude's
     # sentence or the template fact; `teammate` may be null, `targets` and `carries` are optional. Spark and teammate: usage_movers.problems.
     "LIVE_USAGE_MOVERS": {"keys": ["season", "week", "asof", "from_week", "to_week", "label", "rows"],

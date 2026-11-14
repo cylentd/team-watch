@@ -76,6 +76,17 @@
 .pv-mx td.pv-tough{color:var(--down)}
 .pv-mx .dim{opacity:.45}
 
+/* Defenses lately (2026-11-14, form.js): a line per flagged defense, its trend in words over the file's two numbers.
+   The trend's colour repeats its words, as Defense rank's soft / tough. */
+.pv-dfl{list-style:none;margin:0;padding:0}
+.pv-df{display:grid;gap:1px;padding:5px 0;border-top:1px solid var(--line)}
+.pv-df:first-child{border-top:0;padding-top:0}
+.pv-dfw{font-size:var(--t-2);color:var(--ink-2)}
+.pv-dfw b{margin-left:2px;font-weight:700}
+.pv-df.up .pv-dfw b{color:var(--up)}
+.pv-df.down .pv-dfw b{color:var(--down)}
+.pv-dfn{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
+
 /* Injuries: the two teams side by side, each a tag and a name. */
 .pv-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 .pv-team{margin:0 0 2px;font-family:var(--mono);font-size:var(--t-1);font-weight:700;color:var(--ink-2)}

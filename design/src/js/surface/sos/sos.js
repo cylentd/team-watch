@@ -16,19 +16,31 @@ const sosWinLabel = win => ({next4: t("sos.win.next4"), ros: t("sos.win.ros"), p
 
 const sosGames = n => (n === 0 ? t("sos.row.game.none") : n === 1 ? t("sos.row.game.one") : t("sos.row.game.many", {n}));
 
-/* One week: the opponent's code over the week number, or BYE. Never a colour for good or bad. */
-function sosCellHTML(c){
+/* One week: the opponent's code over the week number, or BYE. No colour for good or bad, except the next game's
+   when its defense's form flagged (`form`): that cell takes the note's arrow and colour, so the note names no team. */
+function sosCellHTML(c, form){
   const aria = c.bye ? t("sos.cell.byeAria", {week: c.week}) : t("sos.cell.gameAria", {week: c.week, opp: esc(c.opp)});
-  return `<li class="sos-c${c.bye ? " bye" : ""}" data-testid="schedule-cell" aria-label="${aria}"><i>${c.week}</i><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b></li>`;
+  const mark = form ? `<span aria-hidden="true">${form.trend === "up" ? t("dform.arrow.up") : t("dform.arrow.down")}</span>` : "";
+  return `<li class="sos-c${c.bye ? " bye" : ""}${form ? ` df ${form.trend}` : ""}" data-testid="schedule-cell" aria-label="${aria}"><i>${c.week}</i><span class="sos-o"><b>${c.bye ? t("sos.cell.bye") : esc(c.opp)}</b>${mark}</span></li>`;
 }
 
-function sosRowHTML(r){
+/* The next opponent's defense form (2026-11-14, data/defform.js) takes the games count's place: the cells under the
+   row already show every game and bye, and the row keeps its two lines and its numbers (rank, points). Words carry the
+   trend; its two numbers and the context mark are the tip, since two per-game numbers beside the row's own would read
+   as one comparison. At 360px the line has room for the words or a team code, not both: the marked cell names him. */
+function sosFormHTML(f){
+  return `<span class="sos-form ${f.trend}" data-testid="schedule-form" data-trend="${f.trend}" title="${dfTip(f)}" aria-label="${dfTip(f)}">${f.trend === "up" ? t("dform.vs.up", {df: esc(f.def)}) : t("dform.vs.down", {df: esc(f.def)})}</span>`;
+}
+
+function sosRowHTML(r, weeks){
   const pts = r.pts === null ? "" : r.pts.toFixed(1);
+  const form = dfNext(typeof LIVE_SOS === "undefined" ? null : LIVE_SOS, SOS_PICK_POS, weeks, r.cells);
+  const next = form ? r.cells.find(c => !c.bye) : null;
   return `<li class="sos-row" data-testid="schedule-row">
     <span class="sos-n">${r.rank === null ? "" : r.rank}</span>
-    <span class="sos-who"><b class="sos-team">${esc(r.team)}</b><span class="sos-g">${sosGames(r.games)}</span></span>
+    <span class="sos-who"><b class="sos-team">${esc(r.team)}</b>${form ? sosFormHTML(form) : `<span class="sos-g">${sosGames(r.games)}</span>`}</span>
     <span class="sos-pts" data-testid="schedule-pts" ${pts ? `aria-label="${t("sos.row.ptsAria", {n: pts})}"` : ""}>${pts ? t("sos.row.pts", {n: `<b data-testid="schedule-pts-value">${pts}</b>`}) : ""}</span>
-    <ol class="sos-cells" data-testid="schedule-cells">${r.cells.map(sosCellHTML).join("")}</ol>
+    <ol class="sos-cells" data-testid="schedule-cells">${r.cells.map(c => sosCellHTML(c, c === next ? form : null)).join("")}</ol>
   </li>`;
 }
 
@@ -51,7 +63,7 @@ function sosPageHTML(){
   return `<div class="wrap sos">
     ${sosControlsHTML()}
     <div class="sos-head" data-testid="schedule-head"><h2 data-testid="schedule-title">${t("sos.head.title", {pos: SOS_PICK_POS, span: v.span})}</h2><p data-testid="schedule-label">${esc(v.label)}</p></div>
-    <ol class="sos-list">${v.rows.map(sosRowHTML).join("")}</ol>
+    <ol class="sos-list">${v.rows.map(r => sosRowHTML(r, v.weeks)).join("")}</ol>
   </div>`;
 }
 

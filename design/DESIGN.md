@@ -1615,6 +1615,7 @@ Supersedes the order in "Front page" below and the answer row of the table above
 | The answer | our score, then one row per bet: Vegas grey, ours in the same unit white (CHI by 1.5 beside CHI by 4; 45.5 beside 42; CHI 52% beside CHI 57%), then the pick with its confidence word under it. Number beside number says why the pick is the pick, so 3A's "wins by 4 or more" line left the page (`pvAnswer` still carries it). `pvOurs`, `data/pvdossier.js`. "Claude" became "Ours" and "Claude's pick" "Our pick" (VISION 2026-10-08: one "our pick") |
 | Story | the headline, the first paragraph, "Read the rest" (a native `<details>`, closed), then What could go wrong, open |
 | Defense rank | a row per offense, a column per position (QB RB WR TE), the rank of the defense it faces, soft `--up`, tough `--down`, the WR column faded. Points allowed and the pass EPA row left the page |
+| Defenses lately (2026-11-14) | after Defense rank, "context only" on its head (tip: tested as a price, form did not predict scoring; ff-jarvis METHODOLOGY 12.73). One line per defense and position whose trend fired, the away offense's opponent first (`dfSides`, data/defform.js): "JAX run D ↑ allowing more" over "112 rush yds a game, last 3 · 68 season". A back reads rush yards when the run trend fired, else points. Nothing fired, under 3 games, no block, or an earlier week's game: no section. Each line is 2 rows and 2 numbers; the trend's words are what the eye lands on, its colour repeats them (`surface/preview/form.js`) |
 
 - **Measured 2026-10-09, week 5's CHI @ GB at 360px:** the game page went from 4,723px to about 2,400px; the
   fixture's games all end inside three 800px screens (`test_a_game_page_ends_inside_three_screens`).
@@ -1795,7 +1796,13 @@ is its `pts_pg` to one decimal, the games its count, a bye its `bye` list (`data
 | Heading and label | "Easiest RB schedules, weeks 5–8" over the file's label, three lines at 360px |
 | Row | rank, team code and games, points allowed per game; under them one small cell per week of the window, the opponent over the week number, a dashed "BYE" cell for a bye. The cells run the row's full width and wrap (7 and 6 for the 13 rest-of-season weeks), so nothing scrolls sideways. From 760px the cells join the first line. Nothing to tap, and no colour for good or bad |
 | No file | "NO SCHEDULE YET", no controls |
+| Defense form (2026-11-14) | when the row's next game's defense has a trend at the picked position (`defense_recent`, data/defform.js `dfNext`): "CIN allows more ↑" (`--up`) or "NYJ allows less ↓" (`--down`) takes the games count's place, naming the foe so it never reads as the row's own team (David, 2026-11-14). Only the next game is read, so a row names one foe at most, and that opponent's cell takes the same arrow and colour. The file's two numbers and "Tested as a price, form did not predict scoring" are the note's tip. Only Next 4 and Rest (a window starting this week); never Playoffs. Under 3 games, no trend, or a file without the block: the games count as before |
 
+- **Density (2026-11-14, defense form).** A flagged row stays 2 lines and drops to 2 numbers (rank, points; the games
+  count it replaces is also readable from the cells). The last-3 and season numbers stay in the tip: beside the row's
+  own points a game they would read as one comparison, and they measure one opponent, not the schedule. At 360px the
+  line holds the words or a team code, not both, so the marked cell names the defense. The colour is the one break
+  from "no colour for good or bad", and the words carry it alone.
 - **Where it lives.** A leaf in Stats (id `scouting`) kept out of the sub-row by `NAV_HIDDEN`, like Weather: Stats' five tabs
   end at 326 of the 332px a 360px phone holds. `#schedule` and `navGo("schedule")` open it; Ranks links to it. With it
   open no sub button is pressed.
