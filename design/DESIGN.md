@@ -930,6 +930,44 @@ no rank, tier or START/SIT call, and the page never computes one.
   `tests/test_ranks.py` (the build carries the fields). The fixtures hold real bands: ff-jarvis's shipped table applied
   with its own `ranges.apply` to `tests/fixtures/data/player_projections.json` and `tests/fixtures/feed.json`.
 
+### Boom and bust (2026-11-13, ff-jarvis b064481, METHODOLOGY 12.136)
+
+The list gets a **Projection / Upside / Safe** sort, and each row shows only the number its sort is about
+(density redo, 2026-11-13, STYLE.md "Density"). The sort is a control, not a `NAV` leaf.
+
+| Sort | Order | Row's answer | Small line | Explainer (one line) | Tiers |
+|---|---|---|---|---|---|
+| Projection (the default) | points, as before | points | range, matchup delta | Projected half-PPR points, in tiers | drawn |
+| Upside | boom high to low, a tie by points | `44% boom` | `19.8 pts` | Most likely to score 20+ | none: tiers are cut on points |
+| Safe | bust low to high, a tie by points | `3% bust` | `19.8 pts` | Least likely to score under 8 | none |
+
+- **The row.** Two lines in every sort. Projection's row is exactly the row from before boom and bust. Upside and Safe
+  put the percent where the points sit, at the same size, its word small beside it, and the points small under it in
+  the range's slot; the range, the matchup delta and the desktop stat line go, because they compete with the answer.
+  No green or red: a red "3%" bust read as bad.
+- **The explainer.** One line, then an ⓘ (24px) that opens the full definition under it in place: Projection's
+  scoring, tiers and band sentences; Upside's and Safe's bars ("Boom is his chance of 20+ points, bust of under 8");
+  then the teams left off. FLEX adds the other bars in brackets: "Most likely to score 20+ (TE 15+)". The bars come
+  from the file's `ranges.bars`, never a copy in this repo; without bars the line says "Most likely to boom first".
+- **The controls.** A phone has the sort as its only control row, since the positions live in the bottom strip. A
+  desktop puts the position chips and the sort in one row (`.rk-ctl`). A visit opens on Projection with the ⓘ shut;
+  leaving Ranks forgets both (`navForget`).
+- **Desktop sorted panel.** From 1100px the sorted list spans both columns and holds its rows two across, read in rows
+  (1 2, 3 4).
+- **Nothing drawn when absent.** No odds in the file: no chips, Projection's row and explainer, and tiers stay. D/ST
+  and K have none.
+- **First data at ~222px on a phone** (origin/main ~225px): the sort row costs what the explainer's lost lines give back.
+- ~~Superseded the same day: a third line under the game, `Boom 32%  Bust 11%`, on every row, under a sentence-long
+  note (first data ~283px). David: "super compact and clutter ... readability is important."~~
+- **Finding:** ff-jarvis's odds come from points and position alone, so within one position Upside and Safe mostly
+  repeat the points order (real data 2026-11-13: equal at QB, WR and TE, RB slightly different). They reorder FLEX,
+  where TE's bars are lower.
+- **Data:** each row's `boom`, `bust` (0-1) and `p95` via `design/ranks.py`; `LIVE_RANKS.bars`; all optional in
+  `contract.py`. Logic in `js/data/outcome.js`, drawing in `surface/ranks/odds.js`.
+- Tests: `tests/test_js_outcome.py` (Node: each sort's order and ties, missing odds last, rounding, the bars),
+  `tests/test_ranks_outcome.py` (the build and the contract), `tests/test_ranks_odds_view.py` (each sort's order and
+  answer, the two-line row, the one-line explainer at 360px, the ⓘ, the no-odds path, forgetting the sort).
+
 ### Rest of season (2026-10-06, ff-jarvis METHODOLOGY 12.97)
 
 Ranks has two views, **This week** (everything above, unchanged) and **Rest of season**, declared with `navModes("ranks", ...)`

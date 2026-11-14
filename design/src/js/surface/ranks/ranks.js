@@ -69,7 +69,7 @@ function rkRangeHTML(r){
 /* The number a row prints: `shown` from the build; a row planted without one (a test's, an older block) shows its points. */
 const rkShown = r => typeof r.shown === "number" ? r.shown : r.pts;
 
-function rkRowHTML(r, place, mine, flex){
+function rkRowHTML(r, place, mine, flex, sort = "pts"){
   const inj = r.inj ? `<span class="rk-inj ${r.inj.toLowerCase()}">${r.inj === "Q" ? t("ranks.inj.q") : t("ranks.inj.d")}</span>` : "";
   // On FLEX the position and its own rank lead the game line, the card's "RB3".
   const pos = flex ? `<b class="rk-pos" data-testid="ranks-row-pos">${esc(r.pos)}${r.rank}</b>` : "";
@@ -79,7 +79,7 @@ function rkRowHTML(r, place, mine, flex){
     <span class="rk-who"><span class="rk-nm"><span class="rk-nmt">${esc(nameInitial(r.n))}</span>${mine ? `<i class="rk-mine">${t("ranks.row.mine")}</i>` : ""}${tagRowHTML(r, "ranks-row")}</span>
       <span class="rk-game">${pos}<span>${rkGame(r)}</span>${inj}</span></span>
     <span class="rk-mu">${rkMakeup(r)}</span>
-    <span class="rk-pts" data-testid="ranks-pts">${rkShown(r).toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>
+    ${sort === "pts" ? `<span class="rk-pts" data-testid="ranks-pts">${rkShown(r).toFixed(1)}${rkRangeHTML(r)}${rkMatchupHTML(r)}</span>` : rkAnswerHTML(r, sort)}
   </button>`;
 }
 
@@ -126,18 +126,21 @@ function ranksHTML(){
   const posName = pos === "FLEX" ? t("ranks.filter.flex") : pos;
   const wk = schedWeek();
   const title = wk ? t("ranks.head.title", {week: wk, pos: posName}) : t("ranks.head.titleNoWeek", {pos: posName});
-  const offLine = schedOffLine(LIVE_RANKS.off || []), off = offLine ? " " + offLine : "";
-  // The band is said in words once per list, only when a row draws one (plan U5).
-  const band = list.some(rangeFrom) ? " " + t("range.note") : "";
+  // One line above the list, the rest behind its ⓘ (STYLE.md "Density", 2026-11-13): the scoring, the band and the
+  // boom/bust bars are said in words once per list, the teams left off after them (odds.js rkExplainHTML).
+  const off = schedOffLine(LIVE_RANKS.off || []), sort = rkSortOf(list);
+  const flex = pos === "FLEX", sorts = rkSortsHTML(list), posRow = rkChipsHTML(pos, extra);
+  // A desktop's position chips and the sort share one row of controls (STYLE.md); a phone's positions are the strip.
   return `<div class="wrap rk">
-    ${chips}
-    <div class="rk-headline"><div><h2>${title}</h2><p data-testid="ranks-sub">${t("ranks.head.sub", {scoring: esc(LIVE_RANKS.scoring || "")})}${band}${off}</p></div>${rkSchedHTML()}</div>
-    <div class="rk-list">${rkTiersHTML(list, pos === "FLEX")}</div>
+    ${rkViewsHTML()}${sorts ? `<div class="rk-ctl">${posRow}${sorts}</div>` : posRow}
+    <div class="rk-headline"><div><h2>${title}</h2>${rkExplainHTML(list, pos, sort, esc(LIVE_RANKS.scoring || ""), off)}</div>${rkSchedHTML()}</div>
+    <div class="rk-list">${sort === "pts" ? rkTiersHTML(list, flex) : rkSortedHTML(list, flex, sort)}</div>
   </div>`;
 }
 
 function wireRanks(v){
   v.querySelectorAll("[data-rkview]").forEach(b => b.addEventListener("click", () => rkSelectView(b.dataset.rkview)));
+  wireRkSorts(v);
   if (rkView() === "ros") wireRos(v);
   v.querySelectorAll("[data-rkpos]").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.rkpos === RK_POS) return;

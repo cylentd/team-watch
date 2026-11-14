@@ -103,18 +103,19 @@ def _matchup(p, key="pts"):
 def live_ranks(raw, slugify, status=None, schedule=None, week_ranks=None):
     """LIVE_RANKS: {scoring, week, off, from, rows, flex}. With ff-jarvis's week_ranks (design/week_ranks.py) the lists
     are theirs (`from` "week_ranks", ledger #23, 2026-10-08); without the file it is the old cut from the projections
-    (`from` "projections", None when ff-jarvis has not written those either), kept as the fallback."""
+    (`from` "projections", None when ff-jarvis has not written those either), kept as the fallback. `bars` is the boom and
+    bust bars either way (`_bars`), null without them."""
     players = (raw or {}).get("players") or []
-    if week_ranks:
-        return _from_lists(week_ranks, players, slugify)
-    return _from_projections(raw, slugify, status, schedule)
+    block = _from_lists(week_ranks, players, slugify) if week_ranks else _from_projections(raw, slugify, status, schedule)
+    return {**block, "bars": _bars(raw)} if block else None
 
 
 def _from_projections(raw, slugify, status=None, schedule=None):
     """The old cut: {scoring, week, off, from, rows, flex}, or None when ff-jarvis has not written the file.
-    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil, rank, tier}, best
-    first (`floor` and `ceil`: ff-jarvis's 10th and 90th percentile outcome, null without a band, never computed
-    here). Every position, running backs too, orders and tiers by `pts` (ledger #96, 2026-10-09; a back followed the
+    Both lists hold {slug, n, pos, team, opp, home, kick, inj, mu, mx, mxp, pts, floor, ceil, boom, bust, p95, rank,
+    tier}, best first (`floor` and `ceil`: ff-jarvis's 10th and 90th percentile outcome, null without a band; `boom`
+    and `bust` the chance, 0-1, of his position's boom bar or more and under its bust bar, `p95` the 95th percentile,
+    2026-11-13, null in a file from before them; none computed here). Every position, running backs too, orders and tiers by `pts` (ledger #96, 2026-10-09; a back followed the
     books' `rank_pts` until then, with a "No line" flag, ff-jarvis METHODOLOGY 12.86 and 12.87).
     `rows` is every position's list one after another, each tiered on its own; `flex` is RB/WR/TE
     together, tiered together. `rank` is the place at the position in this week's list, on a FLEX
@@ -159,7 +160,15 @@ def _row(p, slug):
             "mu": _makeup(p.get("mu"), p.get("pos")), "mx": _matchup(p), "mxp": _matchup(p, "priced"),
             "pts": round(p["pts"], 2) if p.get("pts") is not None else None,
             "shown": round(p["pts"], 2) if p.get("pts") is not None else None, "floor": p.get("floor"), "ceil": p.get("ceil"),
+            "boom": p.get("boom"), "bust": p.get("bust"), "p95": p.get("p95"),
             "rank": None, "tier": None}
+
+
+def _bars(raw):
+    """The boom and bust bars, {boom: {pos: points}, bust: {...}}, off the projections file's `ranges.bars` block
+    (ff-jarvis b064481, 2026-11-13), or None when the file has no such block (one from before it)."""
+    bars = ((raw or {}).get("ranges") or {}).get("bars") or {}
+    return {k: bars[k] for k in ("boom", "bust")} if all(isinstance(bars.get(k), dict) for k in ("boom", "bust")) else None
 
 
 def _from_lists(doc, players, slugify):

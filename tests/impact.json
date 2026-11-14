@@ -134,6 +134,11 @@
       "tests": ["tests/test_ranks.py", "tests/test_week_ranks.py","tests/test_ranks_dst.py", "tests/test_js_dst.py", "tests/test_ros.py", "tests/test_ros_fp.py", "tests/test_js_ros.py", "tests/test_ros_view.py"],
       "render": ["ranks"]
     },
+    "rankodds": {
+      "paths": ["design/src/js/data/outcome.js", "tests/test_js_outcome.py", "tests/test_ranks_outcome.py", "tests/test_ranks_odds_view.py"],
+      "tests": ["tests/test_js_outcome.py", "tests/test_ranks_outcome.py", "tests/test_ranks_odds_view.py"],
+      "render": []
+    },
     "tags": {
       "paths": ["design/player_tags.py", "design/src/js/data/tags.js", "design/src/js/ui/tags.js", "design/src/css/component/tags.css"],
       "tests": ["tests/test_player_tags.py", "tests/test_js_tags.py", "tests/test_tags_view.py"],

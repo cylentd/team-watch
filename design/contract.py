@@ -30,8 +30,10 @@ from contract_checks import WIRE_EVENT, WIRE_KIND, WIRE_KIND_OPTIONAL, WIRE_OPTI
 # null; `mx` (the points the defense adds or takes, ff-jarvis `matchup.pts`) and `mxp` (the part of
 # it already in `pts`, `matchup.priced`) are null for every WR.
 RANK_ROW = ["slug", "n", "pos", "team", "opp", "home", "kick", "inj", "mu", "mx", "mxp", "pts", "shown", "floor", "ceil",
-            "rank", "tier"]
+            "boom", "bust", "p95", "rank", "tier"]
 # `shown` (2026-10-08): the number the row prints, the one its rank is built on (`pts` stays our projection).
+# `boom`, `bust`, `p95` (2026-11-13, ff-jarvis b064481): optional in the sense that they may be null, in a projections
+# file from before them; the page then draws no odds and offers no Upside or Safe sort.
 # design/recap.py: a player's day, and a kicker's or a defense's (`slug` null for a defense).
 RECAP_ROW = ["n", "slug", "pos", "team", "game_id", "actual", "proj", "diff", "line",
              "pass_td", "rush_td", "rec_td", "ret_td"]
@@ -198,7 +200,8 @@ CONTRACT = {
     # `flex`, each tiered by natural breaks, one week only: `week` is null with no schedule, and
     # `off` lists the teams whose next game is a later week (a Thursday game already played, a bye).
     "LIVE_RANKS": {
-        "keys": ["scoring", "week", "off", "from", "rows", "flex"],   # `from`: "week_ranks" | "projections" (the fallback)
+        # `from`: "week_ranks" | "projections" (the fallback); `bars`: the boom and bust bars, null without them
+        "keys": ["scoring", "week", "off", "from", "rows", "flex", "bars"],
         "rows": [("rows", RANK_ROW), ("flex", RANK_ROW)],
     },
     # design/signed.py: page players who finished top 3 at their position in the last completed

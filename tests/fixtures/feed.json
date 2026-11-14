@@ -134,7 +134,7 @@
    "from_lines": 0,
    "moved": 0,
    "not_playing": 0,
-   "ranges": {"floor": "10th percentile outcome in points, given he plays; 0 when pts is 0", "ceil": "90th percentile outcome in points, given he plays; 0 when pts is 0", "fit_seasons": [2018, 2025], "holdout_season": 2025, "holdout_coverage": 0.8234, "source": "model/market/ranges.json"},
+   "ranges": {"floor": "10th percentile outcome in points, given he plays; 0 when pts is 0", "ceil": "90th percentile outcome in points, given he plays; 0 when pts is 0", "boom": "chance he scores at or above the boom bar for his position, 0-1; 0 when pts is 0", "bust": "chance he scores under the bust bar for his position, 0-1; 1 when pts is 0", "p95": "95th percentile outcome in points, given he plays, never below ceil; 0 when pts is 0", "bars": {"boom": {"QB": 25, "RB": 20, "WR": 20, "TE": 15}, "bust": {"QB": 12, "RB": 8, "WR": 8, "TE": 5}, "unit": "half-PPR points"}, "fit_seasons": [2018, 2025], "holdout_season": 2025, "holdout_coverage": 0.8234, "source": "model/market/ranges.json"},
    "weather_adjust": {
     "since": "2026-09-26",
     "cells": {"wind": {"QB": -1.33, "WR": -0.5, "TE": -0.43}, "precip": {"WR": -0.56}},
@@ -157,6 +157,9 @@
      "game": "CIN @ NYJ",
      "kickoff": "2026-09-13 17:00:00",
      "pts": 19.4,
+     "boom": 0.22,
+     "bust": 0.14,
+     "p95": 33.0,
      "floor": 8.4,
      "ceil": 28.8,
      "mu": {
@@ -181,6 +184,9 @@
      "game": "SEA @ SF",
      "kickoff": "2026-09-14 00:20:00",
      "pts": 18.1,
+     "boom": 0.19,
+     "bust": 0.16,
+     "p95": 31.9,
      "floor": 7.3,
      "ceil": 27.6,
      "mu": {
@@ -207,6 +213,9 @@
      "game": "CIN @ NYJ",
      "kickoff": "2026-09-13 17:00:00",
      "pts": 16.2,
+     "boom": 0.27,
+     "bust": 0.17,
+     "p95": 31.6,
      "floor": 7.0,
      "ceil": 27.8,
      "mu": {
@@ -233,6 +242,9 @@
      "game": "CIN @ NYJ",
      "kickoff": "2026-09-13 17:00:00",
      "pts": 15.0,
+     "boom": 0.29,
+     "bust": 0.19,
+     "p95": 30.1,
      "floor": 6.4,
      "ceil": 26.0,
      "mu": {
@@ -260,6 +272,9 @@
      "game": "SEA @ SF",
      "kickoff": "2026-09-14 00:20:00",
      "pts": 3.1,
+     "boom": 0.01,
+     "bust": 0.86,
+     "p95": 10.4,
      "floor": 0.9,
      "ceil": 8.2,
      "mu": {
@@ -289,6 +304,9 @@
      "game": "SEA @ SF",
      "kickoff": "2026-09-14 00:20:00",
      "pts": 13.6,
+     "boom": 0.37,
+     "bust": 0.12,
+     "p95": 25.9,
      "floor": 6.4,
      "ceil": 22.1,
      "mu": {
@@ -313,6 +331,9 @@
      "game": "DET @ GB",
      "kickoff": "2026-09-15 00:15:00",
      "pts": 17.3,
+     "boom": 0.33,
+     "bust": 0.11,
+     "p95": 31.4,
      "floor": 8.2,
      "ceil": 27.5,
      "mu": {

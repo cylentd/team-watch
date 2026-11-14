@@ -48,6 +48,21 @@
 /* Floor and ceiling, the smaller line under the projection (plan U5). Quiet: it is context for the number. */
 .rk-rng{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--t-1);font-weight:500;color:var(--ink-3);
   font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+/* Upside and Safe (2026-11-13, density redo): the percent takes the points' place at the same size, its word small
+   beside it, the points small under it in the range's slot. Nothing else in the column. */
+.rk-ans{text-align:right;white-space:nowrap}
+.rk-answ{margin-left:3px;font-size:var(--t-1);font-weight:500;color:var(--ink-3)}
+.rk-sorted{padding-top:4px}
+.rk-sorted .rk-mu{display:none}
+/* The explainer: one line, its ⓘ a 24px tap target on the line's end; the full definition opens under it. */
+.rk-headline .rk-sub{display:flex;align-items:center;gap:2px}
+.rk-info{appearance:none;border:0;background:none;color:var(--ink-3);font:inherit;font-size:var(--t-2);cursor:pointer;
+  display:grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:none}
+.rk-info:hover,.rk-info[aria-expanded="true"]{color:var(--ink)}
+.rk-info:focus-visible{outline:2px solid var(--lime);outline-offset:0}
+.rk-headline .rk-more{margin-top:4px;color:var(--ink-2)}
+/* A desktop's position chips and the sort share one row; the gap between the two groups is the only free space. */
+.rk-ctl{display:flex;flex-wrap:wrap;align-items:center;column-gap:20px}
 .rk-mx.up{color:var(--up)}
 .rk-mx.dn{color:var(--down)}
 .rk-inj{flex:none;font-family:var(--mono);font-size:var(--t-1);font-weight:700;letter-spacing:.04em;color:var(--amber)}
@@ -56,6 +71,7 @@
 @media (min-width:760px){
   .rk-row{grid-template-columns:28px 34px minmax(200px,280px) minmax(0,1fr) 72px;gap:14px;padding:4px 20px}
   .rk-mu{display:block}
+  .rk-sorted .rk-row{grid-template-columns:28px 34px minmax(0,1fr) max-content}
   .rk-pts{text-align:right}
   .rk-tier{padding:12px 20px 6px}
 }
@@ -66,6 +82,11 @@
 @media (min-width:1100px){
   .rk-list{display:block;columns:2;column-gap:16px;max-width:none}
   .rk-group{break-inside:avoid;margin-bottom:10px;container-type:inline-size}
+  /* A sorted list (Upside, Safe) is one long panel, so it spans both columns and holds its rows two across, read left to
+     right: a list longer than a screen reads in rows (1 2, 3 4), never down one column and back up. */
+  .rk-sorted{column-span:all;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px}
+  /* Each half is under 600px, the width the stat line needs (the tier columns' rule below), so it goes here too. */
+  .rk-sorted .rk-row{grid-template-columns:28px 34px minmax(0,1fr) max-content}
   .rk-row{grid-template-columns:28px 34px minmax(150px,1fr) max-content 72px}
   @container (max-width:599px){
     .rk-row{grid-template-columns:28px 34px minmax(0,1fr) 72px}

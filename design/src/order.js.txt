@@ -14,6 +14,7 @@ data/teams.js
 data/signals.js
 data/lede.js
 data/rbrules.js
+data/outcome.js
 data/hydrate.js
 data/connect.js
 data/mates.js
@@ -138,6 +139,7 @@ surface/ranks/ranks.js
 surface/ranks/dst.js
 surface/ranks/roschart.js
 surface/ranks/ros.js
+surface/ranks/odds.js
 data/weather.js
 data/wxhistory.js
 surface/weather/card.js
