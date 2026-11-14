@@ -4626,7 +4626,7 @@
   "tests/test_range_view.py::page": "6a270d969152352e",
   "tests/test_range_view.py::picker_lane": "071d8542358a7552",
   "tests/test_range_view.py::profile_strip": "d7b7034b2f55ab8f",
-  "tests/test_range_view.py::ranks_row": "a5de7c9170d856a7",
+  "tests/test_range_view.py::ranks_row": "39c024036fd87f16",
   "tests/test_range_view.py::test_a_player_with_no_band_draws_no_range_and_no_note": "8dfa23e1b2e13974",
   "tests/test_range_view.py::test_each_view_says_what_the_band_is_once": "735574afd1a26742",
   "tests/test_range_view.py::test_nothing_scrolls_sideways_at_360_with_a_band_in_the_view": "e78d8d3b40df238f",

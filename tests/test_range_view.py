@@ -42,7 +42,7 @@ def ranks_row(pg, slug="joe-burrow"):
     return pg.evaluate("""(slug) => { const r = document.querySelector(`[data-rkopen='${slug}']`);
       return {pts: r.querySelector('.rk-pts').childNodes[0].textContent.trim(),
               band: (r.querySelector('.rk-rng') || {}).textContent || null,
-              notes: document.querySelectorAll('.rk-headline p').length ? document.querySelector('.rk-headline p').textContent : ''}; }""", slug)
+              notes: [...document.querySelectorAll('.rk-headline p')].map(p => p.textContent).join(' ')}; }""", slug)
 
 
 def profile_strip(pg, slug="joe-burrow"):
