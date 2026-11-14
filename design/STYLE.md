@@ -194,6 +194,23 @@ information; if it says nothing a still frame does not, cut it.
 The springs are `linear()` curves sampled from a damped spring (`tokens.css`); no motion library
 loads. A new curve or duration is a new token, never a literal in a component.
 
+## Density: a row reads in one glance
+
+Decided 2026-11-13 (David, on the first Ranks boom/bust build: "super compact and clutter ...
+readability is important"). That build fit 360px with no name cut and still failed: each row went
+from 2 lines to 3, beside 3 stacked numbers, under a 6-line explainer. Fitting is not reading.
+
+| Budget | Per list row, at 360px |
+|---|---|
+| Lines | 2 |
+| Numbers | 3, the answer at hero size and at most 2 small |
+| Explainer above a list | 1 line; the full definition behind an ⓘ or a tap |
+
+- A change never makes a view denser without a written reason (in `DESIGN.md`, under the view).
+  Adding a field means taking one away, or moving it one tap down (Answer first, above).
+- A sort or mode shows the number it sorts by as the answer, and hides the ones it does not use.
+- The eye lands on one thing per row. Name it; if you cannot, the row has too many answers.
+
 ## Before a view lands
 
 1. Screenshot it at 360px, then desktop, including the next page and an empty state. On the
@@ -214,6 +231,8 @@ loads. A new curve or duration is a new token, never a literal in a component.
    tabs are the one exception) and nothing loops while the page is idle.
 9. `tests/test_gaps.py` passes: no row, track or fixed-size card piles its free space in one gap
    (Gaps, above).
+10. Density (above): put the before and after 360px screenshots side by side, count lines and
+    numbers per row, and say in the report whether the view got denser and why.
 
 The playable motion reference is the Bets storyboard, published 2026-09-25:
 https://claude.ai/artifact/LQVFzVaNCNKhWWBHzHAL7L
