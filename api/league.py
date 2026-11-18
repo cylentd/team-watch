@@ -18,6 +18,7 @@ in their own browser, where espn.com already keeps the same two values readable 
 """
 
 import base64
+import hashlib
 import json
 import os
 import re
@@ -118,7 +119,10 @@ def league_card(body, entry):
 
 
 def read_league(entry):
-    key = (entry["lid"], bool(entry.get("s2")))
+    # Keyed on the credentials themselves: a private league's body must reach only the visitor whose
+    # cookies fetched it. Hashed so the secret is never a dict key in a log or traceback.
+    creds = hashlib.sha256(f'{entry.get("swid") or ""}\x00{entry.get("s2") or ""}'.encode("utf-8")).hexdigest()
+    key = (entry["lid"], creds if entry.get("s2") or entry.get("swid") else "")
     hit = _memo.get(key)
     if hit and time.time() - hit[0] < MEMO_S:
         return hit[1]
