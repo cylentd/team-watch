@@ -226,7 +226,7 @@
     },
     "connect": {
       "paths": ["design/src/js/data/connect.js", "design/src/js/chrome/connect.js", "api/league.py"],
-      "tests": ["tests/test_league.py", "tests/test_render_connect.py"],
+      "tests": ["tests/test_league.py", "tests/test_league_memo.py", "tests/test_render_connect.py"],
       "render": []
     },
     "land": {

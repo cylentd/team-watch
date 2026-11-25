@@ -18,6 +18,7 @@ in their own browser, where espn.com already keeps the same two values readable 
 """
 
 import base64
+import hashlib
 import json
 import os
 import re
@@ -117,8 +118,16 @@ def league_card(body, entry):
             "roster": roster_rows(body, entry["tid"])}
 
 
+def _cred_key(swid, s2):
+    """Memo key for who is asking: None for a public read, else a hash of both cookies, so a visitor
+    who sends some other espn_s2 never gets the owner's cached body (and no cookie sits in the key)."""
+    if not s2:
+        return None
+    return hashlib.sha256(f"{swid or ''}\0{s2}".encode()).hexdigest()
+
+
 def read_league(entry):
-    key = (entry["lid"], bool(entry.get("s2")))
+    key = (entry["lid"], _cred_key(entry.get("swid"), entry.get("s2")))
     hit = _memo.get(key)
     if hit and time.time() - hit[0] < MEMO_S:
         return hit[1]
